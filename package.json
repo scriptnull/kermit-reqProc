@@ -1,0 +1,62 @@
+{
+  "name": "shippable.reqproc",
+  "license": "UNLICENSED",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Shippable/micro.git"
+  },
+  "scripts": {
+    "lint": "jshint --exclude ./node_modules ."
+  },
+  "dependencies": {
+    "amqp": "0.2.6",
+    "async": "2.0.0",
+    "diskusage": "0.2.2",
+    "fs-extra": "0.30.0",
+    "node-uuid": "1.4.7",
+    "request": "2.73.0",
+    "underscore": "1.8.3",
+    "winston": "2.2.0"
+  },
+  "jshintConfig": {
+    "node": true,
+    "jquery": true,
+    "undef": true,
+    "noarg": true,
+    "white": true,
+    "esnext": true,
+    "strict": true,
+    "newcap": true,
+    "nonbsp": true,
+    "eqeqeq": true,
+    "unused": true,
+    "maxlen": 80,
+    "indent": 2,
+    "bitwise": true,
+    "noempty": true,
+    "latedef": "nofunc",
+    "maxdepth": 5,
+    "quotmark": "single",
+    "trailing": true,
+    "maxparams": 18,
+    "globalstrict": true,
+    "maxcomplexity": 20,
+    "maxstatements": 50,
+    "predef": [
+      "logger",
+      "process",
+      "config",
+      "AMQP",
+      "server",
+      "util",
+      "async",
+      "ActErr",
+      "msName",
+      "_"
+    ]
+  },
+  "devDependencies": {
+    "jshint": "^2.9.5"
+  }
+}
