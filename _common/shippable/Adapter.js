@@ -141,14 +141,6 @@ ShippableAdapter.prototype.getBuildJobs =
     );
   };
 
-ShippableAdapter.prototype.getJobCoverageReportsByJobId =
-  function (jobId, callback) {
-    this.get(
-      util.format('/jobs/%s/jobCoverageReports', jobId),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.getBuildJobConsolesByBuildJobId =
   function (buildJobId, query, callback) {
     this.get(
@@ -198,30 +190,6 @@ ShippableAdapter.prototype.getFilesByResourceId =
     );
   };
 
-ShippableAdapter.prototype.getJobs =
-  function (query, callback) {
-    this.get(
-      util.format('/jobs?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getJobById =
-  function (jobId, callback) {
-    this.get(
-      util.format('/jobs/%s', jobId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getCollaboratorByProjectId =
-  function (projectId, callback) {
-    this.get(
-      util.format('/projects/%s/validCollaborator', projectId),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.getJobStateMaps =
   function (query, callback) {
     this.get(
@@ -238,43 +206,11 @@ ShippableAdapter.prototype.getMasterIntegrations =
     );
   };
 
-ShippableAdapter.prototype.getOwnerByProjectId =
-  function (projectId, callback) {
-    this.get(
-      util.format('/projects/%s/validOwner', projectId),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.getPlanById =
   function (id, callback) {
     this.get(
       util.format('/plans/%s', id),
       callback);
-  };
-
-ShippableAdapter.prototype.getProjects =
-  function (query, callback) {
-    this.get(
-      util.format('/projects?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getProjectAccounts =
-  function (query, callback) {
-    this.get(
-      util.format('/projectAccounts?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getProjectById =
-  function (id, callback) {
-    this.get(
-      util.format('/projects/%s', id),
-      callback
-    );
   };
 
 ShippableAdapter.prototype.getProviderById =
@@ -305,29 +241,6 @@ ShippableAdapter.prototype.getResourceById =
   function (resourceId, callback) {
     this.get(
       util.format('/resources/%s', resourceId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getRunById =
-  function (runId, callback) {
-    this.get(
-      util.format('/runs/%s', runId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.cancelRunById =
-  function (runId, callback) {
-    this.post(
-      util.format('/runs/%s/cancel', runId), {}, callback
-    );
-  };
-
-ShippableAdapter.prototype.getRuns =
-  function (query, callback) {
-    this.get(
-      util.format('/runs?%s', query),
       callback
     );
   };
@@ -476,12 +389,6 @@ ShippableAdapter.prototype.getTransactions =
     );
   };
 
-ShippableAdapter.prototype.getValidCollaboratorByProjectId =
-  function (projectId, callback) {
-    var url = '/projects/' + projectId + '/validCollaborator';
-    this.get(url, callback);
-  };
-
 ShippableAdapter.prototype.getVersionById =
   function (versionId, callback) {
     this.get(
@@ -583,14 +490,6 @@ ShippableAdapter.prototype.deleteClusterNodeStatsByClusterNodeId =
     );
   };
 
-ShippableAdapter.prototype.deleteProjectAccountById =
-  function (ProjAccId, callback) {
-    this.delete(
-      util.format('/projectAccounts/%s', ProjAccId),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.deleteResourceById =
   function (resourceId, query, callback) {
     this.delete(
@@ -624,15 +523,6 @@ ShippableAdapter.prototype.deleteVersionById =
   };
 
 //#######################  POST  by alphabetical order  ########################
-
-ShippableAdapter.prototype.enableProjectById =
-  function (projectId, json, callback) {
-    this.post(
-      util.format('/projects/%s/enable', projectId),
-      json,
-      callback
-    );
-  };
 
 ShippableAdapter.prototype.postBuild =
   function (json, callback) {
@@ -688,47 +578,6 @@ ShippableAdapter.prototype.postSystemNodeStats =
     );
   };
 
-ShippableAdapter.prototype.postJob =
-  function (json, callback) {
-    this.post(
-      '/jobs',
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getArtifactUrlByJobId =
-  function (jobId, query, callback) {
-    this.get(
-      util.format('/jobs/%s/artifactUrl?%s', jobId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getJobConsolesByJobId =
-  function (jobId, query, callback) {
-    this.get(
-      util.format('/jobs/%s/consoles?%s', jobId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postJobConsoleByJobId =
-  function (jobId, body, callback) {
-    this.post(
-      util.format('/jobs/%s/postConsoles', jobId),
-      body,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteJobConsolesByJobId =
-  function (jobId, query, callback) {
-    var url = util.format('/jobs/%s/consoles?%s',
-      jobId, query);
-    this.delete(url, callback);
-  };
-
 ShippableAdapter.prototype.postOfflineAccount =
   function (json, callback) {
     this.post(
@@ -738,28 +587,10 @@ ShippableAdapter.prototype.postOfflineAccount =
     );
   };
 
-ShippableAdapter.prototype.postProjectAccounts =
-  function (json, callback) {
-    this.post(
-      '/projectAccounts',
-      json,
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.postResource =
   function (json, callback) {
     this.post(
       '/resources',
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postScmProject =
-  function (json, callback) {
-    this.post(
-      '/projects/postScm',
       json,
       callback
     );
@@ -864,15 +695,6 @@ ShippableAdapter.prototype.postTransaction =
     );
   };
 
-ShippableAdapter.prototype.triggerNewBuildByProjectId =
-  function (projectId, json, callback) {
-    this.post(
-      util.format('/projects/%s/newBuild', projectId),
-      json,
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.triggerNewBuildByResourceId =
   function (resourceId, json, callback) {
     this.post(
@@ -930,38 +752,11 @@ ShippableAdapter.prototype.putClusterNodeById =
     );
   };
 
-ShippableAdapter.prototype.putJobById =
-  function (id, json, callback) {
-    this.put(
-      util.format('/jobs/%s', id),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.putProjectById =
-  function (id, json, callback) {
-    this.put(
-      util.format('/projects/%s', id),
-      json,
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.putResourceById =
   function (id, json, callback) {
     this.put(
       util.format('/resources/%s', id),
       json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.putRunById =
-  function (runId, body, callback) {
-    this.put(
-      util.format('/runs/%s', runId),
-      body,
       callback
     );
   };

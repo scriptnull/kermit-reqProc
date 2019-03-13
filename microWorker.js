@@ -8,7 +8,6 @@ var exec = require('child_process').exec;
 
 var pathPlaceholder = '{{TYPE}}';
 var workflowPath = './workflows/' + pathPlaceholder + '.js';
-var JobConsoleAdapter = require('./_common/jobConsoleAdapter.js');
 var BuildJobConsoleAdapter = require('./_common/buildJobConsoleAdapter.js');
 
 function microWorker(message) {
@@ -58,12 +57,7 @@ function _instantiateConsoleAdapter(bag, next) {
   var who = bag.who + '|' + _instantiateConsoleAdapter.name;
   logger.verbose(who, 'Inside');
 
-  if (bag.rawMessage.jobId) {
-    bag.workflow = 'ci';
-    bag.consoleAdapter = new JobConsoleAdapter(bag.rawMessage.builderApiToken,
-      bag.rawMessage.jobId, bag.rawMessage.consoleBatchSize,
-      bag.rawMessage.consoleBufferTimeIntervalInMS);
-  } else if (bag.rawMessage.buildJobId) {
+  if (bag.rawMessage.buildJobId) {
     bag.workflow = 'runSh';
     var batchSize = bag.rawMessage.consoleBatchSize ||
       (global.systemSettings && global.systemSettings.jobConsoleBatchSize);
@@ -75,8 +69,7 @@ function _instantiateConsoleAdapter(bag, next) {
       bag.rawMessage.builderApiToken, bag.rawMessage.buildJobId,
       batchSize, timeInterval);
   } else {
-    logger.warn(util.format('%s, No job/buildJob ID ' +
-      'in incoming message', who));
+    logger.warn(util.format('%s, No buildJob ID in incoming message', who));
     return next(true);
   }
 
@@ -86,10 +79,6 @@ function _instantiateConsoleAdapter(bag, next) {
 function _applyWorkflowStrategy(bag, next) {
   var who = bag.who + '|' + _applyWorkflowStrategy.name;
   logger.verbose(who, 'Inside');
-
-  if (bag.workflow === 'ci')
-    if (bag.rawMessage.payload && bag.rawMessage.payload.resourceId)
-      bag.workflow = 'runCI';
 
   var strategyPath = workflowPath.replace(pathPlaceholder, bag.workflow);
   var workflowStrategy;
