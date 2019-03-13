@@ -276,16 +276,6 @@ function _postOutResourceVersions(bag, next) {
         replicateOnPullRequest =
           dependency.versionDependencyPropertyBag.replicateOnPullRequest;
 
-      // currently ciRepo version comparision and creation is done
-      // in its outStep.js file. This is handled separately, as .env file
-      // only allows string values and we need json support
-      // currently state version comparison and creation is done in
-      // its outStep.js file
-
-      if (dependency.type === 'ciRepo' && !replicate) {
-        return nextStep();
-      }
-
       var innerBag = {
         who: bag.who,
         consoleAdapter: bag.consoleAdapter,
@@ -382,23 +372,11 @@ function __readVersionJson(bag, next) {
         if (bag.dependency.type === 'params')
           freshPropertyBag.params = {};
 
-        // shaData is set on OUTs by ciRepo and state
+        // shaData is set on OUTs by state
         if (resource.version && resource.version.propertyBag &&
             _.has(resource.version.propertyBag, 'shaData'))
           freshPropertyBag.shaData =
             resource.version.propertyBag.shaData;
-
-        // webhookRequestHeaders is set on OUTs by ciRepo
-        if (resource.version && resource.version.propertyBag &&
-          _.has(resource.version.propertyBag, 'webhookRequestHeaders'))
-          freshPropertyBag.webhookRequestHeaders =
-            resource.version.propertyBag.webhookRequestHeaders;
-
-        // webhookRequestBody is set on OUTs by ciRepo
-        if (resource.version && resource.version.propertyBag &&
-          _.has(resource.version, 'webhookRequestBody'))
-          freshPropertyBag.webhookRequestBody =
-            resource.version.propertyBag.webhookRequestBody;
 
         bag.versionJson.propertyBag = freshPropertyBag;
       }
@@ -437,8 +415,7 @@ function __readReplicatedVersionJson(bag, next) {
       bag.versionJson.versionName = resource.version.versionName;
 
       if (bag.dependency.type === 'gitRepo' ||
-        bag.dependency.type === 'syncRepo' ||
-        bag.dependency.type === 'ciRepo') {
+        bag.dependency.type === 'syncRepo') {
         var propertyBag = resource.version.propertyBag || {};
         bag.versionJson.propertyBag = {
           shaData: propertyBag.shaData,
