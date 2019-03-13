@@ -126,7 +126,6 @@ function __validateClusterNode(innerBag, done) {
         innerBag.skipAllSteps = false;
 
       async.series([
-          __removeCexecContainer.bind(null, innerBag),
           __restartExecContainer.bind(null, innerBag),
           __stopExecContainer.bind(null, innerBag)
         ],
@@ -171,7 +170,6 @@ function __validateSystemNode(innerBag, done) {
         innerBag.skipAllSteps = false;
 
       async.series([
-          __removeCexecContainer.bind(null, innerBag),
           __restartExecContainer.bind(null, innerBag),
           __stopExecContainer.bind(null, innerBag)
         ],
@@ -191,24 +189,6 @@ function __validateSystemNode(innerBag, done) {
             return done();
         }
       );
-    }
-  );
-}
-
-function __removeCexecContainer(bag, next) {
-  if (bag.skipAllSteps) return next();
-
-  var who = bag.who + '|' + __removeCexecContainer.name;
-  logger.debug(who, 'Inside');
-
-  exec('docker ps | grep \'c.exec.\' | awk \'{print $1}\' |' +
-    ' xargs -I {} docker rm -fv {}',
-    function (err) {
-      if (err)
-        logger.error(
-          util.format('Failed to stop cexec container with err:%s', err)
-        );
-      return next(err);
     }
   );
 }
