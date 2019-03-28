@@ -23,7 +23,7 @@ function microWorker(message) {
       else
         logger.info(bag.who, util.format('Successfully processed message'));
 
-      __restartContainer();
+      __restartContainer(bag);
     }
   );
 }
@@ -53,7 +53,7 @@ function _checkInputParams(bag, next) {
   return next();
 }
 
-function __restartContainer() {
+function __restartContainer(bag) {
   var who = bag.who + '|' + __restartContainer.name;
   logger.verbose(who, 'Inside');
 

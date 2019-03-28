@@ -29,7 +29,7 @@ function setupMS(params) {
   global.config.reqProcDir = process.env.REQPROC_DIR;
   global.config.reqExecDir = process.env.REQEXEC_DIR;
   global.config.reqKickDir = process.env.REQKICK_DIR;
-  global.config.buildDir = process.env.BUILD_DIR;
+  global.config.runDir = process.env.RUN_DIR;
   global.config.reqProcContainerName = process.env.REQPROC_CONTAINER_NAME;
   global.config.defaultTaskContainerMounts =
     process.env.DEFAULT_TASK_CONTAINER_MOUNTS;
