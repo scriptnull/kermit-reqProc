@@ -44,8 +44,8 @@ if (!global.config.reqExecDir)
 if (!global.config.reqKickDir)
   consoleErrors.push(util.format('%s is missing: reqKickDir', who));
 
-if (!global.config.buildDir)
-  consoleErrors.push(util.format('%s is missing: buildDir', who));
+if (!global.config.runDir)
+  consoleErrors.push(util.format('%s is missing: runDir', who));
 
 if (!global.config.reqProcContainerName)
   consoleErrors.push(util.format('%s is missing: reqProcContainerName', who));
@@ -107,9 +107,9 @@ if (!_dirExistsSync(global.config.reqKickDir))
   consoleErrors.push(util.format('%s is missing directory: %s', who,
     global.config.reqKickDir));
 
-if (!_dirExistsSync(global.config.buildDir))
+if (!_dirExistsSync(global.config.runDir))
   consoleErrors.push(util.format('%s is missing directory: %s', who,
-    global.config.buildDir));
+    global.config.runDir));
 
 if (consoleErrors.length > 0) {
   _.each(consoleErrors,
