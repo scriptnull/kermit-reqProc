@@ -190,6 +190,16 @@ ShippableAdapter.prototype.getFilesByResourceId =
     );
   };
 
+// integrations
+
+ShippableAdapter.prototype.getIntegrations =
+  function (query, callback) {
+    this.get(
+      util.format('/integrations?%s', query),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getJobStateMaps =
   function (query, callback) {
     this.get(
@@ -245,6 +255,24 @@ ShippableAdapter.prototype.getResourceById =
     );
   };
 
+// runResourceVersions
+// TODO: Make use of the actual APIs here, when they are available
+
+ShippableAdapter.prototype.getRunResourceVersions =
+  function (query, callback) {
+    var data = [];
+    callback(null, data);
+  }
+
+// runStepConnections
+// TODO: Make use of the actual APIs here, when they are available
+
+ShippableAdapter.prototype.getRunStepConnections =
+  function (query, callback) {
+    var data = [];
+    callback(null, data);
+  }
+
 ShippableAdapter.prototype.getRuntimeTemplates =
   function (query, callback) {
     this.get(
@@ -252,6 +280,24 @@ ShippableAdapter.prototype.getRuntimeTemplates =
       callback
     );
   };
+
+// steps
+// TODO: Make use of the actual APIs here, when they are available
+
+ShippableAdapter.prototype.getSteps =
+  function (query, callback) {
+    var data = [];
+    callback(null, data);
+  }
+
+// steplets
+// TODO: Make use of the actual APIs here, when they are available
+
+ShippableAdapter.prototype.getSteplets =
+  function (query, callback) {
+    var data = [];
+    callback(null, data);
+  }
 
 ShippableAdapter.prototype.getSubscriptions =
   function (query, callback) {
