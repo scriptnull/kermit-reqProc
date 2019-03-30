@@ -116,7 +116,8 @@ MicroService.prototype.getSystemCodes = function (next) {
         return next(true);
       }
 
-      global.systemCodes = systemCodes;
+      global.systemCodesByCode = _.indexBy(systemCodes, 'code');
+      global.systemCodesByName = _.indexBy(systemCodes, 'name');
       return next();
     }
   );
