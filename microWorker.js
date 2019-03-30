@@ -12,8 +12,7 @@ var prepData = require('./step/prepData.js');
 function microWorker(message) {
   var bag = {
     rawMessage: message,
-    runDir: global.config.runDir,
-    stepIds: message.stepIds
+    runDir: global.config.runDir
   };
 
   bag.who = util.format('%s|%s', msName, self.name);
@@ -22,6 +21,8 @@ function microWorker(message) {
   async.series([
       _checkInputParams.bind(null, bag),
       _updateClusterNodeStatus.bind(null, bag),
+      _getClusters.bind(null, bag),
+      _getRuntimeTemplates.bind(null, bag),
       _initialRunDirectoryCleanup.bind(null, bag),
       _getSteps.bind(null, bag),
       _getSteplets.bind(null, bag),
@@ -60,6 +61,7 @@ function _checkInputParams(bag, next) {
 
   bag.builderApiToken = bag.rawMessage.builderApiToken;
   bag.builderApiAdapter = new Adapter(bag.rawMessage.builderApiToken);
+  bag.stepIds = bag.rawMessage.stepIds;
   return next();
 }
 
@@ -79,6 +81,57 @@ function _updateClusterNodeStatus(bag, next) {
         return next(true);
       }
 
+      bag.clusterId = clusterNode.clusterId;
+      return next();
+    }
+  );
+}
+
+function _getClusters(bag, next) {
+  var who = bag.who + '|' + _getClusters.name;
+  logger.verbose(who, 'Inside');
+
+  bag.builderApiAdapter.getClusters(util.format('clusterIds=%s', bag.clusterId),
+    function (err, clusters) {
+      if (err) {
+        logger.warn(util.format('%s, getClusters for clusterId %s failed ' +
+          'with error: %s', bag.who, bag.clusterId, err));
+        return next(true);
+      }
+
+      if (_.isEmpty(clusters)) {
+        logger.warn(util.format('%s, clusters is empty for clusterIds: %s',
+          bag.clusterId));
+        return next(true);
+      }
+
+      bag.runtimeTemplateId = clusters[0].runtimeTemplateId;
+      return next();
+    }
+  );
+}
+
+function _getRuntimeTemplates(bag, next) {
+  var who = bag.who + '|' + _getClusters.name;
+  logger.verbose(who, 'Inside');
+
+  bag.builderApiAdapter.getRuntimeTemplates(
+    util.format('runtimeTeplateIds=%s', bag.runtimeTemplateId),
+    function (err, runtimeTemplates) {
+      if (err) {
+        logger.warn(util.format('%s, getRuntimeTemplates for ' +
+          'runtimeTeplateId %s failed with error: %s', bag.who,
+          bag.runtimeTeplateId, err));
+        return next(true);
+      }
+
+      if (_.isEmpty(runtimeTemplates)) {
+        logger.warn(util.format('%s, runtimeTemplates is empty for ' +
+          'runtimeTemplateIds: %s', bag.clusterId));
+        return next(true);
+      }
+
+      bag.runtimeTemplate = runtimeTemplates[0];
       return next();
     }
   );
@@ -168,7 +221,8 @@ function __restartContainer(bag) {
     function (err) {
       if (err)
         logger.error(util.format('Failed to stop container with ' +
-          'err:%s', err));
+          'err:%s', err)
+        );
     }
   );
 }
