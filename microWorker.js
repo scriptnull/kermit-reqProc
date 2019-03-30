@@ -6,9 +6,8 @@ module.exports = self;
 var Adapter = require('./_common/shippable/Adapter.js');
 var exec = require('child_process').exec;
 
-var cleanup = require('../run/cleanup.js');
-var prepData = require('../run/prepData.js');
-
+var cleanup = require('./_common/cleanup.js');
+var prepData = require('./step/prepData.js');
 
 function microWorker(message) {
   var bag = {
@@ -24,6 +23,8 @@ function microWorker(message) {
       _checkInputParams.bind(null, bag),
       _updateClusterNodeStatus.bind(null, bag),
       _initialRunDirectoryCleanup.bind(null, bag),
+      _getSteps.bind(null, bag),
+      _getSteplets.bind(null, bag),
       _prepData.bind(null, bag)
     ],
     function (err) {
@@ -87,7 +88,11 @@ function _initialRunDirectoryCleanup(bag, next) {
   var who = bag.who + '|' + _initialRunDirectoryCleanup.name;
   logger.verbose(who, 'Inside');
 
-  cleanup(bag,
+  var innerBag = {
+    directory: bag.runDir
+  };
+
+  cleanup(innerBag,
     function (err) {
       if (err) {
         logger.warn(util.format('%s, run directory cleanup failed ' +
@@ -99,19 +104,60 @@ function _initialRunDirectoryCleanup(bag, next) {
   );
 }
 
+
+function _getSteps(bag, next) {
+  var who = bag.who + '|' + _getSteps.name;
+  logger.verbose(who, 'Inside');
+
+  var query = util.format('stepIds=%s', bag.stepIds.join(','));
+  bag.builderApiAdapter.getSteps(query,
+    function (err, steps) {
+      if (err) {
+        logger.warn(util.format('%s, getSteps for stepId %s failed ' +
+          'with error: %s', bag.who, bag.stepIds, err));
+        return next(true);
+      }
+
+      bag.steps = steps;
+      return next();
+    }
+  );
+}
+
+function _getSteplets(bag, next) {
+  var who = bag.who + '|' + _getSteplets.name;
+  logger.verbose(who, 'Inside');
+
+  var query = util.format('stepIds=%s', bag.stepIds.join(','));
+  bag.builderApiAdapter.getSteplets(query,
+    function (err, steplets) {
+      if (err) {
+        logger.warn(util.format('%s, getSteplets for stepId %s failed ' +
+          'with error: %s', bag.who, bag.step.id, err));
+        return next(true);
+      }
+
+      bag.steplets = steplets;
+      return next();
+    }
+  );
+}
+
 function _prepData(bag, next) {
   var who = bag.who + '|' + _prepData.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepId = _.first(bag.stepIds);
+
   prepData(bag,
-    function (err) {
+    function (err, resultBag) {
       if (err) {
-        bag.stepStatusCode = global.systemCodesByName('error');
+        bag.stepStatusCode = global.systemCodesByName['error'].code;
       }
+      bag = _.extend(bag, resultBag);
       return next();
     }
   );
-
 }
 
 function __restartContainer(bag) {
