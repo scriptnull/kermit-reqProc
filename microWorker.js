@@ -15,7 +15,8 @@ function microWorker(message) {
   logger.info(bag.who, 'Inside');
 
   async.series([
-      _checkInputParams.bind(null, bag)
+      _checkInputParams.bind(null, bag),
+      _updateClusterNodeStatus.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -51,6 +52,27 @@ function _checkInputParams(bag, next) {
   bag.builderApiToken = bag.rawMessage.builderApiToken;
   bag.builderApiAdapter = new Adapter(bag.rawMessage.builderApiToken);
   return next();
+}
+
+function _updateClusterNodeStatus(bag, next) {
+  var who = bag.who + '|' + _updateClusterNodeStatus.name;
+  logger.verbose(who, 'Inside');
+
+  var update = {
+    statusCode: global.systemCodesByName['PROCESSING'].code
+  };
+
+  bag.builderApiAdapter.putClusterNodeById(global.config.nodeId, update,
+    function (err, clusterNode) {
+      if (err) {
+        logger.warn(util.format('%s, putClusterNodeById for nodeId %s failed ' +
+          'with error: %s', bag.who, global.config.nodeId, err));
+        return next(true);
+      }
+
+      return next();
+    }
+  );
 }
 
 function __restartContainer(bag) {
