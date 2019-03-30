@@ -6,17 +6,25 @@ module.exports = self;
 var Adapter = require('./_common/shippable/Adapter.js');
 var exec = require('child_process').exec;
 
+var cleanup = require('../run/cleanup.js');
+var prepData = require('../run/prepData.js');
+
+
 function microWorker(message) {
   var bag = {
-      rawMessage: message
-    };
+    rawMessage: message,
+    runDir: global.config.runDir,
+    stepIds: message.stepIds
+  };
 
   bag.who = util.format('%s|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
 
   async.series([
       _checkInputParams.bind(null, bag),
-      _updateClusterNodeStatus.bind(null, bag)
+      _updateClusterNodeStatus.bind(null, bag),
+      _initialRunDirectoryCleanup.bind(null, bag),
+      _prepData.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -73,6 +81,37 @@ function _updateClusterNodeStatus(bag, next) {
       return next();
     }
   );
+}
+
+function _initialRunDirectoryCleanup(bag, next) {
+  var who = bag.who + '|' + _initialRunDirectoryCleanup.name;
+  logger.verbose(who, 'Inside');
+
+  cleanup(bag,
+    function (err) {
+      if (err) {
+        logger.warn(util.format('%s, run directory cleanup failed ' +
+          'with error: %s', bag.who, err));
+        return next(true);
+      }
+      return next();
+    }
+  );
+}
+
+function _prepData(bag, next) {
+  var who = bag.who + '|' + _prepData.name;
+  logger.verbose(who, 'Inside');
+
+  prepData(bag,
+    function (err) {
+      if (err) {
+        bag.stepStatusCode = global.systemCodesByName('error');
+      }
+      return next();
+    }
+  );
+
 }
 
 function __restartContainer(bag) {
