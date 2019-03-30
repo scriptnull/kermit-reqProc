@@ -256,21 +256,17 @@ ShippableAdapter.prototype.getResourceById =
   };
 
 // runResourceVersions
-// TODO: Make use of the actual APIs here, when they are available
-
+// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getRunResourceVersions =
   function (query, callback) {
-    var data = [];
-    callback(null, data);
+    callback(null, []);
   };
 
 // runStepConnections
-// TODO: Make use of the actual APIs here, when they are available
-
+// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getRunStepConnections =
   function (query, callback) {
-    var data = [];
-    callback(null, data);
+    callback(null, []);
   };
 
 ShippableAdapter.prototype.getRuntimeTemplates =
@@ -282,21 +278,17 @@ ShippableAdapter.prototype.getRuntimeTemplates =
   };
 
 // steps
-// TODO: Make use of the actual APIs here, when they are available
-
+// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getSteps =
   function (query, callback) {
-    var data = [];
-    callback(null, data);
+    callback(null, []);
   };
 
 // steplets
-// TODO: Make use of the actual APIs here, when they are available
-
+// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getSteplets =
   function (query, callback) {
-    var data = [];
-    callback(null, data);
+    callback(null, []);
   };
 
 ShippableAdapter.prototype.getSubscriptions =
@@ -579,15 +571,6 @@ ShippableAdapter.prototype.postBuild =
     );
   };
 
-ShippableAdapter.prototype.postBuildJobConsoles =
-  function (json, callback) {
-    this.post(
-      util.format('/buildJobConsoles'),
-      json,
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.postBuildJob =
   function (json, callback) {
     this.post(
@@ -649,6 +632,13 @@ ShippableAdapter.prototype.postScmSubscription =
       json,
       callback
     );
+  };
+
+// stepConsoles
+// TODO: Make use of the actual API here, when it is available
+ShippableAdapter.prototype.postStepConsoles =
+  function (json, callback) {
+    callback(null, {});
   };
 
 ShippableAdapter.prototype.postSubscriptionAccounts =

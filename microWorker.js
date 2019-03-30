@@ -4,6 +4,9 @@ var self = microWorker;
 module.exports = self;
 
 var Adapter = require('./_common/shippable/Adapter.js');
+var StepConsoleAdapter =
+  require('./_common/shippable/stepConsole/stepConsoleAdapter.js');
+
 var exec = require('child_process').exec;
 
 var cleanup = require('./_common/cleanup.js');
@@ -26,6 +29,7 @@ function microWorker(message) {
       _initialRunDirectoryCleanup.bind(null, bag),
       _getSteps.bind(null, bag),
       _getSteplets.bind(null, bag),
+      _initializeStepConsoleAdapter.bind(null, bag),
       _prepData.bind(null, bag)
     ],
     function (err) {
@@ -194,6 +198,20 @@ function _getSteplets(bag, next) {
       return next();
     }
   );
+}
+
+function _initializeStepConsoleAdapter(bag, next) {
+  var who = bag.who + '|' + _initializeStepConsoleAdapter.name;
+  logger.verbose(who, 'Inside');
+
+  var batchSize = global.systemSettings &&
+    global.systemSettings.jobConsoleBatchSize;
+  var timeInterval = global.systemSettings &&
+    global.systemSettings.jobConsoleBufferTimeIntervalInMS;
+
+  bag.stepConsoleAdapter = new StepConsoleAdapter(bag.builderApiToken,
+    bag.stepIds[0], batchSize, timeInterval);
+  return next();
 }
 
 function _prepData(bag, next) {
