@@ -9,8 +9,8 @@ var StepConsoleAdapter =
 
 var exec = require('child_process').exec;
 
-var cleanup = require('./_common/cleanup.js');
-var prepData = require('./step/prepData.js');
+var cleanup = require('./_common/helpers/cleanup.js');
+var executeStep = require('./execute/executeStep.js');
 
 function microWorker(message) {
   var bag = {
@@ -26,11 +26,10 @@ function microWorker(message) {
       _updateClusterNodeStatus.bind(null, bag),
       _getClusters.bind(null, bag),
       _getRuntimeTemplates.bind(null, bag),
-      _initialRunDirectoryCleanup.bind(null, bag),
+      _cleanupRunDirectory.bind(null, bag),
       _getSteps.bind(null, bag),
-      _getSteplets.bind(null, bag),
-      _initializeStepConsoleAdapter.bind(null, bag),
-      _prepData.bind(null, bag)
+      _executeStep.bind(null, bag),
+      _cleanupRunDirectory.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -141,8 +140,8 @@ function _getRuntimeTemplates(bag, next) {
   );
 }
 
-function _initialRunDirectoryCleanup(bag, next) {
-  var who = bag.who + '|' + _initialRunDirectoryCleanup.name;
+function _cleanupRunDirectory(bag, next) {
+  var who = bag.who + '|' + _cleanupRunDirectory.name;
   logger.verbose(who, 'Inside');
 
   var innerBag = {
@@ -160,7 +159,6 @@ function _initialRunDirectoryCleanup(bag, next) {
     }
   );
 }
-
 
 function _getSteps(bag, next) {
   var who = bag.who + '|' + _getSteps.name;
@@ -181,52 +179,19 @@ function _getSteps(bag, next) {
   );
 }
 
-function _getSteplets(bag, next) {
-  var who = bag.who + '|' + _getSteplets.name;
+function _executeStep(bag, next) {
+  var who = bag.who + '|' + _executeStep.name;
   logger.verbose(who, 'Inside');
 
-  var query = util.format('stepIds=%s', bag.stepIds.join(','));
-  bag.builderApiAdapter.getSteplets(query,
-    function (err, steplets) {
-      if (err) {
-        logger.warn(util.format('%s, getSteplets for stepId %s failed ' +
-          'with error: %s', bag.who, bag.step.id, err));
-        return next(true);
-      }
+  var innerBag = {
+    step: _.first(bag.steps),
+    builderApiAdapter: bag.builderApiAdapter,
+    runtimeTemplate: bag.runtimeTemplate
+  };
 
-      bag.steplets = steplets;
-      return next();
-    }
-  );
-}
-
-function _initializeStepConsoleAdapter(bag, next) {
-  var who = bag.who + '|' + _initializeStepConsoleAdapter.name;
-  logger.verbose(who, 'Inside');
-
-  var batchSize = global.systemSettings &&
-    global.systemSettings.jobConsoleBatchSize;
-  var timeInterval = global.systemSettings &&
-    global.systemSettings.jobConsoleBufferTimeIntervalInMS;
-
-  bag.stepConsoleAdapter = new StepConsoleAdapter(bag.builderApiToken,
-    bag.stepIds[0], batchSize, timeInterval);
-  return next();
-}
-
-function _prepData(bag, next) {
-  var who = bag.who + '|' + _prepData.name;
-  logger.verbose(who, 'Inside');
-
-  bag.stepId = _.first(bag.stepIds);
-
-  prepData(bag,
-    function (err, resultBag) {
-      if (err) {
-        bag.stepStatusCode = global.systemCodesByName['error'].code;
-      }
-      bag = _.extend(bag, resultBag);
-      return next();
+  executeStep(innerBag,
+    function (err) {
+      return next(err);
     }
   );
 }
