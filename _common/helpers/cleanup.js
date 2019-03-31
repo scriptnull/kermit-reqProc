@@ -14,13 +14,14 @@ function cleanup(externalBag, callback) {
 
   async.series([
       _checkInputParams.bind(null, bag),
-      _cleanupRunDirectory.bind(null, bag)
+      _cleanupDirectory.bind(null, bag)
     ],
     function (err) {
       if (err)
-        logger.error(bag.who, util.format('Failed to cleanup run directory'));
+        logger.error(bag.who,
+          util.format('Failed to cleanup directory: %s', bag.directory));
       else
-        logger.info(bag.who, 'Successfully cleaned up run directory');
+        logger.info(bag.who, 'Successfully cleaned up directory');
 
       return callback(err);
     }
@@ -52,8 +53,8 @@ function _checkInputParams(bag, next) {
   return next(hasErrors);
 }
 
-function _cleanupRunDirectory(bag, next) {
-  var who = bag.who + '|' + _cleanupRunDirectory.name;
+function _cleanupDirectory(bag, next) {
+  var who = bag.who + '|' + _cleanupDirectory.name;
   logger.verbose(who, 'Inside');
 
   fs.emptyDir(bag.directory,
