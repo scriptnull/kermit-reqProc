@@ -8,7 +8,7 @@ function prepData(externalBag, callback) {
     stepId: externalBag.stepId,
     builderApiAdapter: externalBag.builderApiAdapter
   };
-  bag.who = util.format('%s|step|%s', msName, self.name);
+  bag.who = util.format('%s|executeStep|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
 
   async.series([
