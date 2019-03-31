@@ -7,12 +7,14 @@ var StepConsoleAdapter =
   require('../_common/shippable/stepConsole/stepConsoleAdapter.js');
 
 var prepData = require('./step/prepData.js');
+var setupDirectories = require('./step/setupDirectories.js');
 
 function executeStep(externalBag, callback) {
   var bag = {
     step: externalBag.step,
     builderApiAdapter: externalBag.builderApiAdapter,
-    runtimeTemplate: externalBag.runtimeTemplate
+    runtimeTemplate: externalBag.runtimeTemplate,
+    runDir: externalBag.runDir
   };
 
   bag.who = util.format('%s|execute|%s', msName, self.name);
@@ -22,7 +24,8 @@ function executeStep(externalBag, callback) {
       _checkInputParams.bind(null, bag),
       _getSteplets.bind(null, bag),
       _initializeStepConsoleAdapter.bind(null, bag),
-      _prepData.bind(null, bag)
+      _prepData.bind(null, bag),
+      _setupDirectories.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -71,7 +74,7 @@ function _getSteplets(bag, next) {
         return next(true);
       }
 
-      bag.steplets = steplets;
+      bag.stepletsByStepId = _.groupBy(steplets, 'stepId');
       return next();
     }
   );
@@ -103,6 +106,40 @@ function _prepData(bag, next) {
         bag.stepStatusCode = global.systemCodesByName['error'].code;
       }
       bag = _.extend(bag, resultBag);
+      return next();
+    }
+  );
+}
+
+function _setupDirectories(bag, next) {
+  var who = bag.who + '|' + _setupDirectories.name;
+  logger.verbose(who, 'Inside');
+
+  var resDirToBeCreated = [];
+  _.each(bag.runStepConnections,
+    function(runStepConnection) {
+      var resource = _.findWhere(bag.runResourceVersions,
+        {resourceName: runStepConnection.operationRunResourceName});
+      resDirToBeCreated.push({
+        name: resource.resourceName,
+        typeCode: resource.resourceTypeCode,
+        operation: runStepConnection.operation
+      });
+    }
+  );
+
+  var innerBag = {
+    step: bag.step,
+    stepletsByStepId: bag.stepletsByStepId,
+    runDir: bag.runDir,
+    resDirToBeCreated: resDirToBeCreated
+  };
+
+  setupDirectories(innerBag,
+    function (err) {
+      if (err) {
+        bag.stepStatusCode = global.systemCodesByName['error'].code;
+      }
       return next();
     }
   );

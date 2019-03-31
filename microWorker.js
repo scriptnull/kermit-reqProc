@@ -186,7 +186,8 @@ function _executeStep(bag, next) {
   var innerBag = {
     step: _.first(bag.steps),
     builderApiAdapter: bag.builderApiAdapter,
-    runtimeTemplate: bag.runtimeTemplate
+    runtimeTemplate: bag.runtimeTemplate,
+    runDir: bag.runDir
   };
 
   executeStep(innerBag,
