@@ -8,6 +8,7 @@ var StepConsoleAdapter =
 
 var prepData = require('./step/prepData.js');
 var setupDirectories = require('./step/setupDirectories.js');
+var constructStepJson = require('./step/constructStepJson.js');
 
 function executeStep(externalBag, callback) {
   var bag = {
@@ -25,7 +26,8 @@ function executeStep(externalBag, callback) {
       _getSteplets.bind(null, bag),
       _initializeStepConsoleAdapter.bind(null, bag),
       _prepData.bind(null, bag),
-      _setupDirectories.bind(null, bag)
+      _setupDirectories.bind(null, bag),
+      _constructStepJson.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -120,11 +122,13 @@ function _setupDirectories(bag, next) {
     function(runStepConnection) {
       var resource = _.findWhere(bag.runResourceVersions,
         {resourceName: runStepConnection.operationRunResourceName});
-      resDirToBeCreated.push({
-        name: resource.resourceName,
-        typeCode: resource.resourceTypeCode,
-        operation: runStepConnection.operation
-      });
+      if (resource) {
+        resDirToBeCreated.push({
+          name: resource.resourceName,
+          typeCode: resource.resourceTypeCode,
+          operation: runStepConnection.operation
+        });
+      }
     }
   );
 
@@ -140,6 +144,27 @@ function _setupDirectories(bag, next) {
       if (err) {
         bag.stepStatusCode = global.systemCodesByName['error'].code;
       }
+      return next();
+    }
+  );
+}
+
+function _constructStepJson(bag, next) {
+  var who = bag.who + '|' + _constructStepJson.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    runResourceVersions: bag.runResourceVersions,
+    runStepConnections: bag.runStepConnections,
+    integrations: bag.integrations
+  };
+
+  constructStepJson(innerBag,
+    function (err, resultBag) {
+      if (err) {
+        bag.stepStatusCode = global.systemCodesByName('error').code;
+      }
+      bag = _.extend(bag, resultBag);
       return next();
     }
   );
