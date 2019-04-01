@@ -154,10 +154,9 @@ function _setupDependencies(bag, next) {
   logger.verbose(who, 'Inside');
 
   var innerBag = {
-    step: bag.step,
-    stepletsByStepId: bag.stepletsByStepId,
     runResourceVersions: bag.runResourceVersions,
-    runStepConnections: bag.runStepConnections
+    runStepConnections: bag.runStepConnections,
+    integrations: bag.integrations
   };
 
   setupDependencies(innerBag,

@@ -1,14 +1,13 @@
 'use strict';
 
-var self = setupDirectories;
+var self = setupDependencies;
 module.exports = self;
 
-function setupDirectories(externalBag, callback) {
+function setupDependencies(externalBag, callback) {
   var bag = {
-    step: externalBag.step,
-    stepletsByStepId: externalBag.stepletsByStepId,
     runResourceVersions: externalBag.runResourceVersions,
     runStepConnections: externalBag.runStepConnections,
+    integrations: externalBag.integrations,
     stepJSONData: {}
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
@@ -38,10 +37,9 @@ function _checkInputParams(bag, next) {
   logger.verbose(who, 'Inside');
 
   var expectedParams = [
-    'step',
-    'stepletsByStepId',
     'runResourceVersions',
-    'runStepConnections'
+    'runStepConnections',
+    'integrations'
   ];
 
   var paramErrors = [];
