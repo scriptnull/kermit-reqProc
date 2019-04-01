@@ -85,14 +85,14 @@ function _setupDirectories(bag, next) {
   // Create directories for IN and OUT resources
   _.each(bag.resDirToBeCreated,
     function (resource) {
-      var resourceType = global.systemCodesByCode[resource.typeCode].name;
-      if (_dirExistsSync(path.join(global.config.execTemplatesDir,
-        'resources', resourceType))) {
-        if (resource.operation === 'IN')
-          bag.dirsToBeCreated.push(
-            path.join(bag.runDir, bag.step.name, 'dependencyState',
-            'resources', resource.name));
-        else if (resource.operation === 'OUT')
+      if (resource.operation === 'IN') {
+        var resourceType = global.systemCodesByCode[resource.typeCode].name;
+        if (__dirExistsSync(path.join(global.config.execTemplatesDir,
+          'resources', resourceType)))
+            bag.dirsToBeCreated.push(
+              path.join(bag.runDir, bag.step.name, 'dependencyState',
+              'resources', resource.name));
+      } else if (resource.operation === 'OUT') {
           bag.dirsToBeCreated.push(
             path.join(bag.runDir, bag.step.name, 'output',
             'resources', resource.name));
@@ -163,7 +163,7 @@ function _createFiles(bag, next) {
   );
 }
 
-function _dirExistsSync(path) {
+function __dirExistsSync(path) {
   try {
     var stat = fs.statSync(path);
     return stat.isDirectory();

@@ -9,7 +9,7 @@ function createFiles(externalBag, callback) {
   var bag = {
     filesToBeCreated: externalBag.filesToBeCreated
   };
-  bag.who = util.format('%s|common|%s', msName, self.name);
+  bag.who = util.format('%s|common|helpers|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
 
   async.series([
