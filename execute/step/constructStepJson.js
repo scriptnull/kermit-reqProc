@@ -1,9 +1,12 @@
 'use strict';
 
-var self = setupDependencies;
+var self = constructStepJson;
 module.exports = self;
 
-function setupDependencies(externalBag, callback) {
+var getValuesFromIntegrationJson =
+  require('../../_common/helpers/getValuesFromIntegrationJson.js');
+
+function constructStepJson(externalBag, callback) {
   var bag = {
     runResourceVersions: externalBag.runResourceVersions,
     runStepConnections: externalBag.runStepConnections,
@@ -69,16 +72,16 @@ function _prepareStepJSON(bag, next) {
     integrations: []
   };
 
-  bag.integrationsByName = _.indexBy(bag.integrations, 'name');
-
+  var integrationsByName = _.indexBy(bag.integrations, 'name');
+  var runResourceVersionsByResourceName = _.indexBy(
+    bag.runResourceVersions, 'resourceName');
   _.each(bag.runStepConnections,
     function(runStepConnection) {
-      var runResourceVersion = _.findWhere(bag.runResourceVersions,
-        {resourceName: runStepConnection.operationRunResourceName});
+      var runResourceVersion = runResourceVersionsByResourceName[
+        runStepConnection.operationRunResourceName];
 
       var integration;
-      var integrationValues;
-      var formJSONValues;
+      var integrationObject;
       if (runResourceVersion) {
         var resource = {
           id: runStepConnection.operationRunResourceId,
@@ -92,45 +95,44 @@ function _prepareStepJSON(bag, next) {
           }
         };
 
-        if (bag.integrationsByName[
+        if (integrationsByName[
           runResourceVersion.resourceConfigPropertyBag.integrationName]) {
-          integration = bag.integrationsByName[
-          runResourceVersion.resourceConfigPropertyBag.integrationName];
-          integrationValues = {
-            id: integration.id,
-            name: integration.name
-          };
-          formJSONValues = __flattenFormJSONValues(integration.formJSONValues);
-          resource.integration = _.extend(integrationValues, formJSONValues);
+          integration = integrationsByName[
+            runResourceVersion.resourceConfigPropertyBag.integrationName];
+          if (integration) {
+            integrationObject = __createIntegrationObject(integration);
+            resource.integration = _.extend(integrationObject.integrationValues,
+              integrationObject.formJSONValues);
+          }
           bag.stepJSONData.resources[
             runStepConnection.operationRunResourceName] = resource;
         } 
       }
     
-    if (bag.integrationsByName[
-      runStepConnection.operationIntegrationName]) {
-      integration = bag.integrationsByName[
-        runStepConnection.operationIntegrationName];
-      integrationValues = {
-        id: integration.id,
-        name: integration.name
-      };
-      formJSONValues = __flattenFormJSONValues(integration.formJSONValues);
-      bag.stepJSONData.integrations[integrationValues.name] =
-        _.extend(integrationValues, formJSONValues);
-    }
+      if (integrationsByName[
+        runStepConnection.operationIntegrationName]) {
+        integration = integrationsByName[
+          runStepConnection.operationIntegrationName];
+        if (integration) {
+          integrationObject = __createIntegrationObject(integration);
+          bag.stepJSONData.integrations[integration.name] =
+            _.extend(integrationObject.integrationValues,
+              integrationObject.formJSONValues);
+        }
+      }
     }
   );
   return next();
 }
 
-function __flattenFormJSONValues(formJSONValues) {
-  var allData = {};
-  _.each(formJSONValues,
-    function(formJSONValue) {
-      allData[formJSONValue.label] = formJSONValue.value;
-    }
-  );
+function __createIntegrationObject(integration) {
+  var integrationObject;
+  integrationObject.integrationValues = {
+    id: integration.id,
+    name: integration.name
+  };
+  integrationObject.formJSONValues =
+    getValuesFromIntegrationJson(integration.formJSONValues);
 
-  return allData;
+  return integrationObject;
 }

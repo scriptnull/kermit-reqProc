@@ -101,11 +101,11 @@ function _getIntegrations(bag, next) {
   var who = bag.who + '|' + _getIntegrations.name;
   logger.verbose(who, 'Inside');
 
-  var integrationNames = _.without(_.union(_.pluck(
-    _.pluck(bag.runResVersions, 'resourceConfigPropertyBag'),
+  var integrationNames = _.compact(_.union(_.pluck(
+    _.pluck(bag.runResourceVersions, 'resourceConfigPropertyBag'),
     'integrationName'),
     _.pluck(bag.runStepConnections, 'operationIntegrationName')
-  ), undefined, null);
+  ));
 
   if (_.isEmpty(integrationNames))
     return next();

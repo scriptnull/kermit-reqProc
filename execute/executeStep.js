@@ -8,7 +8,7 @@ var StepConsoleAdapter =
 
 var prepData = require('./step/prepData.js');
 var setupDirectories = require('./step/setupDirectories.js');
-var setupDependencies = require('./step/setupDependencies.js');
+var constructStepJson = require('./step/constructStepJson.js');
 
 function executeStep(externalBag, callback) {
   var bag = {
@@ -27,7 +27,7 @@ function executeStep(externalBag, callback) {
       _initializeStepConsoleAdapter.bind(null, bag),
       _prepData.bind(null, bag),
       _setupDirectories.bind(null, bag),
-      _setupDependencies.bind(null, bag)
+      _constructStepJson.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -149,8 +149,8 @@ function _setupDirectories(bag, next) {
   );
 }
 
-function _setupDependencies(bag, next) {
-  var who = bag.who + '|' + _setupDependencies.name;
+function _constructStepJson(bag, next) {
+  var who = bag.who + '|' + _constructStepJson.name;
   logger.verbose(who, 'Inside');
 
   var innerBag = {
@@ -159,7 +159,7 @@ function _setupDependencies(bag, next) {
     integrations: bag.integrations
   };
 
-  setupDependencies(innerBag,
+  constructStepJson(innerBag,
     function (err, resultBag) {
       if (err) {
         bag.stepStatusCode = global.systemCodesByName('error').code;
