@@ -39,7 +39,8 @@ function executeStep(externalBag, callback) {
       _setExecutorAsReqProc.bind(null, bag),
       _constructStepJson.bind(null, bag),
       _addStepJson.bind(null, bag),
-      _processINs.bind(null, bag)
+      _processINs.bind(null, bag),
+      _closeSetupGroup.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -117,6 +118,11 @@ function _prepData(bag, next) {
   var who = bag.who + '|' + _prepData.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openGrp('Setup');
+
+  // We don't know where the group will end so need a flag
+  bag.isSetupGrpSuccess = true;
+
   bag.stepId = bag.step.id;
 
   prepData(bag,
@@ -189,8 +195,10 @@ function _pollStepStatus(bag, next) {
 
   pollStepStatus(innerBag,
     function (err) {
-      if (err)
+      if (err) {
+        bag.isSetupGrpSuccess = false;
         bag.error = true;
+      }
 
       return next();
     }
@@ -213,6 +221,7 @@ function _setExecutorAsReqProc(bag, next) {
           'with err: %s', who, whoPath, err);
         bag.stepConsoleAdapter.publishMsg(msg);
         bag.stepConsoleAdapter.closeCmd(false);
+        bag.isSetupGrpSuccess = false;
         bag.error = true;
         return next();
       }
@@ -289,4 +298,13 @@ function _processINs(bag, next) {
       return next();
     }
   );
+}
+
+function _closeSetupGroup(bag, next) {
+  var who = bag.who + '|' + _closeSetupGroup.name;
+  logger.verbose(who, 'Inside');
+
+  bag.consoleAdapter.closeGrp(bag.isSetupGrpSuccess);
+
+  return next();
 }
