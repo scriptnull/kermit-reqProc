@@ -159,7 +159,8 @@ function _constructStepJson(bag, next) {
   var innerBag = {
     runResourceVersions: bag.runResourceVersions,
     runStepConnections: bag.runStepConnections,
-    integrations: bag.integrations
+    integrations: bag.integrations,
+    step: bag.step
   };
 
   constructStepJson(innerBag,

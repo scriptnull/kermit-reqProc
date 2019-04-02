@@ -11,6 +11,7 @@ function constructStepJson(externalBag, callback) {
     runResourceVersions: externalBag.runResourceVersions,
     runStepConnections: externalBag.runStepConnections,
     integrations: externalBag.integrations,
+    step: externalBag.step,
     stepData: {}
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
@@ -40,6 +41,7 @@ function _checkInputParams(bag, next) {
   logger.verbose(who, 'Inside');
 
   var expectedParams = [
+    'step',
     'runResourceVersions',
     'runStepConnections',
     'integrations'
@@ -67,14 +69,24 @@ function _prepareStepJSON(bag, next) {
   logger.verbose(who, 'Inside');
 
   bag.stepData = {
-    step: {},
+    step: {
+      id: bag.step.id,
+      name: bag.step.name
+    },
     resources: {},
     integrations: {}
   };
 
+  if (!_.isEmpty(bag.step.setupPropertyBag))
+    bag.stepData.step['setup'] = bag.step.setupPropertyBag;
+
+  if (!_.isEmpty(bag.step.execPropertyBag))
+    bag.stepData.step['execute'] = bag.step.execPropertyBag;
+
   var integrationsByName = _.indexBy(bag.integrations, 'name');
   var runResourceVersionsByResourceName = _.indexBy(
     bag.runResourceVersions, 'resourceName');
+
   _.each(bag.runStepConnections,
     function(runStepConnection) {
       var runResourceVersion = runResourceVersionsByResourceName[
