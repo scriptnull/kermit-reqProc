@@ -68,8 +68,8 @@ function _prepareStepJSON(bag, next) {
 
   bag.stepJSONData = {
     step: {},
-    resources: [],
-    integrations: []
+    resources: {},
+    integrations: {}
   };
 
   var integrationsByName = _.indexBy(bag.integrations, 'name');
@@ -92,7 +92,9 @@ function _prepareStepJSON(bag, next) {
           version: {
             id: runResourceVersion.resourceVersionId,
             propertyBag: runResourceVersion.resourceVersionContentPropertyBag
-          }
+          },
+          systemPropertyBag: runResourceVersion.systemPropertyBag,
+          configPropertyBag: runResourceVersion.resourceConfigPropertyBag
         };
 
         if (integrationsByName[
@@ -126,7 +128,7 @@ function _prepareStepJSON(bag, next) {
 }
 
 function __createIntegrationObject(integration) {
-  var integrationObject;
+  var integrationObject = {};
   integrationObject.integrationValues = {
     id: integration.id,
     name: integration.name

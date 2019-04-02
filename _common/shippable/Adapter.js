@@ -239,12 +239,10 @@ ShippableAdapter.prototype.getProviders =
     );
   };
 
+// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getResources =
   function (query, callback) {
-    this.get(
-      util.format('/resources?%s', query),
-      callback
-    );
+    callback(null, []);
   };
 
 ShippableAdapter.prototype.getResourceById =
