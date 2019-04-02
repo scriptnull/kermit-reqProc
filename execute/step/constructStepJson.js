@@ -11,7 +11,8 @@ function constructStepJson(externalBag, callback) {
     runResourceVersions: externalBag.runResourceVersions,
     runStepConnections: externalBag.runStepConnections,
     integrations: externalBag.integrations,
-    stepJSONData: {}
+    step: externalBag.step,
+    stepData: {}
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -27,7 +28,7 @@ function constructStepJson(externalBag, callback) {
         logger.info(bag.who, util.format('Successfully setup dirs'));
 
       var result = {
-        stepJSONData: bag.stepJSONData
+        stepData: bag.stepData
       };
 
       return callback(err, result);
@@ -40,6 +41,7 @@ function _checkInputParams(bag, next) {
   logger.verbose(who, 'Inside');
 
   var expectedParams = [
+    'step',
     'runResourceVersions',
     'runStepConnections',
     'integrations'
@@ -66,15 +68,25 @@ function _prepareStepJSON(bag, next) {
   var who = bag.who + '|' + _prepareStepJSON.name;
   logger.verbose(who, 'Inside');
 
-  bag.stepJSONData = {
-    step: {},
+  bag.stepData = {
+    step: {
+      id: bag.step.id,
+      name: bag.step.name
+    },
     resources: {},
     integrations: {}
   };
 
+  if (!_.isEmpty(bag.step.setupPropertyBag))
+    bag.stepData.step['setup'] = bag.step.setupPropertyBag;
+
+  if (!_.isEmpty(bag.step.execPropertyBag))
+    bag.stepData.step['execute'] = bag.step.execPropertyBag;
+
   var integrationsByName = _.indexBy(bag.integrations, 'name');
   var runResourceVersionsByResourceName = _.indexBy(
     bag.runResourceVersions, 'resourceName');
+
   _.each(bag.runStepConnections,
     function(runStepConnection) {
       var runResourceVersion = runResourceVersionsByResourceName[
@@ -106,18 +118,18 @@ function _prepareStepJSON(bag, next) {
             resource.integration = _.extend(integrationObject.integrationValues,
               integrationObject.formJSONValues);
           }
-          bag.stepJSONData.resources[
+          bag.stepData.resources[
             runStepConnection.operationRunResourceName] = resource;
-        } 
+        }
       }
-    
+
       if (integrationsByName[
         runStepConnection.operationIntegrationName]) {
         integration = integrationsByName[
           runStepConnection.operationIntegrationName];
         if (integration) {
           integrationObject = __createIntegrationObject(integration);
-          bag.stepJSONData.integrations[integration.name] =
+          bag.stepData.integrations[integration.name] =
             _.extend(integrationObject.integrationValues,
               integrationObject.formJSONValues);
         }

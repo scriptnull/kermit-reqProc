@@ -6,7 +6,10 @@ module.exports = self;
 function prepData(externalBag, callback) {
   var bag = {
     stepId: externalBag.stepId,
-    builderApiAdapter: externalBag.builderApiAdapter
+    builderApiAdapter: externalBag.builderApiAdapter,
+    runResourceVersions: [],
+    runStepConnections: [],
+    integrations: []
   };
   bag.who = util.format('%s|executeStep|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
