@@ -276,6 +276,13 @@ ShippableAdapter.prototype.getRuntimeTemplates =
   };
 
 // steps
+
+// TODO: Make use of the actual API here, when it is available
+ShippableAdapter.prototype.getStepById =
+  function (id, callback) {
+    callback(null, {});
+  };
+
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getSteps =
   function (query, callback) {
