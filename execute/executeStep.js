@@ -178,7 +178,7 @@ function _processINs(bag, next) {
   logger.verbose(who, 'Inside');
 
   var innerBag = {
-    stepJSONData: bag.stepJSONData,
+    stepData: bag.stepData,
     stepInDir: bag.stepInDir,
     builderApiAdapter: bag.builderApiAdapter
   };

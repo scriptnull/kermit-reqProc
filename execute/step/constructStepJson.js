@@ -11,7 +11,7 @@ function constructStepJson(externalBag, callback) {
     runResourceVersions: externalBag.runResourceVersions,
     runStepConnections: externalBag.runStepConnections,
     integrations: externalBag.integrations,
-    stepJSONData: {}
+    stepData: {}
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -27,7 +27,7 @@ function constructStepJson(externalBag, callback) {
         logger.info(bag.who, util.format('Successfully setup dirs'));
 
       var result = {
-        stepJSONData: bag.stepJSONData
+        stepData: bag.stepData
       };
 
       return callback(err, result);
@@ -66,7 +66,7 @@ function _prepareStepJSON(bag, next) {
   var who = bag.who + '|' + _prepareStepJSON.name;
   logger.verbose(who, 'Inside');
 
-  bag.stepJSONData = {
+  bag.stepData = {
     step: {},
     resources: {},
     integrations: {}
@@ -106,18 +106,18 @@ function _prepareStepJSON(bag, next) {
             resource.integration = _.extend(integrationObject.integrationValues,
               integrationObject.formJSONValues);
           }
-          bag.stepJSONData.resources[
+          bag.stepData.resources[
             runStepConnection.operationRunResourceName] = resource;
-        } 
+        }
       }
-    
+
       if (integrationsByName[
         runStepConnection.operationIntegrationName]) {
         integration = integrationsByName[
           runStepConnection.operationIntegrationName];
         if (integration) {
           integrationObject = __createIntegrationObject(integration);
-          bag.stepJSONData.integrations[integration.name] =
+          bag.stepData.integrations[integration.name] =
             _.extend(integrationObject.integrationValues,
               integrationObject.formJSONValues);
         }

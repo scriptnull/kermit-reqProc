@@ -7,7 +7,7 @@ var handleDependency = require('./handlers/handleDependency.js');
 
 function processINs(externalBag, callback) {
   var bag = {
-    stepJSONData: externalBag.stepJSONData,
+    stepData: externalBag.stepData,
     stepInDir: externalBag.stepInDir,
     builderApiAdapter: externalBag.builderApiAdapter
   };
@@ -34,7 +34,7 @@ function _checkInputParams(bag, next) {
   logger.verbose(who, 'Inside');
 
   var expectedParams = [
-    'stepJSONData',
+    'stepData',
     'stepInDir',
     'builderApiAdapter'
   ];
@@ -60,7 +60,7 @@ function _processInSteps(bag, next) {
   var who = bag.who + '|' + _processInSteps.name;
   logger.verbose(who, 'Inside');
 
-  async.eachSeries(bag.stepJSONData.resources,
+  async.eachSeries(bag.stepData.resources,
     function (resource, nextResource) {
       var inDependency = {};
       if (resource.operation === 'IN') {
