@@ -32,7 +32,11 @@ function setupDirectories(externalBag, callback) {
       else
         logger.info(bag.who, util.format('Successfully setup dirs'));
 
-      return callback(err);
+      var result = {
+        stepInDir: bag.stepInDir,
+        stepOutDir: bag.stepOutDir
+      };
+      return callback(err, result);
     }
   );
 }
@@ -120,6 +124,9 @@ function _setupDirectories(bag, next) {
         'steplet.json'));
     }
   );
+
+  bag.stepInDir = path.join(bag.runDir, bag.step.name, 'dependencyState');
+  bag.stepOutDir = path.join(bag.runDir, bag.step.name, 'output');
   return next();
 }
 

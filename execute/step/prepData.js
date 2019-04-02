@@ -15,7 +15,8 @@ function prepData(externalBag, callback) {
       _checkInputParams.bind(null, bag),
       _getRunResourceVersions.bind(null, bag),
       _getRunStepConnections.bind(null, bag),
-      _getIntegrations.bind(null, bag)
+      _getIntegrations.bind(null, bag),
+      _getResources.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -24,7 +25,7 @@ function prepData(externalBag, callback) {
         logger.info(bag.who, 'Successfully fetched and created prep data');
 
       var result = {
-        runResourceVersions: bag.runResVersions,
+        runResourceVersions: bag.runResourceVersions,
         runStepConnections: bag.runStepConnections,
         integrations: bag.integrations
       };
@@ -72,7 +73,7 @@ function _getRunResourceVersions(bag, next) {
         return next(true);
       }
 
-      bag.runResVersions = runResVersions;
+      bag.runResourceVersions = runResVersions;
       return next();
     }
   );
@@ -120,6 +121,40 @@ function _getIntegrations(bag, next) {
       }
 
       bag.integrations = integrations;
+
+      return next();
+    }
+  );
+}
+
+function _getResources(bag, next) {
+  var who = bag.who + '|' + _getResources.name;
+  logger.verbose(who, 'Inside');
+
+  var resourceIds =
+    _.compact(_.pluck(bag.runStepConnections, 'operationRunResourceId'));
+
+  if (_.isEmpty(resourceIds))
+    return next();
+
+  var query = util.format('resourceIds=%s', resourceIds.join(','));
+  bag.builderApiAdapter.getResources(query,
+    function (err, resources) {
+      if (err) {
+        logger.warn(util.format('%s, getResources for resourceIds %s ' +
+          'failed with error: %s', bag.who, resourceIds, err));
+        return next(true);
+      }
+
+      var indexResourcesByName = _.indexBy(resources, 'name');
+      _.each(bag.runResourceVersions,
+        function (runResourceVersion) {
+          var resource = indexResourcesByName[runResourceVersion.resourceName];
+          if (!_.isEmpty(resource)) {
+            runResourceVersion.systemPropertyBag = resource.systemPropertyBag;
+          }
+        }
+      );
       return next();
     }
   );
