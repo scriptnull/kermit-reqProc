@@ -6,7 +6,7 @@ module.exports = self;
 var _ = require('underscore');
 
 function getValuesFromIntegrationJson(formJSONValues) {
-  var who = util.format('common|%s', self.name);
+  var who = util.format('%s|common|helpers|%s', msName, self.name);
   logger.verbose(who, 'Starting');
 
   var result = {};
