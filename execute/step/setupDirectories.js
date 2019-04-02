@@ -15,7 +15,8 @@ function setupDirectories(externalBag, callback) {
     runDir: externalBag.runDir,
     resDirToBeCreated: externalBag.resDirToBeCreated,
     dirsToBeCreated: [],
-    filesToBeCreated: []
+    filesToBeCreated: [],
+    stepJsonPath: externalBag.stepJsonPath
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -49,7 +50,8 @@ function _checkInputParams(bag, next) {
     'step',
     'stepletsByStepId',
     'runDir',
-    'resDirToBeCreated'
+    'resDirToBeCreated',
+    'stepJsonPath'
   ];
 
   var paramErrors = [];
@@ -77,7 +79,7 @@ function _setupDirectories(bag, next) {
   bag.dirsToBeCreated.push(path.join(bag.runDir, 'workspace'));
   bag.dirsToBeCreated.push(path.join(bag.runDir, bag.step.name));
   bag.dirsToBeCreated.push(path.join(bag.runDir, bag.step.name, 'cache'));
-  bag.dirsToBeCreated.push(path.join(bag.runDir, bag.step.name, 'status'));
+  bag.dirsToBeCreated.push(path.join(bag.runDir, 'status'));
   bag.dirsToBeCreated.push(path.join(
     bag.runDir, bag.step.name, 'dependencyState'));
   bag.dirsToBeCreated.push(path.join(
@@ -105,14 +107,13 @@ function _setupDirectories(bag, next) {
   );
 
   // Files to be created
+  bag.filesToBeCreated.push(bag.stepJsonPath);
   bag.filesToBeCreated.push(
-    path.join(bag.runDir, bag.step.name, 'step.json'));
+    path.join(bag.runDir, 'status', 'step.who'));
   bag.filesToBeCreated.push(
-    path.join(bag.runDir, bag.step.name, 'status', 'job.who'));
+    path.join(bag.runDir, 'status', 'step.status'));
   bag.filesToBeCreated.push(
-    path.join(bag.runDir, bag.step.name, 'status', 'job.status'));
-  bag.filesToBeCreated.push(
-    path.join(bag.runDir, bag.step.name, 'status', 'job.env'));
+    path.join(bag.runDir, 'status', 'step.env'));
 
   // Directories and Steps to be created for steplets
   _.each(bag.stepletsByStepId[bag.step.id],
