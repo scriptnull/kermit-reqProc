@@ -432,34 +432,22 @@ ShippableAdapter.prototype.getTransactions =
     );
   };
 
-ShippableAdapter.prototype.getVersionById =
+// TODO: Make use of the actual API here, when it is available
+ShippableAdapter.prototype.getResourceVersionById =
   function (versionId, callback) {
-    this.get(
-      util.format('/versions/%s', versionId),
-      callback
-    );
+    callback(null, []);
   };
 
-ShippableAdapter.prototype.getVersions =
+ShippableAdapter.prototype.getResourceVersions =
   function (query, callback) {
-    this.get(
-      util.format('/versions?%s', query),
-      callback
-    );
+    callback(null, []);
   };
 
-ShippableAdapter.prototype.postVersion =
+ShippableAdapter.prototype.postResourceVersion =
   function (json, callback) {
-    this.post('/versions', json, callback);
+    callback(null, []);
   };
 
-ShippableAdapter.prototype.putVersionById =
-  function (versionId, json, callback) {
-    this.put(
-      util.format('/versions/%s', versionId),
-      json, callback
-    );
-  };
 
 // workflowControllers
 ShippableAdapter.prototype.getWorkflowControllers =

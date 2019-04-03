@@ -102,6 +102,7 @@ function _prepareStepJSON(bag, next) {
           operation: runStepConnection.operation,
           typeCode: runResourceVersion.resourceTypeCode,
           isPassive: runStepConnection.isPassive,
+          projectId: runResourceVersion.projectId,
           version: {
             id: runResourceVersion.resourceVersionId,
             propertyBag: runResourceVersion.resourceVersionContentPropertyBag
