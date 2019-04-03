@@ -72,7 +72,7 @@ function _postOutResourceVersions(bag, next) {
         outDependency.projectId = resource.projectId;
       }
 
-      if (!outDependency) {
+      if (_.isEmpty(outDependency)) {
         return nextResource();
       }
 
