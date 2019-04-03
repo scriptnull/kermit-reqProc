@@ -7,6 +7,7 @@ function prepData(externalBag, callback) {
   var bag = {
     stepId: externalBag.stepId,
     builderApiAdapter: externalBag.builderApiAdapter,
+    stepConsoleAdapter: externalBag.stepConsoleAdapter,
     runResourceVersions: [],
     runStepConnections: [],
     integrations: []
@@ -44,7 +45,8 @@ function _checkInputParams(bag, next) {
 
   var expectedParams = [
     'stepId',
-    'builderApiAdapter'
+    'builderApiAdapter',
+    'stepConsoleAdapter'
   ];
 
   var paramErrors = [];
@@ -67,16 +69,25 @@ function _getRunResourceVersions(bag, next) {
   var who = bag.who + '|' + _getRunResourceVersions.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Fetching run resource versions');
+
   var query = util.format('stepIds=%s', bag.stepId);
   bag.builderApiAdapter.getRunResourceVersions(query,
     function (err, runResVersions) {
       if (err) {
-        logger.warn(util.format('%s, getRunResourceVersions for stepId %s ' +
-          'failed with error: %s', bag.who, bag.stepId, err));
-        return next(true);
+        var msg = util.format('%s, getRunResourceVersions for stepId %s ' +
+          'failed with error: %s', bag.who, bag.stepId, err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
+        return next(err);
+      } else {
+        bag.runResourceVersions = runResVersions;
+        bag.stepConsoleAdapter.publishMsg(
+          'Successfully fetched run resource versions with stepId: ' +
+          bag.stepId);
+        bag.stepConsoleAdapter.closeCmd(true);
       }
-
-      bag.runResourceVersions = runResVersions;
       return next();
     }
   );
@@ -86,16 +97,25 @@ function _getRunStepConnections(bag, next) {
   var who = bag.who + '|' + _getRunStepConnections.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Fetching run step connections');
+
   var query = util.format('stepIds=%s', bag.stepId);
   bag.builderApiAdapter.getRunStepConnections(query,
     function (err, runStepConnections) {
       if (err) {
-        logger.warn(util.format('%s, getRunStepConnections for stepId %s ' +
-          'failed with error: %s', bag.who, bag.stepId, err));
+        var msg = util.format('%s, getRunStepConnections for stepId %s ' +
+          'failed with error: %s', bag.who, bag.stepId, err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
         return next(true);
+      } else {
+        bag.runStepConnections = runStepConnections;
+        bag.stepConsoleAdapter.publishMsg(
+          'Successfully fetched run step connections with stepId: ' +
+          bag.stepId);
+        bag.stepConsoleAdapter.closeCmd(true);
       }
-
-      bag.runStepConnections = runStepConnections;
       return next();
     }
   );
@@ -105,26 +125,38 @@ function _getIntegrations(bag, next) {
   var who = bag.who + '|' + _getIntegrations.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Fetching integrations');
+
   var integrationNames = _.compact(_.union(_.pluck(
     _.pluck(bag.runResourceVersions, 'resourceConfigPropertyBag'),
     'integrationName'),
     _.pluck(bag.runStepConnections, 'operationIntegrationName')
   ));
 
-  if (_.isEmpty(integrationNames))
+  if (_.isEmpty(integrationNames)) {
+    bag.stepConsoleAdapter.publishMsg(
+      'No Integrations present for step with stepId: ' + bag.stepId);
+    bag.stepConsoleAdapter.closeCmd(true);
     return next();
+  }
 
   var query = util.format('names=%s', integrationNames.join(','));
   bag.builderApiAdapter.getIntegrations(query,
     function (err, integrations) {
       if (err) {
-        logger.warn(util.format('%s, getIntegrations for stepId %s ' +
-          'failed with error: %s', bag.who, bag.stepId, err));
+        var msg = util.format('%s, getIntegrations for integration names %s ' +
+          'failed with error: %s', bag.who, integrationNames.join(','), err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
         return next(true);
+      } else {
+        bag.stepConsoleAdapter.publishMsg(
+          'Successfully fetched integrations with integration names: ' +
+          integrationNames.join(','));
+        bag.stepConsoleAdapter.closeCmd(true);
+        bag.integrations = integrations;
       }
-
-      bag.integrations = integrations;
-
       return next();
     }
   );
@@ -134,30 +166,44 @@ function _getResources(bag, next) {
   var who = bag.who + '|' + _getResources.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Fetching resources');
+
   var resourceIds =
     _.compact(_.pluck(bag.runStepConnections, 'operationRunResourceId'));
 
-  if (_.isEmpty(resourceIds))
+  if (_.isEmpty(resourceIds)) {
+    bag.stepConsoleAdapter.publishMsg(
+      'No resources present for step with stepId: ' + bag.stepId);
+    bag.stepConsoleAdapter.closeCmd(true);
     return next();
+  }
 
   var query = util.format('resourceIds=%s', resourceIds.join(','));
   bag.builderApiAdapter.getResources(query,
     function (err, resources) {
       if (err) {
-        logger.warn(util.format('%s, getResources for resourceIds %s ' +
-          'failed with error: %s', bag.who, resourceIds, err));
+        var msg = util.format('%s, getResources for resourceIds %s ' +
+          'failed with error: %s', bag.who, resourceIds.join(','), err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
         return next(true);
-      }
-
-      var indexResourcesByName = _.indexBy(resources, 'name');
-      _.each(bag.runResourceVersions,
-        function (runResourceVersion) {
-          var resource = indexResourcesByName[runResourceVersion.resourceName];
-          if (!_.isEmpty(resource)) {
-            runResourceVersion.systemPropertyBag = resource.systemPropertyBag;
+      } else {
+        var indexResourcesByName = _.indexBy(resources, 'name');
+        _.each(bag.runResourceVersions,
+          function (runResourceVersion) {
+            var resource =
+              indexResourcesByName[runResourceVersion.resourceName];
+            if (!_.isEmpty(resource)) {
+              runResourceVersion.systemPropertyBag = resource.systemPropertyBag;
+            }
           }
-        }
-      );
+        );
+        bag.stepConsoleAdapter.publishMsg(
+          'Successfully fetched resources with resourceIds: ' +
+          resourceIds.join(','));
+        bag.stepConsoleAdapter.closeCmd(true);
+      }
       return next();
     }
   );

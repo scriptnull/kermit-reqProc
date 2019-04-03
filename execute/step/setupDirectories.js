@@ -90,7 +90,7 @@ function _setupDirectories(bag, next) {
   bag.dirsToBeCreated.push(path.join(
     bag.runDir, bag.step.name, 'output', 'resources'));
 
-  // Create directories for IN and OUT resources
+  // Create directories and files for IN and OUT resources
   _.each(bag.resDirToBeCreated,
     function (resource) {
       if (resource.operation === 'IN') {
@@ -104,6 +104,8 @@ function _setupDirectories(bag, next) {
           bag.dirsToBeCreated.push(
             path.join(bag.runDir, bag.step.name, 'output',
             'resources', resource.name));
+          bag.filesToBeCreated.push(path.join(bag.runDir, bag.step.name,
+            'output', 'resources', resource.name, resource.name + '.env'));
       }
     }
   );

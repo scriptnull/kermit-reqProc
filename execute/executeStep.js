@@ -15,6 +15,8 @@ var setupDirectories = require('./step/setupDirectories.js');
 var constructStepJson = require('./step/constructStepJson.js');
 var processINs = require('./step/processINs.js');
 var createStepletScript = require('./step/createStepletScript.js');
+var processOUTs = require('./step/processOUTs.js');
+var postVersion = require('./step/postVersion.js');
 
 function executeStep(externalBag, callback) {
   var bag = {
@@ -44,7 +46,10 @@ function executeStep(externalBag, callback) {
       _addStepJson.bind(null, bag),
       _processINs.bind(null, bag),
       _createStepletScript.bind(null, bag),
-      _closeSetupGroup.bind(null, bag)
+      _closeSetupGroup.bind(null, bag),
+      _processOUTs.bind(null, bag),
+      _postVersion.bind(null, bag),
+      _closeCleanupGroup.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -133,6 +138,7 @@ function _prepData(bag, next) {
     function (err, resultBag) {
       if (err) {
         bag.error = true;
+        bag.isSetupGrpSuccess = false;
         return next();
       }
 
@@ -331,6 +337,69 @@ function _closeSetupGroup(bag, next) {
   logger.verbose(who, 'Inside');
 
   bag.stepConsoleAdapter.closeGrp(bag.isSetupGrpSuccess);
+
+  return next();
+}
+
+function _processOUTs(bag, next) {
+  if (bag.error) return next();
+
+  // This is required because a group is created
+  // no matter what the job status is.
+  // And should probably move up when more functions are added.
+  bag.stepConsoleAdapter.openGrp('Cleanup');
+
+  // We don't know where the group will end so need a flag
+  bag.isCleanupGrpSuccess = true;
+
+  var who = bag.who + '|' + _processOUTs.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    stepData: bag.stepData,
+    stepOutDir: bag.stepOutDir,
+    builderApiAdapter: bag.builderApiAdapter,
+    stepConsoleAdapter: bag.stepConsoleAdapter
+  };
+  processOUTs(innerBag,
+    function (err) {
+      if (err) {
+        bag.isCleanupGrpSuccess = false;
+        bag.error = true;
+      }
+      return next();
+    }
+  );
+}
+
+function _postVersion(bag, next) {
+  if (bag.error) return next();
+
+  var who = bag.who + '|' + _postVersion.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    stepData: bag.stepData,
+    stepConsoleAdapter: bag.stepConsoleAdapter,
+    stepOutDir: bag.stepOutDir,
+    builderApiAdapter: bag.builderApiAdapter
+  };
+  postVersion(innerBag,
+    function (err) {
+      if (err) {
+        bag.error = true;
+        bag.isCleanupGrpSuccess = false;
+      }
+      return next();
+    }
+  );
+}
+
+function _closeCleanupGroup(bag, next) {
+  var who = bag.who + '|' + _closeCleanupGroup.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.closeGrp(bag.isCleanupGrpSuccess);
 
   return next();
 }
