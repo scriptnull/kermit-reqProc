@@ -23,9 +23,9 @@ function createStepletScript(externalBag, callback) {
     ],
     function (err) {
       if (err)
-        logger.error(bag.who, util.format('Failed to process IN dependencies'));
+        logger.error(bag.who, util.format('Failed to create stepletScript.sh'));
       else
-        logger.info(bag.who, 'Successfully processed IN dependencies');
+        logger.info(bag.who, 'Successfully created stepletScript.sh');
 
       return callback(err);
     }

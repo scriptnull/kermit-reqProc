@@ -3,10 +3,10 @@
 var self = setupDirectories;
 module.exports = self;
 
-var fs = require('fs');
 var path = require('path');
 var createDirectories = require('../../_common/helpers/createDirectories.js');
 var createFiles = require('../../_common/helpers/createFiles.js');
+var isDirectory = require('../../_common/helpers/isDirectory.js')
 
 function setupDirectories(externalBag, callback) {
   var bag = {
@@ -95,7 +95,7 @@ function _setupDirectories(bag, next) {
     function (resource) {
       if (resource.operation === 'IN') {
         var resourceType = global.systemCodesByCode[resource.typeCode].name;
-        if (__dirExistsSync(path.join(global.config.execTemplatesDir,
+        if (isDirectory(path.join(global.config.execTemplatesDir,
           'resources', resourceType)))
             bag.dirsToBeCreated.push(
               path.join(bag.runDir, bag.step.name, 'dependencyState',
@@ -176,13 +176,4 @@ function _createFiles(bag, next) {
       return next();
     }
   );
-}
-
-function __dirExistsSync(path) {
-  try {
-    var stat = fs.statSync(path);
-    return stat.isDirectory();
-  } catch (e) {
-    return false;
-  }
 }
