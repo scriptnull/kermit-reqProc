@@ -15,7 +15,9 @@ var executeStep = require('./execute/executeStep.js');
 function microWorker(message) {
   var bag = {
     rawMessage: message,
-    runDir: global.config.runDir
+    runDir: global.config.runDir,
+    execTemplatesDir: global.config.execTemplatesDir,
+    execTemplatesRootDir: global.config.execTemplatesRootDir
   };
 
   bag.who = util.format('%s|%s', msName, self.name);
@@ -187,7 +189,9 @@ function _executeStep(bag, next) {
     step: _.first(bag.steps),
     builderApiAdapter: bag.builderApiAdapter,
     runtimeTemplate: bag.runtimeTemplate,
-    runDir: bag.runDir
+    runDir: bag.runDir,
+    execTemplatesDir: bag.execTemplatesDir,
+    execTemplatesRootDir: bag.execTemplatesRootDir
   };
 
   executeStep(innerBag,

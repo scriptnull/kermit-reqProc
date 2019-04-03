@@ -3,10 +3,10 @@
 var self = setupDirectories;
 module.exports = self;
 
-var fs = require('fs');
 var path = require('path');
 var createDirectories = require('../../_common/helpers/createDirectories.js');
 var createFiles = require('../../_common/helpers/createFiles.js');
+var isDirectory = require('../../_common/helpers/isDirectory.js')
 
 function setupDirectories(externalBag, callback) {
   var bag = {
@@ -16,7 +16,8 @@ function setupDirectories(externalBag, callback) {
     resDirToBeCreated: externalBag.resDirToBeCreated,
     dirsToBeCreated: [],
     filesToBeCreated: [],
-    stepJsonPath: externalBag.stepJsonPath
+    stepJsonPath: externalBag.stepJsonPath,
+    stepletScriptPaths: []
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -35,7 +36,8 @@ function setupDirectories(externalBag, callback) {
 
       var result = {
         stepInDir: bag.stepInDir,
-        stepOutDir: bag.stepOutDir
+        stepOutDir: bag.stepOutDir,
+        stepletScriptPaths: bag.stepletScriptPaths
       };
       return callback(err, result);
     }
@@ -93,7 +95,7 @@ function _setupDirectories(bag, next) {
     function (resource) {
       if (resource.operation === 'IN') {
         var resourceType = global.systemCodesByCode[resource.typeCode].name;
-        if (__dirExistsSync(path.join(global.config.execTemplatesDir,
+        if (isDirectory(path.join(global.config.execTemplatesDir,
           'resources', resourceType)))
             bag.dirsToBeCreated.push(
               path.join(bag.runDir, bag.step.name, 'dependencyState',
@@ -123,6 +125,11 @@ function _setupDirectories(bag, next) {
       bag.filesToBeCreated.push(
         path.join(bag.runDir, bag.step.name, steplet.id.toString(),
         'steplet.json'));
+
+      var stepletScriptPath = path.join(bag.runDir, bag.step.name,
+        steplet.id.toString(), 'stepletScript.sh');
+      bag.filesToBeCreated.push(stepletScriptPath);
+      bag.stepletScriptPaths.push(stepletScriptPath);
     }
   );
 
@@ -169,13 +176,4 @@ function _createFiles(bag, next) {
       return next();
     }
   );
-}
-
-function __dirExistsSync(path) {
-  try {
-    var stat = fs.statSync(path);
-    return stat.isDirectory();
-  } catch (e) {
-    return false;
-  }
 }
