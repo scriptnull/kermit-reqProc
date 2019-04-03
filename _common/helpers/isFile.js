@@ -1,11 +1,11 @@
 'use strict';
 
-var self = fileExistsSync;
+var self = isFile;
 module.exports = self;
 
 var fs = require('fs-extra');
 
-function fileExistsSync(filePath) {
+function isFile(filePath) {
   try {
     var stat = fs.statSync(filePath);
     return stat.isFile();

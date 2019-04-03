@@ -1,11 +1,11 @@
 'use strict';
 
-var self = dirExistsSync;
+var self = isDirectory;
 module.exports = self;
 
 var fs = require('fs-extra');
 
-function dirExistsSync(dirPath) {
+function isDirectory(dirPath) {
   try {
     var stat = fs.statSync(dirPath);
     return stat.isDirectory();

@@ -13,8 +13,8 @@ _.templateSettings = { interpolate: /\%\%([\s\S]+?)\%\%/g };
 var execGrpTemplate = _.template(fs.readFileSync(
   path.resolve(__dirname, '_templates', 'execGrp.sh'), 'utf8').toString());
 
-var dirExistsSync = require('../_common/helpers/dirExistsSync.js');
-var fileExistsSync = require('../_common/helpers/fileExistsSync.js');
+var isDirectory = require('../_common/helpers/isDirectory.js');
+var isFile = require('../_common/helpers/isFile.js');
 
 function assemble(externalBag, callback) {
   var bag = {
@@ -83,11 +83,11 @@ function _assembleScript(bag, next) {
   var headerFilePath = path.join(bag.execTemplatesRootDir, '_common',
     'header.sh');
 
-  if (!__isDirectory(rootDirectoryPath))
+  if (!isDirectory(rootDirectoryPath))
     return next(util.format('Root directory: %s is incorrect',
       rootDirectoryPath));
 
-  if (!__isFile(headerFilePath))
+  if (!isFile(headerFilePath))
     return next(util.format('Header file path: %s is incorrect',
       headerFilePath));
 
@@ -110,13 +110,13 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
       var santizedContentName = contentName;
       if (santizedContentName.indexOf('_') > -1)
         santizedContentName = santizedContentName.split('_')[1];
-      if (__isDirectory(path.join(currentDirectoryPath, contentName))) {
+      if (isDirectory(path.join(currentDirectoryPath, contentName))) {
         if (__contentExistsInCurrentContextObject(context,
           santizedContentName))
           __addTemplate(santizedContentName,
             path.join(currentDirectoryPath, contentName),
             context[santizedContentName], bag);
-      } else if (__isFile(path.join(currentDirectoryPath, contentName))) {
+      } else if (isFile(path.join(currentDirectoryPath, contentName))) {
         var generatedScript = '';
         if (contentName === parentDirectoryName + '.sh' ||
           contentName === context + '.sh') {
@@ -159,14 +159,6 @@ function __execGrp(grp, grpDesc, grpVisibility, grpBody) {
       grpBody: grpBody
     }
   );
-}
-
-function __isDirectory(dirPath) {
-  return dirExistsSync(dirPath);
-}
-
-function __isFile(filePath) {
-  return fileExistsSync(filePath);
 }
 
 function __contentExistsInCurrentContextObject(context, content) {
