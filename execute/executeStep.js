@@ -14,6 +14,7 @@ var pollStepStatus = require('./step/pollStepStatus.js');
 var setupDirectories = require('./step/setupDirectories.js');
 var constructStepJson = require('./step/constructStepJson.js');
 var processINs = require('./step/processINs.js');
+var createStepletScript = require('./step/createStepletScript.js');
 
 function executeStep(externalBag, callback) {
   var bag = {
@@ -21,6 +22,8 @@ function executeStep(externalBag, callback) {
     builderApiAdapter: externalBag.builderApiAdapter,
     runtimeTemplate: externalBag.runtimeTemplate,
     runDir: externalBag.runDir,
+    execTemplatesDir: externalBag.execTemplatesDir,
+    execTemplatesRootDir: externalBag.execTemplatesRootDir,
     stepJsonPath:
       path.join(externalBag.runDir, externalBag.step.name, 'step.json'),
     error: false
@@ -40,6 +43,7 @@ function executeStep(externalBag, callback) {
       _constructStepJson.bind(null, bag),
       _addStepJson.bind(null, bag),
       _processINs.bind(null, bag),
+      _createStepletScript.bind(null, bag),
       _closeSetupGroup.bind(null, bag)
     ],
     function (err) {
@@ -300,11 +304,33 @@ function _processINs(bag, next) {
   );
 }
 
+function _createStepletScript(bag, next) {
+  if (bag.error) return next();
+
+  var who = bag.who + '|' + _createStepletScript.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    stepData: bag.stepData,
+    execTemplatesRootDir: bag.execTemplatesRootDir,
+    stepletScriptPath: bag.stepletScriptPaths[0]
+  };
+
+  createStepletScript(innerBag,
+    function (err) {
+      if (err)
+        bag.error = true;
+
+      return next();
+    }
+  );
+}
+
 function _closeSetupGroup(bag, next) {
   var who = bag.who + '|' + _closeSetupGroup.name;
   logger.verbose(who, 'Inside');
 
-  bag.consoleAdapter.closeGrp(bag.isSetupGrpSuccess);
+  bag.stepConsoleAdapter.closeGrp(bag.isSetupGrpSuccess);
 
   return next();
 }

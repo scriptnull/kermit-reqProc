@@ -16,7 +16,8 @@ function setupDirectories(externalBag, callback) {
     resDirToBeCreated: externalBag.resDirToBeCreated,
     dirsToBeCreated: [],
     filesToBeCreated: [],
-    stepJsonPath: externalBag.stepJsonPath
+    stepJsonPath: externalBag.stepJsonPath,
+    stepletScriptPaths: []
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -35,7 +36,8 @@ function setupDirectories(externalBag, callback) {
 
       var result = {
         stepInDir: bag.stepInDir,
-        stepOutDir: bag.stepOutDir
+        stepOutDir: bag.stepOutDir,
+        stepletScriptPaths: bag.stepletScriptPaths
       };
       return callback(err, result);
     }
@@ -123,6 +125,11 @@ function _setupDirectories(bag, next) {
       bag.filesToBeCreated.push(
         path.join(bag.runDir, bag.step.name, steplet.id.toString(),
         'steplet.json'));
+
+      var stepletScriptPath = path.join(bag.runDir, bag.step.name,
+        steplet.id.toString(), 'stepletScript.sh');
+      bag.filesToBeCreated.push(stepletScriptPath);
+      bag.stepletScriptPaths.push(stepletScriptPath);
     }
   );
 
