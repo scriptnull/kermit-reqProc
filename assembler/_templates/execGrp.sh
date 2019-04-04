@@ -9,4 +9,5 @@ is_success=false
 is_success=true
 }
 
+trap before_exit EXIT
 exec_grp "%%grp%%" "%%grpDesc%%" "%%grpVisibility%%"
