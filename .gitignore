@@ -63,3 +63,5 @@ reqExec/*
 node/*
 execTemplates/*
 reqExecBin.zip
+
+package-lock.json
