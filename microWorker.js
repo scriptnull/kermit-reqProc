@@ -191,7 +191,8 @@ function _executeStep(bag, next) {
     runtimeTemplate: bag.runtimeTemplate,
     runDir: bag.runDir,
     execTemplatesDir: bag.execTemplatesDir,
-    execTemplatesRootDir: bag.execTemplatesRootDir
+    execTemplatesRootDir: bag.execTemplatesRootDir,
+    builderApiToken: bag.builderApiToken
   };
 
   executeStep(innerBag,
