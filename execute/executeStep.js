@@ -179,13 +179,15 @@ function _setupDirectories(bag, next) {
     stepletsByStepId: bag.stepletsByStepId,
     runDir: bag.runDir,
     resDirToBeCreated: resDirToBeCreated,
-    stepJsonPath: bag.stepJsonPath
+    stepJsonPath: bag.stepJsonPath,
+    stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
   setupDirectories(innerBag,
     function (err, resultBag) {
       if (err) {
         bag.error = true;
+        bag.isSetupGrpSuccess = false;
         return next();
       }
 

@@ -53,7 +53,7 @@ function _checkInputParams(bag, next) {
       util.format('%s gitRepo %s version %s does not have shaData. ' +
         'Create a new version by webhook before using this resource. ',
         who, bag.dependency.name,
-        bag.dependency.version && bag.dependency.version.versionNumber)
+        bag.dependency.version && bag.dependency.version.id)
     );
 
   if (consoleErrors.length > 0) {
@@ -86,7 +86,7 @@ function _injectDependencies(bag, next) {
     bag.dependency.projectUrl =
       bag.dependency.systemPropertyBag.gitRepoRepositoryHttpsUrl;
 
-  var gitConfig = bag.dependency.configPropertyBag.gitConfig;
+  var gitConfig = bag.dependency.resourceConfigPropertyBag.gitConfig;
 
   bag.dependency.gitConfig = [];
 
@@ -100,7 +100,7 @@ function _injectDependencies(bag, next) {
     );
   }
   bag.dependency.gitConfig = gitConfig;
-  bag.dependency.depth = bag.dependency.configPropertyBag.shallowDepth;
+  bag.dependency.depth = bag.dependency.resourceConfigPropertyBag.shallowDepth;
 
   bag.dependency.cloneLocation = path.join(bag.stepInDir, 'resources',
     bag.dependency.name, bag.dependency.type);

@@ -17,7 +17,8 @@ function setupDirectories(externalBag, callback) {
     dirsToBeCreated: [],
     filesToBeCreated: [],
     stepJsonPath: externalBag.stepJsonPath,
-    stepletScriptPaths: []
+    stepletScriptPaths: [],
+    stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -53,7 +54,8 @@ function _checkInputParams(bag, next) {
     'stepletsByStepId',
     'runDir',
     'resDirToBeCreated',
-    'stepJsonPath'
+    'stepJsonPath',
+    'stepConsoleAdapter'
   ];
 
   var paramErrors = [];
@@ -146,6 +148,7 @@ function _createDirectories(bag, next) {
   var who = bag.who + '|' + _createDirectories.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Creating required directories');
   var innerBag = {
     dirsToBeCreated: bag.dirsToBeCreated
   };
@@ -153,8 +156,10 @@ function _createDirectories(bag, next) {
   createDirectories(innerBag,
     function (err) {
       if (err) {
+        bag.stepConsoleAdapter.closeCmd(false);
         return next(err);
       }
+      bag.stepConsoleAdapter.closeCmd(true);
       return next();
     }
   );
@@ -166,6 +171,7 @@ function _createFiles(bag, next) {
   var who = bag.who + '|' + _createFiles.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Creating required files');
   var innerBag = {
     filesToBeCreated: bag.filesToBeCreated
   };
@@ -173,8 +179,10 @@ function _createFiles(bag, next) {
   createFiles(innerBag,
     function (err) {
       if (err) {
+        bag.stepConsoleAdapter.closeCmd(false);
         return next(err);
       }
+      bag.stepConsoleAdapter.closeCmd(true);
       return next();
     }
   );

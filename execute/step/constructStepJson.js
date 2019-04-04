@@ -96,20 +96,10 @@ function _prepareStepJSON(bag, next) {
       var integration;
       var integrationObject;
       if (runResourceVersion) {
-        var resource = {
-          id: runStepConnection.operationRunResourceId,
-          name: runStepConnection.operationRunResourceName,
-          operation: runStepConnection.operation,
-          typeCode: runResourceVersion.resourceTypeCode,
-          isPassive: runStepConnection.isPassive,
-          projectId: runResourceVersion.projectId,
-          version: {
-            id: runResourceVersion.resourceVersionId,
-            propertyBag: runResourceVersion.resourceVersionContentPropertyBag
-          },
-          systemPropertyBag: runResourceVersion.systemPropertyBag,
-          configPropertyBag: runResourceVersion.resourceConfigPropertyBag
-        };
+        var resource = runResourceVersion;
+        resource.resourceId = runStepConnection.operationRunResourceId;
+        resource.operation = runStepConnection.operation;
+        resource.isTrigger = runStepConnection.isTrigger;
 
         if (integrationsByName[
           runResourceVersion.resourceConfigPropertyBag.integrationName]) {
@@ -121,7 +111,7 @@ function _prepareStepJSON(bag, next) {
               integrationObject.formJSONValues);
           }
           bag.stepData.resources[
-            runStepConnection.operationRunResourceName] = resource;
+            runResourceVersion.resourceName] = resource;
         }
       }
 
