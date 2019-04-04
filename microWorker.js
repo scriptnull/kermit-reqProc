@@ -4,8 +4,6 @@ var self = microWorker;
 module.exports = self;
 
 var Adapter = require('./_common/shippable/Adapter.js');
-var StepConsoleAdapter =
-  require('./_common/shippable/stepConsole/stepConsoleAdapter.js');
 
 var exec = require('child_process').exec;
 
@@ -29,7 +27,6 @@ function microWorker(message) {
       _getClusters.bind(null, bag),
       _getRuntimeTemplates.bind(null, bag),
       _cleanupRunDirectory.bind(null, bag),
-      _getSteps.bind(null, bag),
       _executeStep.bind(null, bag),
       _cleanupRunDirectory.bind(null, bag)
     ],
@@ -162,31 +159,12 @@ function _cleanupRunDirectory(bag, next) {
   );
 }
 
-function _getSteps(bag, next) {
-  var who = bag.who + '|' + _getSteps.name;
-  logger.verbose(who, 'Inside');
-
-  var query = util.format('stepIds=%s', bag.stepIds.join(','));
-  bag.builderApiAdapter.getSteps(query,
-    function (err, steps) {
-      if (err) {
-        logger.warn(util.format('%s, getSteps for stepId %s failed ' +
-          'with error: %s', bag.who, bag.stepIds, err));
-        return next(true);
-      }
-
-      bag.steps = steps;
-      return next();
-    }
-  );
-}
-
 function _executeStep(bag, next) {
   var who = bag.who + '|' + _executeStep.name;
   logger.verbose(who, 'Inside');
 
   var innerBag = {
-    step: _.first(bag.steps),
+    stepId: bag.stepIds[0],
     builderApiAdapter: bag.builderApiAdapter,
     runtimeTemplate: bag.runtimeTemplate,
     runDir: bag.runDir,

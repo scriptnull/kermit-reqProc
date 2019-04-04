@@ -22,14 +22,12 @@ var postVersion = require('./step/postVersion.js');
 
 function executeStep(externalBag, callback) {
   var bag = {
-    step: externalBag.step,
+    stepId: externalBag.stepId,
     builderApiAdapter: externalBag.builderApiAdapter,
     runtimeTemplate: externalBag.runtimeTemplate,
     runDir: externalBag.runDir,
     execTemplatesDir: externalBag.execTemplatesDir,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
-    stepJsonPath:
-      path.join(externalBag.runDir, externalBag.step.name, 'step.json'),
     builderApiToken: externalBag.builderApiToken,
     error: false
   };
@@ -39,6 +37,8 @@ function executeStep(externalBag, callback) {
 
   async.series([
       _checkInputParams.bind(null, bag),
+      _getStep.bind(null, bag),
+      _updateStepToProcessing.bind(null, bag),
       _getSteplets.bind(null, bag),
       _initializeStepConsoleAdapter.bind(null, bag),
       _prepData.bind(null, bag),
@@ -54,6 +54,7 @@ function executeStep(externalBag, callback) {
       _readJobStatus.bind(null, bag),
       _processOUTs.bind(null, bag),
       _postVersion.bind(null, bag),
+      _updateStepStatus.bind(null, bag),
       _closeCleanupGroup.bind(null, bag)
     ],
     function (err) {
@@ -72,8 +73,8 @@ function _checkInputParams(bag, next) {
   var who = bag.who + '|' + _checkInputParams.name;
   logger.verbose(who, 'Inside');
 
-  if (_.isEmpty(bag.step)) {
-    logger.warn(util.format('%s, Step is empty.', who));
+  if (_.isUndefined(bag.stepId) || _.isNull(bag.stepId)) {
+    logger.warn(util.format('%s, stepId is empty.', who));
     return next(true);
   }
 
@@ -90,7 +91,66 @@ function _checkInputParams(bag, next) {
   return next();
 }
 
+function _getStep(bag, next) {
+  var who = bag.who + '|' + _getStep.name;
+  logger.verbose(who, 'Inside');
+
+  var query = util.format('stepIds=%s', bag.stepId);
+  bag.builderApiAdapter.getSteps(query,
+    function (err, steps) {
+      if (err) {
+        logger.warn(util.format('%s, getSteps for stepId %s failed ' +
+          'with error: %s', bag.who, bag.stepId, err));
+        bag.error = true;
+        return next();
+      }
+
+      if (_.isEmpty(steps)) {
+        logger.warn(util.format('%s, steps are empty', bag.who));
+        bag.error = true;
+        return next();
+      }
+
+      bag.step = steps[0];
+      bag.stepJsonPath = path.join(bag.runDir, bag.step.name, 'step.json');
+      bag.cancelled = global.systemCodesByCode[bag.step.statusCode].name ===
+        'cancelled';
+      bag.timeout = global.systemCodesByCode[bag.step.statusCode].name ===
+        'timeout';
+      return next();
+    }
+  );
+}
+
+function _updateStepToProcessing(bag, next) {
+  if (bag.error || bag.timeout || bag.cancelled) return next();
+
+  var who = bag.who + '|' + _updateStepToProcessing.name;
+  logger.verbose(who, 'Inside');
+
+  var statusCode = global.systemCodesByName['processing'].code;
+
+  var update = {
+    statusCode: statusCode
+  };
+  bag.builderApiAdapter.putStepById(bag.step.id, update,
+    function (err) {
+      if (err) {
+        logger.warn(util.format('%s, putStepById for stepId %s failed ' +
+          'with error: %s', bag.who, bag.step.id, err));
+        bag.error = true;
+        return next();
+      }
+
+      return next();
+
+    }
+  );
+}
+
 function _getSteplets(bag, next) {
+  if (bag.error || bag.timeout || bag.cancelled) return next();
+
   var who = bag.who + '|' + _getSteplets.name;
   logger.verbose(who, 'Inside');
 
@@ -111,7 +171,7 @@ function _getSteplets(bag, next) {
 }
 
 function _initializeStepConsoleAdapter(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _initializeStepConsoleAdapter.name;
   logger.verbose(who, 'Inside');
@@ -127,7 +187,7 @@ function _initializeStepConsoleAdapter(bag, next) {
 }
 
 function _prepData(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _prepData.name;
   logger.verbose(who, 'Inside');
@@ -153,7 +213,7 @@ function _prepData(bag, next) {
 }
 
 function _setupDirectories(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _setupDirectories.name;
   logger.verbose(who, 'Inside');
@@ -196,7 +256,7 @@ function _setupDirectories(bag, next) {
 }
 
 function _pollStepStatus(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _pollStepStatus.name;
   logger.verbose(who, 'Inside');
@@ -220,7 +280,7 @@ function _pollStepStatus(bag, next) {
 }
 
 function _setExecutorAsReqProc(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _setExecutorAsReqProc.name;
   logger.verbose(who, 'Inside');
@@ -251,7 +311,7 @@ function _setExecutorAsReqProc(bag, next) {
 }
 
 function _constructStepJson(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _constructStepJson.name;
   logger.verbose(who, 'Inside');
@@ -279,7 +339,7 @@ function _constructStepJson(bag, next) {
 }
 
 function _addStepJson(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _addStepJson.name;
   logger.verbose(who, 'Inside');
@@ -302,7 +362,7 @@ function _addStepJson(bag, next) {
 }
 
 function _processINs(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _processINs.name;
   logger.verbose(who, 'Inside');
@@ -326,7 +386,7 @@ function _processINs(bag, next) {
 }
 
 function _createStepletScript(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _createStepletScript.name;
   logger.verbose(who, 'Inside');
@@ -357,12 +417,11 @@ function _closeSetupGroup(bag, next) {
   logger.verbose(who, 'Inside');
 
   bag.stepConsoleAdapter.closeGrp(bag.isSetupGrpSuccess);
-
   return next();
 }
 
 function _handOffAndPoll(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _handOffAndPoll.name;
   logger.verbose(who, 'Inside');
@@ -382,6 +441,8 @@ function _handOffAndPoll(bag, next) {
 }
 
 function _readJobStatus(bag, next) {
+  if (bag.error || bag.timeout || bag.cancelled) return next();
+
   var who = bag.who + '|' + _readJobStatus.name;
   logger.verbose(who, 'Inside');
 
@@ -392,17 +453,25 @@ function _readJobStatus(bag, next) {
     builderApiAdapter: bag.builderApiAdapter
   };
   readJobStatus(innerBag,
-    function (err) {
+    function (err, resultBag) {
       if (err) {
         bag.error = true;
       }
+
+      var statusName = resultBag.statusName;
+      if (statusName === 'error')
+        bag.error = true;
+      else if (statusName === 'timeout')
+        bag.timeout = true;
+      else if (statusName === 'cancelled')
+        bag.cancelled = true;
       return next();
     }
   );
 }
 
 function _processOUTs(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   // This is required because a group is created
   // no matter what the job status is.
@@ -433,7 +502,7 @@ function _processOUTs(bag, next) {
 }
 
 function _postVersion(bag, next) {
-  if (bag.error) return next();
+  if (bag.error || bag.timeout || bag.cancelled) return next();
 
   var who = bag.who + '|' + _postVersion.name;
   logger.verbose(who, 'Inside');
@@ -451,6 +520,32 @@ function _postVersion(bag, next) {
         bag.isCleanupGrpSuccess = false;
       }
       return next();
+    }
+  );
+}
+
+function _updateStepStatus(bag, next) {
+  if (bag.cancelled || bag.timeout) return next();
+
+  var who = bag.who + '|' + _postVersion.name;
+  logger.verbose(who, 'Inside');
+
+  var statusCode = global.systemCodesByName['success'].code;
+  if (bag.error)
+    statusCode = global.systemCodesByName['error'].code;
+  else if (bag.failure)
+    statusCode = global.systemCodesByName['failure'].code;
+
+  var update = {
+    statusCode: statusCode
+  };
+  bag.builderApiAdapter.putStepById(bag.step.id, update,
+    function (err) {
+      if (err)
+        bag.isCleanupGrpSuccess = false;
+
+      return next();
+
     }
   );
 }

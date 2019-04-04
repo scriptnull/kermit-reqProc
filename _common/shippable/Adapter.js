@@ -810,6 +810,18 @@ ShippableAdapter.prototype.getJenkinsJobsByJobname =
     );
   };
 
+// steps
+// TODO: Make use of the actual API here, when it is available
+ShippableAdapter.prototype.putStepById =
+  function (id, json, callback) {
+    // this.put(
+    //   util.format('/steps/%s', id),
+    //   json,
+    //   callback
+    // );
+    callback(null, {});
+  };
+
 ShippableAdapter.prototype.putSubscriptionById =
   function (id, json, callback) {
     this.put(

@@ -13,7 +13,7 @@ function constructStepJson(externalBag, callback) {
     integrations: externalBag.integrations,
     step: externalBag.step,
     stepData: {},
-    stepConsoleAdapter: bag.stepConsoleAdapter
+    stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');

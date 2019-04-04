@@ -28,7 +28,7 @@ function readJobStatus(externalBag, callback) {
       } else {
         logger.info(bag.who, 'Successfully read step status');
         result = {
-          stepStatusCode: bag.stepStatusCode
+          statusName: bag.statusName
         };
       }
       return callback(err, result);
@@ -85,6 +85,7 @@ function _getStepStatus(bag, next) {
         bag.stepConsoleAdapter.closeCmd(true);
         bag.cancelled = step.statusCode ===
           global.systemCodesByName['cancelled'].code;
+        bag.statusName = global.systemCodesByCode[step.statusCode].name;
       }
 
       return next(err);
@@ -122,7 +123,7 @@ function _readJobStatus(bag, next) {
         return next();
       }
 
-      bag.stepStatusCode = stepStatusSystemCode.code;
+      bag.statusName = status.trim();
       bag.stepConsoleAdapter.publishMsg(
         'Successfully read step status: ' + status.trim());
       bag.stepConsoleAdapter.closeCmd(true);
