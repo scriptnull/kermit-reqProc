@@ -7,7 +7,8 @@ function handleDependency(externalBag, dependency, callback) {
   var bag = {
     builderApiAdapter: externalBag.builderApiAdapter,
     stepInDir: externalBag.stepInDir,
-    stepOutDir: externalBag.stepOutDir
+    stepOutDir: externalBag.stepOutDir,
+    stepletConsoleAdapter: externalBag.stepletConsoleAdapter
   };
   bag.who = util.format('%s|step|handlers|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -44,6 +45,9 @@ function _handleDependency(bag, dependency, next) {
 
   var msg = util.format('Processing %s Dependency: %s', dependency.operation,
     dependency.name);
+  bag.stepletConsoleAdapter.openCmd(msg);
+  bag.stepletConsoleAdapter.publishMsg('Version Id: ' +
+    dependency.version.id);
 
   var pathPlaceholder = '{{TYPE}}';
   var osType = global.config.shippableNodeOperatingSystem;
@@ -93,20 +97,27 @@ function _handleDependency(bag, dependency, next) {
   if (!dependencyHandler) {
     msg = util.format('No special dependencyHandler for dependency type: %s %s',
       dependency.operation, dependency.type);
+    bag.stepConsoleAdapter.publishMsg(msg);
+    bag.stepConsoleAdapter.closeCmd(true);
     return next();
   }
 
   if (!rootDir) {
     msg = util.format('No root directory for dependency type: %s %s',
       dependency.operation, dependency.type);
+    bag.stepConsoleAdapter.publishMsg(msg);
     bag.isGrpSuccess = false;
     return next(true);
   }
 
+  // Closing the command as dependencyHandler will call it's own cmd
+  bag.stepConsoleAdapter.publishMsg('Successfully validated handler');
+
   var params = {
     dependency: dependency,
     builderApiAdapter: bag.builderApiAdapter,
-    rootDir: rootDir
+    rootDir: rootDir,
+    stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
   dependencyHandler(params,

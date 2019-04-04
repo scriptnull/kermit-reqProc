@@ -12,7 +12,8 @@ function constructStepJson(externalBag, callback) {
     runStepConnections: externalBag.runStepConnections,
     integrations: externalBag.integrations,
     step: externalBag.step,
-    stepData: {}
+    stepData: {},
+    stepConsoleAdapter: bag.stepConsoleAdapter
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -23,9 +24,9 @@ function constructStepJson(externalBag, callback) {
     ],
     function (err) {
       if (err)
-        logger.error(bag.who, util.format('Failed to setup dirs'));
+        logger.error(bag.who, util.format('Failed to create step.json'));
       else
-        logger.info(bag.who, util.format('Successfully setup dirs'));
+        logger.info(bag.who, util.format('Successfully created step.json'));
 
       var result = {
         stepData: bag.stepData
@@ -44,7 +45,8 @@ function _checkInputParams(bag, next) {
     'step',
     'runResourceVersions',
     'runStepConnections',
-    'integrations'
+    'integrations',
+    'stepConsoleAdapter'
   ];
 
   var paramErrors = [];
@@ -67,6 +69,8 @@ function _checkInputParams(bag, next) {
 function _prepareStepJSON(bag, next) {
   var who = bag.who + '|' + _prepareStepJSON.name;
   logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.openCmd('Creating step.json');
 
   bag.stepData = {
     step: {
@@ -128,6 +132,8 @@ function _prepareStepJSON(bag, next) {
       }
     }
   );
+  bag.stepConsoleAdapter.publishMsg('Successfully created step.json');
+  bag.stepConsoleAdapter.closeCmd(true);
   return next();
 }
 

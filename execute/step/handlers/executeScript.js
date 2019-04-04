@@ -10,7 +10,8 @@ function executeScript(externalBag, callback) {
     args: externalBag.args || [],
     options: externalBag.options || {},
     exitCode: 1,
-    ignoreCmd: externalBag.ignoreCmd || false
+    ignoreCmd: externalBag.ignoreCmd || false,
+    stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
 
   bag.who = util.format('%s|step|handlers|%s', msName, self.name);
@@ -31,7 +32,13 @@ function _checkInputParams(bag, next) {
   var who = bag.who + '|' + _checkInputParams.name;
   logger.debug(who, 'Inside');
 
+  if (!bag.ignoreCmd)
+    bag.stepConsoleAdapter.openCmd('Validating script dependencies');
+  else
+    bag.stepConsoleAdapter.publishMsg('Validating script dependencies');
+
   var consoleErrors = [];
+  bag.stepConsoleAdapter.publishMsg('The path is: ' + bag.scriptPath);
 
   if (!bag.scriptPath)
     consoleErrors.push(util.format('%s is missing: scriptPath', who));
@@ -39,11 +46,17 @@ function _checkInputParams(bag, next) {
   if (consoleErrors.length > 0) {
     _.each(consoleErrors,
       function (e) {
+        var msg = e;
         logger.error(e);
+        bag.stepConsoleAdapter.publishMsg(msg);
       }
     );
     return next(true);
   }
+  bag.stepConsoleAdapter.publishMsg(
+    'Successfully validated script dependencies');
+  if (!bag.ignoreCmd)
+    bag.stepConsoleAdapter.closeCmd(true);
   return next();
 }
 
@@ -91,7 +104,16 @@ function __parseLogLine(bag, line) {
 
   if (lineSplit[0] === cmdStartHeader) {
     cmdJSON = JSON.parse(lineSplit[1]);
+      if (!bag.ignoreCmd)
+      bag.stepConsoleAdapter.openCmd(lineSplit[2]);
+    else
+      bag.stepConsoleAdapter.publishMsg(lineSplit[2]);
   } else if (lineSplit[0] === cmdEndHeader) {
     cmdJSON = JSON.parse(lineSplit[1]);
+    var isSuccess = cmdJSON.exitcode === '0';
+    if (!bag.ignoreCmd)
+      bag.stepConsoleAdapter.closeCmd(isSuccess);
+  } else {
+    bag.stepConsoleAdapter.publishMsg(line);
   }
 }

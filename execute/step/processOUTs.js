@@ -81,6 +81,8 @@ function _processOutSteps(bag, next) {
           handleDependency.bind(null, bag, inDependency),
         ],
         function (err) {
+          if (err)
+            bag.stepConsoleAdapter.closeCmd(false);
           return nextResource(err);
         }
       );

@@ -159,6 +159,13 @@ function _createDirectories(bag, next) {
         bag.stepConsoleAdapter.closeCmd(false);
         return next(err);
       }
+      _.each(bag.dirsToBeCreated,
+        function (dir) {
+          bag.stepConsoleAdapter.publishMsg(
+            util.format('Created directory: %s', dir)
+          );
+        }
+      );
       bag.stepConsoleAdapter.closeCmd(true);
       return next();
     }
@@ -182,6 +189,13 @@ function _createFiles(bag, next) {
         bag.stepConsoleAdapter.closeCmd(false);
         return next(err);
       }
+      _.each(bag.filesToBeCreated,
+        function (file) {
+          bag.stepConsoleAdapter.publishMsg(
+            util.format('Created file: %s', file)
+          );
+        }
+      );
       bag.stepConsoleAdapter.closeCmd(true);
       return next();
     }

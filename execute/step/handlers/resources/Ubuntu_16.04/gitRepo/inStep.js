@@ -13,6 +13,7 @@ function inStep(params, callback) {
     stepInDir: params.rootDir,
     scriptName: 'inStep.sh',
     builderApiAdapter: params.builderApiAdapter,
+    stepConsoleAdapter: params.stepConsoleAdapter
   };
 
   bag.who = util.format('%s|step|handlers|resources|gitRepo|%s',
@@ -46,6 +47,12 @@ function _checkInputParams(bag, next) {
         who, bag.dependency.name)
     );
 
+  if (!bag.dependency.resourceConfigPropertyBag)
+    consoleErrors.push(
+      util.format('%s gitRepo %s is missing required resource information.',
+        who, bag.dependency.name)
+    );
+
   if (!bag.dependency.version ||
     _.isEmpty(bag.dependency.version.propertyBag) ||
     _.isEmpty(bag.dependency.version.propertyBag.shaData))
@@ -59,12 +66,16 @@ function _checkInputParams(bag, next) {
   if (consoleErrors.length > 0) {
     _.each(consoleErrors,
       function (e) {
+        var msg = e;
         logger.error(bag.who, e);
+        bag.stepConsoleAdapter.publishMsg(msg);
       }
     );
+    bag.stepConsoleAdapter.closeCmd(false);
     return next(true);
   }
 
+  bag.stepConsoleAdapter.publishMsg('Successfully validated dependencies');
   return next();
 }
 
@@ -108,6 +119,8 @@ function _injectDependencies(bag, next) {
     bag.dependency.name, bag.dependency.name + '_key.pem');
   bag.dependency.commitSha = bag.dependency.version.propertyBag.sha;
   bag.dependency.shaData = bag.dependency.version.propertyBag.shaData;
+
+  bag.stepConsoleAdapter.publishMsg('Successfully injected dependencies');
   return next();
 }
 
@@ -120,7 +133,8 @@ function _executeScript(bag, next) {
     templatePath: bag.templatePath,
     scriptPath: bag.scriptPath,
     parentGroupDescription: 'IN Git Repo',
-    builderApiAdapter: bag.builderApiAdapter
+    builderApiAdapter: bag.builderApiAdapter,
+    stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
   var provider = bag.dependency.systemPropertyBag.repositoryProvider;

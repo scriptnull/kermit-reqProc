@@ -9,7 +9,8 @@ function processINs(externalBag, callback) {
   var bag = {
     stepData: externalBag.stepData,
     stepInDir: externalBag.stepInDir,
-    builderApiAdapter: externalBag.builderApiAdapter
+    builderApiAdapter: externalBag.builderApiAdapter,
+    stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -36,7 +37,8 @@ function _checkInputParams(bag, next) {
   var expectedParams = [
     'stepData',
     'stepInDir',
-    'builderApiAdapter'
+    'builderApiAdapter',
+    'stepConsoleAdapter'
   ];
 
   var paramErrors = [];
@@ -85,6 +87,8 @@ function _processInSteps(bag, next) {
           handleDependency.bind(null, bag, inDependency),
         ],
         function (err) {
+          if (err)
+            bag.stepConsoleAdapter.closeCmd(false);
           return nextResource(err);
         }
       );

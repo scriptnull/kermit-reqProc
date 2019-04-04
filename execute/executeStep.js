@@ -144,10 +144,9 @@ function _prepData(bag, next) {
       if (err) {
         bag.error = true;
         bag.isSetupGrpSuccess = false;
-        return next();
+      } else {
+        bag = _.extend(bag, resultBag);
       }
-
-      bag = _.extend(bag, resultBag);
       return next();
     }
   );
@@ -188,10 +187,9 @@ function _setupDirectories(bag, next) {
       if (err) {
         bag.error = true;
         bag.isSetupGrpSuccess = false;
-        return next();
+      } else {
+        bag = _.extend(bag, resultBag);
       }
-
-      bag = _.extend(bag, resultBag);
       return next();
     }
   );
@@ -216,7 +214,6 @@ function _pollStepStatus(bag, next) {
         bag.isSetupGrpSuccess = false;
         bag.error = true;
       }
-
       return next();
     }
   );
@@ -263,17 +260,19 @@ function _constructStepJson(bag, next) {
     runResourceVersions: bag.runResourceVersions,
     runStepConnections: bag.runStepConnections,
     integrations: bag.integrations,
-    step: bag.step
+    step: bag.step,
+    stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
   constructStepJson(innerBag,
     function (err, resultBag) {
       if (err) {
         bag.error = true;
-        return next();
+        bag.isSetupGrpSuccess = false;
+      } else {
+        bag = _.extend(bag, resultBag);
       }
 
-      bag = _.extend(bag, resultBag);
       return next();
     }
   );
@@ -285,11 +284,18 @@ function _addStepJson(bag, next) {
   var who = bag.who + '|' + _addStepJson.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Writing step.json to file');
   fs.writeFile(bag.stepJsonPath, JSON.stringify(bag.stepData),
     function (err) {
-      if (err)
+      if (err) {
+        bag.stepConsoleAdapter.closeCmd(false);
+        bag.isSetupGrpSuccess = false;
         bag.error = true;
-
+      } else {
+        bag.stepConsoleAdapter.publishMsg('Successfully saved step.json at: ' +
+          bag.stepJsonPath);
+        bag.stepConsoleAdapter.closeCmd(true);
+      }
       return next();
     }
   );
@@ -304,14 +310,16 @@ function _processINs(bag, next) {
   var innerBag = {
     stepData: bag.stepData,
     stepInDir: bag.stepInDir,
-    builderApiAdapter: bag.builderApiAdapter
+    builderApiAdapter: bag.builderApiAdapter,
+    stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
   processINs(innerBag,
     function (err) {
-      if (err)
+      if (err) {
+        bag.isSetupGrpSuccess = false;
         bag.error = true;
-
+      }
       return next();
     }
   );
