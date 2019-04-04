@@ -336,9 +336,10 @@ function _createStepletScript(bag, next) {
     execTemplatesRootDir: bag.execTemplatesRootDir,
     stepletScriptPath: bag.stepletScriptPaths[0],
     builderApiToken: bag.builderApiToken,
-    stepletId: bag.steplets[0].id,
+    stepletId: bag.stepletsByStepId[bag.step.id][0].id,
     runStatusDir: path.join(bag.runDir, 'status'),
-    stepletDir: path.join(bag.runDir, bag.step.name, bag.steplets[0].id)
+    stepletDir: path.join(bag.runDir, bag.step.name,
+      bag.stepletsByStepId[bag.step.id][0].id.toString())
   };
 
   createStepletScript(innerBag,
