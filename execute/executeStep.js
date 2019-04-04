@@ -15,6 +15,8 @@ var setupDirectories = require('./step/setupDirectories.js');
 var constructStepJson = require('./step/constructStepJson.js');
 var processINs = require('./step/processINs.js');
 var createStepletScript = require('./step/createStepletScript.js');
+var handOffAndPoll = require('./step/handOffAndPoll.js');
+var readJobStatus = require('./step/readJobStatus.js');
 var processOUTs = require('./step/processOUTs.js');
 var postVersion = require('./step/postVersion.js');
 
@@ -28,6 +30,7 @@ function executeStep(externalBag, callback) {
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
     stepJsonPath:
       path.join(externalBag.runDir, externalBag.step.name, 'step.json'),
+    builderApiToken: externalBag.builderApiToken,
     error: false
   };
 
@@ -47,6 +50,8 @@ function executeStep(externalBag, callback) {
       _processINs.bind(null, bag),
       _createStepletScript.bind(null, bag),
       _closeSetupGroup.bind(null, bag),
+      _handOffAndPoll.bind(null, bag),
+      _readJobStatus.bind(null, bag),
       _processOUTs.bind(null, bag),
       _postVersion.bind(null, bag),
       _closeCleanupGroup.bind(null, bag)
@@ -319,7 +324,11 @@ function _createStepletScript(bag, next) {
   var innerBag = {
     stepData: bag.stepData,
     execTemplatesRootDir: bag.execTemplatesRootDir,
-    stepletScriptPath: bag.stepletScriptPaths[0]
+    stepletScriptPath: bag.stepletScriptPaths[0],
+    builderApiToken: bag.builderApiToken,
+    stepletId: bag.steplets[0].id,
+    runStatusDir: path.join(bag.runDir, 'status'),
+    stepletDir: path.join(bag.runDir, bag.step.name, bag.steplets[0].id)
   };
 
   createStepletScript(innerBag,
@@ -339,6 +348,46 @@ function _closeSetupGroup(bag, next) {
   bag.stepConsoleAdapter.closeGrp(bag.isSetupGrpSuccess);
 
   return next();
+}
+
+function _handOffAndPoll(bag, next) {
+  if (bag.error) return next();
+
+  var who = bag.who + '|' + _handOffAndPoll.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    runStatusDir: path.join(bag.runDir, 'status'),
+    stepConsoleAdapter: bag.stepConsoleAdapter
+  };
+  handOffAndPoll(innerBag,
+    function (err) {
+      if (err) {
+        bag.error = true;
+      }
+      return next();
+    }
+  );
+}
+
+function _readJobStatus(bag, next) {
+  var who = bag.who + '|' + _readJobStatus.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    runStatusDir: path.join(bag.runDir, 'status'),
+    stepConsoleAdapter: bag.stepConsoleAdapter,
+    stepId: bag.step.id,
+    builderApiAdapter: bag.builderApiAdapter
+  };
+  readJobStatus(innerBag,
+    function (err) {
+      if (err) {
+        bag.error = true;
+      }
+      return next();
+    }
+  );
 }
 
 function _processOUTs(bag, next) {
