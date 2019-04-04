@@ -12,7 +12,8 @@ function executeDependencyScript(externalBag, callback) {
     templatePath: externalBag.templatePath,
     scriptPath: externalBag.scriptPath,
     parentGroupDescription: externalBag.parentGroupDescription,
-    builderApiAdapter: externalBag.builderApiAdapter
+    builderApiAdapter: externalBag.builderApiAdapter,
+    stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
 
   bag.who = util.format('%s|step|handlers|%s', msName, self.name);
@@ -55,12 +56,15 @@ function _checkInputParams(bag, next) {
   if (consoleErrors.length > 0) {
     _.each(consoleErrors,
       function (e) {
+        var msg = e;
         logger.error(bag.who, e);
+        bag.stepConsoleAdapter.publishMsg(msg);
       }
     );
+    bag.stepConsoleAdapter.closeCmd(false);
     return next(true);
   }
-
+  bag.stepConsoleAdapter.publishMsg('All parameters present.');
   return next();
 }
 
@@ -72,6 +76,10 @@ function _generateScript(bag, next) {
     fs.readFileSync(bag.templatePath).toString();
   var template = _.template(scriptContent);
   bag.script = template(bag.dependency);
+  var msg = util.format('Successfully generated %s script',
+    bag.dependency.type);
+  bag.stepConsoleAdapter.publishMsg(msg);
+
   return next();
 }
 
@@ -81,11 +89,19 @@ function _writeScript(bag, next) {
 
   fs.writeFile(bag.scriptPath, bag.script,
     function (err) {
+      var msg;
       if (err) {
+        msg = util.format('%s, Failed to save script for dependency %s, %s',
+          who, bag.dependency.name, err);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
         return next(err);
       }
 
       fs.chmodSync(bag.scriptPath, '755');
+      msg = util.format('Successfully saved script for dependency %s',
+        bag.dependency.name);
+      bag.stepConsoleAdapter.publishMsg(msg);
       return next();
     }
   );
@@ -101,6 +117,7 @@ function _executeTask(bag, next) {
     options: {},
     parentGroupDescription: bag.parentGroupDescription,
     builderApiAdapter: bag.builderApiAdapter,
+    stepConsoleAdapter: bag.stepConsoleAdapter,
     ignoreCmd: true
   };
 
