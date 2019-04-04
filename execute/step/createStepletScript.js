@@ -4,6 +4,7 @@ var self = createStepletScript;
 module.exports = self;
 
 var fs = require('fs-extra');
+var path = require('path');
 
 var assemble = require('../../assembler/assemble.js');
 
@@ -11,7 +12,11 @@ function createStepletScript(externalBag, callback) {
   var bag = {
     stepData: externalBag.stepData,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
-    stepletScriptPath: externalBag.stepletScriptPath
+    stepletScriptPath: externalBag.stepletScriptPath,
+    runStatusDir: externalBag.runStatusDir,
+    stepletId: externalBag.stepletId,
+    builderApiToken: externalBag.builderApiToken,
+    stepletDir: externalBag.stepletDir
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -19,7 +24,8 @@ function createStepletScript(externalBag, callback) {
   async.series([
       _checkInputParams.bind(null, bag),
       _assembleScript.bind(null, bag),
-      _writeScript.bind(null, bag)
+      _writeScript.bind(null, bag),
+      _setJobEnvs.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -39,7 +45,11 @@ function _checkInputParams(bag, next) {
   var expectedParams = [
     'stepData',
     'execTemplatesRootDir',
-    'stepletScriptPath'
+    'stepletScriptPath',
+    'stepletId',
+    'builderApiToken',
+    'runStatusDir',
+    'stepletDir'
   ];
 
   var paramErrors = [];
@@ -92,6 +102,33 @@ function _writeScript(bag, next) {
       }
 
       fs.chmodSync(bag.stepletScriptPath, '755');
+      return next();
+    }
+  );
+}
+
+function _setJobEnvs(bag, next) {
+  var who = bag.who + '|' + _setJobEnvs.name;
+  logger.verbose(who, 'Inside');
+
+  // TODO: use templates to set these values
+  var jobEnvs = [];
+  jobEnvs.push(util.format('SHIPPABLE_API_URL=%s', global.config.apiUrl));
+  jobEnvs.push(util.format('BUILDER_API_TOKEN=%s', bag.builderApiToken));
+  jobEnvs.push(util.format('STEPLET_ID=%s', bag.stepletId));
+  jobEnvs.push(util.format('RUN_MODE=%s', global.config.runMode));
+  jobEnvs.push(util.format('SCRIPT_PATH=%s', bag.stepletScriptPath));
+  jobEnvs.push(util.format('STEPLET_DIR=%s', bag.stepletDir));
+
+  if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2016')
+    jobEnvs.push('REQEXEC_SHELL=powershell.exe');
+
+  var envPath = path.join(bag.runStatusDir, 'step.env');
+  fs.writeFile(envPath, jobEnvs.join('\n'),
+    function (err) {
+      if (err) {
+        return next(err);
+      }
       return next();
     }
   );
