@@ -8,7 +8,9 @@ var fs = require('fs');
 var path = require('path');
 
 // overriding the delimiters to %%context%%
-_.templateSettings = { interpolate: /\%\%([\s\S]+?)\%\%/g };
+_.templateSettings = _.extend(_.templateSettings,
+  { interpolate: /\%\%([\s\S]+?)\%\%/g });
+
 
 var execGrpTemplate = _.template(fs.readFileSync(
   path.resolve(__dirname, '_templates', 'execGrp.sh'), 'utf8').toString());

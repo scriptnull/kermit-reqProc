@@ -18,20 +18,20 @@ exec_cmd() {
   return $cmd_status
 }
 
-export NO_VERIFY_SSL="<%=noVerifySSL%>"
-export PRIVATE_KEY="<%=privateKey%>"
-export PROJECT_CLONE_URL="<%=projectUrl%>"
-export PROJECT_CLONE_LOCATION="<%=cloneLocation%>"
-export COMMIT_SHA="<%=commitSha%>"
-export IS_PULL_REQUEST=<%=shaData.isPullRequest%>
-export IS_PULL_REQUEST_CLOSE=<%=shaData.isPullRequestClose%>
-export PULL_REQUEST="<%=shaData.pullRequestNumber%>"
-export PULL_REQUEST_BASE_BRANCH="<%=shaData.pullRequestBaseBranch%>"
-export PROJECT="<%=name%>"
-export PROJECT_KEY_LOCATION="<%=keyLocation%>"
-export SHIPPABLE_DEPTH=<%=depth%>
+export NO_VERIFY_SSL="%%noVerifySSL%%"
+export PRIVATE_KEY="%%privateKey%%"
+export PROJECT_CLONE_URL="%%projectUrl%%"
+export PROJECT_CLONE_LOCATION="%%cloneLocation%%"
+export COMMIT_SHA="%%commitSha%%"
+export IS_PULL_REQUEST=%%shaData.isPullRequest%%
+export IS_PULL_REQUEST_CLOSE=%%shaData.isPullRequestClose%%
+export PULL_REQUEST="%%shaData.pullRequestNumber%%"
+export PULL_REQUEST_BASE_BRANCH="%%shaData.pullRequestBaseBranch%%"
+export PROJECT="%%name%%"
+export PROJECT_KEY_LOCATION="%%keyLocation%%"
+export SHIPPABLE_DEPTH=%%depth%%
 if [ "$IS_PULL_REQUEST" != "false" ]; then
-  export BEFORE_COMMIT_SHA="<%=shaData.beforeCommitSha%>"
+  export BEFORE_COMMIT_SHA="%%shaData.beforeCommitSha%%"
 fi
 
 git_sync() {
@@ -45,9 +45,9 @@ git_sync() {
 
   <% _.each(gitConfig, function (config) { %>
   {
-    git config <%=config%>
+    git config %%config%%
   } || {
-    exec_cmd "echo 'Error while setting up git config: <%=config%>'"
+    exec_cmd "echo 'Error while setting up git config: %%config%%'"
     return 1
   }
   <% }); %>
@@ -110,9 +110,9 @@ git_sync() {
 
   <% _.each(gitConfig, function (config) { %>
   {
-    git config --global --unset-all <%=config%>
+    git config --global --unset-all %%config%%
   } || {
-    exec_cmd "echo 'Error while unsetting git config: <%=config%>'"
+    exec_cmd "echo 'Error while unsetting git config: %%config%%'"
     return 1
   }
   <% }); %>
