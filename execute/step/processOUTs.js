@@ -67,12 +67,10 @@ function _processOutSteps(bag, next) {
     function (resource, nextResource) {
       var inDependency = {};
       if (resource.operation === 'OUT') {
-        inDependency.name = resource.name;
-        inDependency.type = global.systemCodesByCode[resource.typeCode].name;
+        inDependency.name = resource.resourceName;
+        inDependency.type =
+          global.systemCodesByCode[resource.resourceTypeCode].name;
         inDependency.operation = resource.operation;
-        inDependency.version = resource.version;
-        inDependency.systemPropertyBag = resource.systemPropertyBag;
-        inDependency.configPropertyBag = resource.configPropertyBag;
       }
 
       if (!inDependency) {

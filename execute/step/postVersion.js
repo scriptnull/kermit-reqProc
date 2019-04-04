@@ -66,9 +66,10 @@ function _postOutResourceVersions(bag, next) {
     function (resource, nextResource) {
       var outDependency = {};
       if (resource.operation === 'OUT') {
-        outDependency.name = resource.name;
-        outDependency.id = resource.id;
-        outDependency.version = resource.version;
+        outDependency.name = resource.resourceName;
+        outDependency.id = resource.resourceId;
+        outDependency.resourceVersionContentPropertyBag =
+          resource.resourceVersionContentPropertyBag;
         outDependency.projectId = resource.projectId;
       }
 
@@ -157,9 +158,9 @@ function __compareVersions(bag, next) {
   logger.debug(who, 'Inside');
 
   bag.stepConsoleAdapter.publishMsg('Comparing current version to original');
-  var originalVersion = bag.dependency.version;
+  var originalVersion = bag.dependency.resourceVersionContentPropertyBag;
 
-  if (!_.isEqual(originalVersion.propertyBag,
+  if (!_.isEqual(originalVersion,
     bag.versionJson)) {
     bag.isChanged = true;
     bag.stepConsoleAdapter.publishMsg('version has changed');

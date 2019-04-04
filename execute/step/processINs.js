@@ -64,12 +64,17 @@ function _processInSteps(bag, next) {
     function (resource, nextResource) {
       var inDependency = {};
       if (resource.operation === 'IN') {
-        inDependency.name = resource.name;
-        inDependency.type = global.systemCodesByCode[resource.typeCode].name;
+        inDependency.name = resource.resourceName;
+        inDependency.type =
+          global.systemCodesByCode[resource.resourceTypeCode].name;
         inDependency.operation = resource.operation;
-        inDependency.version = resource.version;
+        inDependency.version = {};
+        inDependency.version.id = resource.resourceVersionId;
+        inDependency.version.propertyBag =
+          resource.resourceVersionContentPropertyBag;
         inDependency.systemPropertyBag = resource.systemPropertyBag;
-        inDependency.configPropertyBag = resource.configPropertyBag;
+        inDependency.resourceConfigPropertyBag =
+          resource.resourceConfigPropertyBag;
       }
 
       if (!inDependency) {

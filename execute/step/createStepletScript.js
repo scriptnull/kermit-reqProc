@@ -68,7 +68,7 @@ function _assembleScript(bag, next) {
     json: bag.stepData.step,
     objectType: 'steps',
     objectSubType: bag.stepData.step.type
-  }
+  };
 
   assemble(innerBag,
     function (err, result) {
