@@ -22,7 +22,6 @@ function setupMS(params) {
   global.config.amqpUrl = process.env.SHIPPABLE_AMQP_URL;
   global.config.nodeId = process.env.NODE_ID;
   global.config.nodeTypeCode = parseInt(process.env.NODE_TYPE_CODE) || 7001;
-  global.config.subscriptionId = process.env.SUBSCRIPTION_ID;
   global.config.apiToken = process.env.SHIPPABLE_API_TOKEN;
   global.config.execImage = process.env.EXEC_IMAGE;
   global.config.baseDir = process.env.BASE_DIR;
