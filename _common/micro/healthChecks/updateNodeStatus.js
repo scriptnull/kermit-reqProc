@@ -62,7 +62,8 @@ function _updateClusterNodeStatus(bag, next) {
 
   var update = {
     statusCode: statusCodes.SUCCESS,
-    execImage: config.execImage
+    execImage: config.execImage,
+    stepId: null
   };
 
   bag.adapter.putClusterNodeById(config.nodeId,
