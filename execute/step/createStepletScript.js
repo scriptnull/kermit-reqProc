@@ -16,7 +16,8 @@ function createStepletScript(externalBag, callback) {
     runStatusDir: externalBag.runStatusDir,
     stepletId: externalBag.stepletId,
     builderApiToken: externalBag.builderApiToken,
-    stepletDir: externalBag.stepletDir
+    stepletDir: externalBag.stepletDir,
+    stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -49,7 +50,8 @@ function _checkInputParams(bag, next) {
     'stepletId',
     'builderApiToken',
     'runStatusDir',
-    'stepletDir'
+    'stepletDir',
+    'stepConsoleAdapter'
   ];
 
   var paramErrors = [];
@@ -73,6 +75,7 @@ function _assembleScript(bag, next) {
   var who = bag.who + '|' + _assembleScript.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Assembling steplet script');
   var innerBag = {
     execTemplatesRootDir: bag.execTemplatesRootDir,
     json: bag.stepData.step,
@@ -82,9 +85,15 @@ function _assembleScript(bag, next) {
 
   assemble(innerBag,
     function (err, result) {
-      if (err)
+      if (err) {
+        bag.stepConsoleAdapter.publishMsg('Failed to assemble steplet script');
+        bag.stepConsoleAdapter.closeCmd(false);
         return next(err);
+      }
 
+      bag.stepConsoleAdapter.publishMsg(
+        'Successfully assembled steplet script');
+      bag.stepConsoleAdapter.closeCmd(true);
       bag.assembledScript = result.assembledScript;
       return next();
     }
@@ -95,13 +104,20 @@ function _writeScript(bag, next) {
   var who = bag.who + '|' + _writeScript.name;
   logger.debug(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Writing steplet script');
   fs.writeFile(bag.stepletScriptPath, bag.assembledScript,
     function (err) {
       if (err) {
+        bag.stepConsoleAdapter.publishMsg(
+          'Failed to write steplet script at: ' + bag.stepletScriptPath);
+        bag.stepConsoleAdapter.closeCmd(false);
         return next(err);
       }
 
       fs.chmodSync(bag.stepletScriptPath, '755');
+      bag.stepConsoleAdapter.publishMsg(
+        'Successfully saved steplet script at: ' + bag.stepletScriptPath);
+      bag.stepConsoleAdapter.closeCmd(true);
       return next();
     }
   );
@@ -111,6 +127,7 @@ function _setJobEnvs(bag, next) {
   var who = bag.who + '|' + _setJobEnvs.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Setting step envs');
   // TODO: use templates to set these values
   var jobEnvs = [];
   jobEnvs.push(util.format('SHIPPABLE_API_URL=%s', global.config.apiUrl));
@@ -127,8 +144,14 @@ function _setJobEnvs(bag, next) {
   fs.writeFile(envPath, jobEnvs.join('\n'),
     function (err) {
       if (err) {
+        bag.stepConsoleAdapter.publishMsg(
+          'Failed to save step envs at: ' + envPath);
+        bag.stepConsoleAdapter.closeCmd(false);
         return next(err);
       }
+      bag.stepConsoleAdapter.publishMsg(
+        'Updated step envs at: ' + envPath);
+      bag.stepConsoleAdapter.closeCmd(true);
       return next();
     }
   );
