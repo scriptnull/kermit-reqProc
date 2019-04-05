@@ -38,9 +38,9 @@ function executeStep(externalBag, callback) {
   async.series([
       _checkInputParams.bind(null, bag),
       _getStep.bind(null, bag),
+      _initializeStepConsoleAdapter.bind(null, bag),
       _updateStepToProcessing.bind(null, bag),
       _getSteplets.bind(null, bag),
-      _initializeStepConsoleAdapter.bind(null, bag),
       _prepData.bind(null, bag),
       _setupDirectories.bind(null, bag),
       _pollStepStatus.bind(null, bag),
@@ -122,54 +122,6 @@ function _getStep(bag, next) {
   );
 }
 
-function _updateStepToProcessing(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
-
-  var who = bag.who + '|' + _updateStepToProcessing.name;
-  logger.verbose(who, 'Inside');
-
-  var statusCode = global.systemCodesByName['processing'].code;
-
-  var update = {
-    statusCode: statusCode
-  };
-  bag.builderApiAdapter.putStepById(bag.step.id, update,
-    function (err) {
-      if (err) {
-        logger.warn(util.format('%s, putStepById for stepId %s failed ' +
-          'with error: %s', bag.who, bag.step.id, err));
-        bag.error = true;
-        return next();
-      }
-
-      return next();
-
-    }
-  );
-}
-
-function _getSteplets(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
-
-  var who = bag.who + '|' + _getSteplets.name;
-  logger.verbose(who, 'Inside');
-
-  var query = util.format('stepIds=%s', bag.step.id);
-  bag.builderApiAdapter.getSteplets(query,
-    function (err, steplets) {
-      if (err) {
-        logger.warn(util.format('%s, getSteplets for stepId %s failed ' +
-          'with error: %s', bag.who, bag.step.id, err));
-        bag.error = true;
-        return next();
-      }
-
-      bag.stepletsByStepId = _.groupBy(steplets, 'stepId');
-      return next();
-    }
-  );
-}
-
 function _initializeStepConsoleAdapter(bag, next) {
   if (bag.error || bag.timeout || bag.cancelled) return next();
 
@@ -186,16 +138,81 @@ function _initializeStepConsoleAdapter(bag, next) {
   return next();
 }
 
-function _prepData(bag, next) {
+function _updateStepToProcessing(bag, next) {
   if (bag.error || bag.timeout || bag.cancelled) return next();
 
-  var who = bag.who + '|' + _prepData.name;
+  var who = bag.who + '|' + _updateStepToProcessing.name;
   logger.verbose(who, 'Inside');
 
   bag.stepConsoleAdapter.openGrp('Setup');
 
   // We don't know where the group will end so need a flag
   bag.isSetupGrpSuccess = true;
+
+  bag.stepConsoleAdapter.openCmd('Updating step status to processing');
+  var statusCode = global.systemCodesByName['processing'].code;
+
+  var update = {
+    statusCode: statusCode
+  };
+  bag.builderApiAdapter.putStepById(bag.step.id, update,
+    function (err) {
+      if (err) {
+        var msg = util.format('%s, putStepById for stepId %s failed ' +
+          'with error: %s', bag.who, bag.step.id, err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
+        bag.isSetupGrpSuccess = false;
+        bag.error = true;
+        return next();
+      }
+      bag.stepConsoleAdapter.publishMsg(
+        'Successfully updated step status to processing for stepId: ' +
+        bag.step.id);
+      bag.stepConsoleAdapter.closeCmd(true);
+      return next();
+
+    }
+  );
+}
+
+function _getSteplets(bag, next) {
+  if (bag.error || bag.timeout || bag.cancelled) return next();
+
+  var who = bag.who + '|' + _getSteplets.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.openCmd('Fetching steplets');
+
+  var query = util.format('stepIds=%s', bag.step.id);
+  bag.builderApiAdapter.getSteplets(query,
+    function (err, steplets) {
+      if (err) {
+        var msg = util.format('%s, getSteplets for stepId %s failed ' +
+          'with error: %s', bag.who, bag.step.id, err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
+        bag.isSetupGrpSuccess = false;
+        bag.error = true;
+        return next();
+      }
+      bag.stepConsoleAdapter.publishMsg(
+        'Successfully fetched steplets for stepId: ' + bag.step.id);
+      bag.stepConsoleAdapter.closeCmd(true);
+      bag.stepletsByStepId = _.groupBy(steplets, 'stepId');
+      return next();
+    }
+  );
+}
+
+
+function _prepData(bag, next) {
+  if (bag.error || bag.timeout || bag.cancelled) return next();
+
+  var who = bag.who + '|' + _prepData.name;
+  logger.verbose(who, 'Inside');
 
   bag.stepId = bag.step.id;
 
@@ -399,13 +416,16 @@ function _createStepletScript(bag, next) {
     stepletId: bag.stepletsByStepId[bag.step.id][0].id,
     runStatusDir: path.join(bag.runDir, 'status'),
     stepletDir: path.join(bag.runDir, bag.step.name,
-      bag.stepletsByStepId[bag.step.id][0].id.toString())
+      bag.stepletsByStepId[bag.step.id][0].id.toString()),
+    stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
   createStepletScript(innerBag,
     function (err) {
-      if (err)
+      if (err) {
+        bag.isSetupGrpSuccess = false;
         bag.error = true;
+      }
 
       return next();
     }
@@ -530,6 +550,7 @@ function _updateStepStatus(bag, next) {
   var who = bag.who + '|' + _postVersion.name;
   logger.verbose(who, 'Inside');
 
+  bag.stepConsoleAdapter.openCmd('Updating step status');
   var statusCode = global.systemCodesByName['success'].code;
   if (bag.error)
     statusCode = global.systemCodesByName['error'].code;
@@ -541,9 +562,19 @@ function _updateStepStatus(bag, next) {
   };
   bag.builderApiAdapter.putStepById(bag.step.id, update,
     function (err) {
-      if (err)
+      if (err) {
+        var msg = util.format('%s, failed to :putStepById for ' +
+          'stepId: %s with err: %s', who, bag.step.id, err);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
         bag.isCleanupGrpSuccess = false;
-
+      } else {
+        bag.stepConsoleAdapter.publishMsg(
+          util.format('Successfully updated step with status %s',
+          global.systemCodesByCode[update.statusCode].name)
+        );
+        bag.stepConsoleAdapter.closeCmd(true);
+      }
       return next();
 
     }
