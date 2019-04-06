@@ -8,7 +8,7 @@ function handleDependency(externalBag, dependency, callback) {
     builderApiAdapter: externalBag.builderApiAdapter,
     stepInDir: externalBag.stepInDir,
     stepOutDir: externalBag.stepOutDir,
-    stepletConsoleAdapter: externalBag.stepletConsoleAdapter
+    stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
   bag.who = util.format('%s|step|handlers|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -45,8 +45,8 @@ function _handleDependency(bag, dependency, next) {
 
   var msg = util.format('Processing %s Dependency: %s', dependency.operation,
     dependency.name);
-  bag.stepletConsoleAdapter.openCmd(msg);
-  bag.stepletConsoleAdapter.publishMsg('Version Id: ' +
+  bag.stepConsoleAdapter.openCmd(msg);
+  bag.stepConsoleAdapter.publishMsg('Version Id: ' +
     dependency.version.id);
 
   var pathPlaceholder = '{{TYPE}}';
