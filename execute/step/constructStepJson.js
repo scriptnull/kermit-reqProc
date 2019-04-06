@@ -95,13 +95,13 @@ function _prepareStepJSON(bag, next) {
   _.each(bag.runStepConnections,
     function(runStepConnection) {
       var runResourceVersion = runResourceVersionsByResourceName[
-        runStepConnection.operationRunResourceName];
+        runStepConnection.operationRunResourceVersionName];
 
       var integration;
       var integrationObject;
       if (runResourceVersion) {
         var resource = runResourceVersion;
-        resource.resourceId = runStepConnection.operationRunResourceId;
+        resource.resourceId = runStepConnection.operationRunResourceVersionId;
         resource.operation = runStepConnection.operation;
         resource.isTrigger = runStepConnection.isTrigger;
 

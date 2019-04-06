@@ -242,7 +242,10 @@ ShippableAdapter.prototype.getProviders =
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getResources =
   function (query, callback) {
-    callback(null, []);
+    this.get(
+      util.format('/resources?%s', query),
+      callback
+    );
   };
 
 ShippableAdapter.prototype.getResourceById =
@@ -257,14 +260,20 @@ ShippableAdapter.prototype.getResourceById =
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getRunResourceVersions =
   function (query, callback) {
-    callback(null, []);
+    this.get(
+      util.format('/runResourceVersions?%s', query),
+      callback
+    );
   };
 
 // runStepConnections
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getRunStepConnections =
   function (query, callback) {
-    callback(null, []);
+    this.get(
+      util.format('/runStepConnections?%s', query),
+      callback
+    );
   };
 
 ShippableAdapter.prototype.getRuntimeTemplates =
@@ -280,20 +289,29 @@ ShippableAdapter.prototype.getRuntimeTemplates =
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getStepById =
   function (id, callback) {
-    callback(null, {});
+    this.get(
+      util.format('/steps/%s', id),
+      callback
+    );
   };
 
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getSteps =
   function (query, callback) {
-    callback(null, []);
+    this.get(
+      util.format('/steps?%s', query),
+      callback
+    );
   };
 
 // steplets
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getSteplets =
   function (query, callback) {
-    callback(null, []);
+    this.get(
+      util.format('/steplets?%s', query),
+      callback
+    );
   };
 
 ShippableAdapter.prototype.getSubscriptions =
@@ -433,19 +451,21 @@ ShippableAdapter.prototype.getTransactions =
   };
 
 // TODO: Make use of the actual API here, when it is available
-ShippableAdapter.prototype.getResourceVersionById =
-  function (versionId, callback) {
-    callback(null, []);
-  };
-
 ShippableAdapter.prototype.getResourceVersions =
   function (query, callback) {
-    callback(null, []);
+    this.get(
+      util.format('/resourceVerions?%s', query),
+      callback
+    );
   };
 
 ShippableAdapter.prototype.postResourceVersion =
   function (json, callback) {
-    callback(null, []);
+    this.post(
+      util.format('/resourceVersions'),
+      json,
+      callback
+    );
   };
 
 
@@ -631,7 +651,11 @@ ShippableAdapter.prototype.postScmSubscription =
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.postStepConsoles =
   function (json, callback) {
-    callback(null, {});
+    this.post(
+      '/stepConsoles',
+      json,
+      callback
+    );
   };
 
 ShippableAdapter.prototype.postSubscriptionAccounts =
@@ -814,12 +838,11 @@ ShippableAdapter.prototype.getJenkinsJobsByJobname =
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.putStepById =
   function (id, json, callback) {
-    // this.put(
-    //   util.format('/steps/%s', id),
-    //   json,
-    //   callback
-    // );
-    callback(null, {});
+    this.put(
+      util.format('/steps/%s', id),
+      json,
+      callback
+    );
   };
 
 ShippableAdapter.prototype.putSubscriptionById =

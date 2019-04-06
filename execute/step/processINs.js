@@ -79,7 +79,7 @@ function _processInSteps(bag, next) {
           resource.resourceConfigPropertyBag;
       }
 
-      if (!inDependency) {
+      if (_.isEmpty(inDependency)) {
         return nextResource();
       }
 

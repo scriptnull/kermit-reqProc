@@ -65,20 +65,18 @@ function _processOutSteps(bag, next) {
 
   async.eachSeries(bag.stepData.resources,
     function (resource, nextResource) {
-      var inDependency = {};
+      var outDependency = {};
       if (resource.operation === 'OUT') {
-        inDependency.name = resource.resourceName;
-        inDependency.type =
+        outDependency.name = resource.resourceName;
+        outDependency.type =
           global.systemCodesByCode[resource.resourceTypeCode].name;
-        inDependency.operation = resource.operation;
+        outDependency.operation = resource.operation;
       }
-
-      if (!inDependency) {
+      if (_.isEmpty(outDependency)) {
         return nextResource();
       }
-
       async.series([
-          handleDependency.bind(null, bag, inDependency),
+          handleDependency.bind(null, bag, outDependency),
         ],
         function (err) {
           if (err)

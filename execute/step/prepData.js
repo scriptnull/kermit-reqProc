@@ -140,7 +140,8 @@ function _getIntegrations(bag, next) {
     return next();
   }
 
-  var query = util.format('names=%s', integrationNames.join(','));
+  var query = util.format('names=%s&projectIds=***',
+    integrationNames.join(','));
   bag.builderApiAdapter.getIntegrations(query,
     function (err, integrations) {
       if (err) {
@@ -168,22 +169,25 @@ function _getResources(bag, next) {
 
   bag.stepConsoleAdapter.openCmd('Fetching resources');
 
-  var resourceIds =
-    _.compact(_.pluck(bag.runStepConnections, 'operationRunResourceId'));
+  var resourceNames =
+    _.compact(_.pluck(bag.runStepConnections,
+      'operationRunResourceVersionName'));
 
-  if (_.isEmpty(resourceIds)) {
+  if (_.isEmpty(resourceNames)) {
     bag.stepConsoleAdapter.publishMsg(
       'No resources present for step with stepId: ' + bag.stepId);
     bag.stepConsoleAdapter.closeCmd(true);
     return next();
   }
 
-  var query = util.format('resourceIds=%s', resourceIds.join(','));
+  var projectId = bag.runStepConnections[0].projectId;
+  var query = util.format('resourceNames=%s&projectIds=%s',
+    resourceNames.join(','), projectId);
   bag.builderApiAdapter.getResources(query,
     function (err, resources) {
       if (err) {
-        var msg = util.format('%s, getResources for resourceIds %s ' +
-          'failed with error: %s', bag.who, resourceIds.join(','), err);
+        var msg = util.format('%s, getResources for resourceNames %s ' +
+          'failed with error: %s', bag.who, resourceNames.join(','), err);
         logger.warn(msg);
         bag.stepConsoleAdapter.publishMsg(msg);
         bag.stepConsoleAdapter.closeCmd(false);
@@ -200,8 +204,8 @@ function _getResources(bag, next) {
           }
         );
         bag.stepConsoleAdapter.publishMsg(
-          'Successfully fetched resources with resourceIds: ' +
-          resourceIds.join(','));
+          'Successfully fetched resources with resourceNames: ' +
+          resourceNames.join(','));
         bag.stepConsoleAdapter.closeCmd(true);
       }
       return next();

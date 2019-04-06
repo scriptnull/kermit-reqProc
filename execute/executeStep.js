@@ -239,7 +239,7 @@ function _setupDirectories(bag, next) {
   _.each(bag.runStepConnections,
     function(runStepConnection) {
       var resource = _.findWhere(bag.runResourceVersions,
-        {resourceName: runStepConnection.operationRunResourceName});
+        {resourceName: runStepConnection.operationRunResourceVersionName});
       if (resource) {
         resDirToBeCreated.push({
           name: resource.resourceName,
