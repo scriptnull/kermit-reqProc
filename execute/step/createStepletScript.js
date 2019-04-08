@@ -16,14 +16,19 @@ function createStepletScript(externalBag, callback) {
     runStatusDir: externalBag.runStatusDir,
     stepletId: externalBag.stepletId,
     builderApiToken: externalBag.builderApiToken,
+    stepConsoleAdapter: externalBag.stepConsoleAdapter,
     stepletDir: externalBag.stepletDir,
-    stepConsoleAdapter: externalBag.stepConsoleAdapter
+    runtimeTemplate: externalBag.runtimeTemplate,
+    dependencyStateDir: externalBag.dependencyStateDir,
+    outputDir: externalBag.outputDir,
+    stepJsonPath: externalBag.stepJsonPath
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
 
   async.series([
       _checkInputParams.bind(null, bag),
+      _setScriptEnvs.bind(null, bag),
       _assembleScript.bind(null, bag),
       _writeScript.bind(null, bag),
       _setJobEnvs.bind(null, bag)
@@ -51,7 +56,10 @@ function _checkInputParams(bag, next) {
     'builderApiToken',
     'runStatusDir',
     'stepletDir',
-    'stepConsoleAdapter'
+    'stepConsoleAdapter',
+    'runtimeTemplate',
+    'dependencyStateDir',
+    'outputDir'
   ];
 
   var paramErrors = [];
@@ -71,6 +79,32 @@ function _checkInputParams(bag, next) {
   return next(hasErrors);
 }
 
+function _setScriptEnvs(bag, next) {
+  var who = bag.who + '|' + _setScriptEnvs.name;
+  logger.verbose(who, 'Inside');
+
+  bag.scriptEnvs = {
+    'PIPLELINES_RUN_STATUS_DIR': bag.runStatusDir,
+    'STEP_JSON_PATH': bag.stepJsonPath,
+    'STEPLET_SCRIPT_PATH': bag.stepletScriptPath,
+    'REQEXEC_BIN_PATH': global.config.reqExecCommand,
+    'STEP_DEPENDENCY_STATE_DIR': bag.dependencyStateDir,
+    'STEP_OUTPUT_DIR': bag.outputDir,
+    'RUNTIME_DRYDOCK_ORG': bag.runtimeTemplate.drydockOrg,
+    'RUNTIME_DRYDOCK_FAMILY': bag.runtimeTemplate.drydockFamily,
+    'RUNTIME_DRYDOCK_TAG': bag.runtimeTemplate.drydockTag,
+    'RUNTIME_VERSION': bag.runtimeTemplate.version,
+    'DEFAULT_DOCKER_IMAGE_NAME': util.format('%s/%s:%s',
+      bag.runtimeTemplate.drydockOrg, bag.runtimeTemplate.defaultTaskImage,
+      bag.runtimeTemplate.version),
+    'OPERATING_SYSTEM': global.config.shippableNodeOperatingSystem,
+    'ARCHITECTURE': global.config.shippableNodeArchitecture,
+    'REQEXEC_DIR': global.config.reqExecDir
+  };
+
+  return next();
+}
+
 function _assembleScript(bag, next) {
   var who = bag.who + '|' + _assembleScript.name;
   logger.verbose(who, 'Inside');
@@ -80,7 +114,8 @@ function _assembleScript(bag, next) {
     execTemplatesRootDir: bag.execTemplatesRootDir,
     json: bag.stepData.step,
     objectType: 'steps',
-    objectSubType: bag.stepData.step.type
+    objectSubType: bag.stepData.step.type,
+    scriptEnvs: bag.scriptEnvs
   };
 
   assemble(innerBag,
@@ -118,6 +153,7 @@ function _writeScript(bag, next) {
       bag.stepConsoleAdapter.publishMsg(
         'Successfully saved steplet script at: ' + bag.stepletScriptPath);
       bag.stepConsoleAdapter.closeCmd(true);
+      bag.executeScriptPath = bag.stepletScriptPath;
       return next();
     }
   );
@@ -134,7 +170,7 @@ function _setJobEnvs(bag, next) {
   jobEnvs.push(util.format('BUILDER_API_TOKEN=%s', bag.builderApiToken));
   jobEnvs.push(util.format('STEPLET_ID=%s', bag.stepletId));
   jobEnvs.push(util.format('RUN_MODE=%s', global.config.runMode));
-  jobEnvs.push(util.format('SCRIPT_PATH=%s', bag.stepletScriptPath));
+  jobEnvs.push(util.format('SCRIPT_PATH=%s', bag.executeScriptPath));
   jobEnvs.push(util.format('STEPLET_DIR=%s', bag.stepletDir));
 
   if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2016')

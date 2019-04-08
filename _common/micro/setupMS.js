@@ -34,7 +34,7 @@ function setupMS(params) {
     process.env.DEFAULT_TASK_CONTAINER_MOUNTS;
   global.config.defaultTaskContainerOptions =
     process.env.DEFAULT_TASK_CONTAINER_OPTIONS;
-  global.config.taskContainerCommand = process.env.TASK_CONTAINER_COMMAND;
+  global.config.reqExecCommand = process.env.TASK_CONTAINER_COMMAND;
   global.config.shippableNodeArchitecture =
     process.env.SHIPPABLE_NODE_ARCHITECTURE;
   global.config.shippableNodeOperatingSystem =
