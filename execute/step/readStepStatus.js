@@ -1,12 +1,12 @@
 'use strict';
 
-var self = readJobStatus;
+var self = readStepStatus;
 module.exports = self;
 
 var fs = require('fs-extra');
 var path = require('path');
 
-function readJobStatus(externalBag, callback) {
+function readStepStatus(externalBag, callback) {
   var bag = {
     stepId: externalBag.stepId,
     builderApiAdapter: externalBag.builderApiAdapter,
@@ -19,7 +19,7 @@ function readJobStatus(externalBag, callback) {
   async.series([
       _checkInputParams.bind(null, bag),
       _getStepStatus.bind(null, bag),
-      _readJobStatus.bind(null, bag)
+      _readStepStatus.bind(null, bag)
     ],
     function (err) {
       var result;
@@ -93,10 +93,10 @@ function _getStepStatus(bag, next) {
   );
 }
 
-function _readJobStatus(bag, next) {
+function _readStepStatus(bag, next) {
   if (bag.cancelled) return next();
 
-  var who = bag.who + '|' + _readJobStatus.name;
+  var who = bag.who + '|' + _readStepStatus.name;
   logger.verbose(who, 'Inside');
 
   bag.stepConsoleAdapter.openCmd('Reading step status');
