@@ -196,7 +196,7 @@ Adapter.prototype._getTimestamp = function () {
   var that = this;
   var currentProcessTime = process.hrtime();
 
-  return that.startTimeInMicroSec +
+  return Math.round(that.startTimeInMicroSec +
     (currentProcessTime[0] * 1e6 + currentProcessTime[1]/1e3) -
-      that.processStartTimeInMicroSec;
+      that.processStartTimeInMicroSec);
 };
