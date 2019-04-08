@@ -1,13 +1,17 @@
 %%grp%%() {
-ret=0
-is_success=false
+trap before_exit EXIT
 
 %%grpBody%%
 
-[ "$ret" != 0 ] && return $ret;
+ret=$?
+if [ "$ret" != 0 ]; then
+  is_success=false
+  return $ret;
+fi
 
 is_success=true
 }
 
-trap before_exit EXIT
-exec_grp "%%grp%%" "%%grpDesc%%" "%%grpVisibility%%"
+<% if (callFunction) { %>
+%%grp%%
+<% } %>

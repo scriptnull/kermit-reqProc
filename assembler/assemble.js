@@ -14,6 +14,8 @@ _.templateSettings = _.extend(_.templateSettings,
 
 var execGrpTemplate = _.template(fs.readFileSync(
   path.resolve(__dirname, '_templates', 'execGrp.sh'), 'utf8').toString());
+var scriptEnvsTemplate = _.template(fs.readFileSync(path.resolve(
+  __dirname, '_templates', 'scriptEnvs.sh'), 'utf8').toString());
 
 var isDirectory = require('../_common/helpers/isDirectory.js');
 var isFile = require('../_common/helpers/isFile.js');
@@ -24,7 +26,8 @@ function assemble(externalBag, callback) {
     objectType: externalBag.objectType,
     objectSubType: externalBag.objectSubType,
     json: externalBag.json,
-    execTemplatesRootDir: externalBag.execTemplatesRootDir
+    execTemplatesRootDir: externalBag.execTemplatesRootDir,
+    scriptEnvs: externalBag.scriptEnvs
   };
 
   bag.who = util.format('%s|assembler|%s', msName, self.name);
@@ -95,16 +98,23 @@ function _assembleScript(bag, next) {
 
   bag.assembledScript = fs.readFileSync(headerFilePath, 'utf8').toString();
 
-  __addTemplate(bag.objectSubType, rootDirectoryPath, bag.json, bag);
+  if (!_.isEmpty(bag.scriptEnvs)) {
+    bag.assembledScript +=
+      scriptEnvsTemplate({ envs: bag.scriptEnvs});
+  }
+
+  __addTemplate(bag.objectSubType, bag.objectSubType, rootDirectoryPath,
+    bag.json, bag);
   return next();
 }
 
+// objectType: the type of script being created. for eg., bash
 // parentDirectoryName: parent directory of the directory being operated on
 // currentDirectoryPath: directory path of the directory opreated on
 // context: context pertaining to current directory
 // bag: pass by reference to assemble the script
-function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
-  bag) {
+function __addTemplate(objectType, parentDirectoryName, currentDirectoryPath,
+  context, bag) {
   var directoryContents = fs.readdirSync(currentDirectoryPath);
   directoryContents.sort();
   _.each(directoryContents,
@@ -115,7 +125,7 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
       if (isDirectory(path.join(currentDirectoryPath, contentName))) {
         if (__contentExistsInCurrentContextObject(context,
           santizedContentName))
-          __addTemplate(santizedContentName,
+          __addTemplate(objectType, santizedContentName,
             path.join(currentDirectoryPath, contentName),
             context[santizedContentName], bag);
       } else if (isFile(path.join(currentDirectoryPath, contentName))) {
@@ -141,8 +151,10 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
           } else if (_.isObject(context)) {
             script = template({ 'context': context });
           }
-          generatedScript = __execGrp(parentDirectoryName, parentDirectoryName,
-            true, script);
+
+          var callMethod = objectType === parentDirectoryName;
+          generatedScript = __execGrp(callMethod, parentDirectoryName,
+            parentDirectoryName, true, script);
         }
 
         if (generatedScript.length !== 0)
@@ -152,9 +164,10 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
   );
 }
 
-function __execGrp(grp, grpDesc, grpVisibility, grpBody) {
+function __execGrp(callMethod, grp, grpDesc, grpVisibility, grpBody) {
   return execGrpTemplate(
     {
+      callMethod: callMethod,
       grp: grp,
       grpDesc: grpDesc,
       grpVisibility: grpVisibility,
