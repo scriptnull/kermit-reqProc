@@ -433,6 +433,8 @@ function _createStepletScript(bag, next) {
 }
 
 function _closeSetupGroup(bag, next) {
+if (_.isEmpty(bag.step)) return next();
+
   var who = bag.who + '|' + _closeSetupGroup.name;
   logger.verbose(who, 'Inside');
 
@@ -545,7 +547,7 @@ function _postVersion(bag, next) {
 }
 
 function _updateStepStatus(bag, next) {
-  if (bag.cancelled || bag.timeout) return next();
+  if (bag.cancelled || bag.timeout || _.isEmpty(bag.step)) return next();
 
   var who = bag.who + '|' + _postVersion.name;
   logger.verbose(who, 'Inside');
@@ -582,6 +584,8 @@ function _updateStepStatus(bag, next) {
 }
 
 function _closeCleanupGroup(bag, next) {
+  if (_.isEmpty(bag.step)) return next();
+
   var who = bag.who + '|' + _closeCleanupGroup.name;
   logger.verbose(who, 'Inside');
 
