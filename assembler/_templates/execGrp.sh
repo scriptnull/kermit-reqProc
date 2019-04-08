@@ -12,6 +12,6 @@ fi
 is_success=true
 }
 
-<% if (callFunction) { %>
+<% if (callMethod) { %>
 %%grp%%
 <% } %>

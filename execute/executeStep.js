@@ -16,7 +16,7 @@ var constructStepJson = require('./step/constructStepJson.js');
 var processINs = require('./step/processINs.js');
 var createStepletScript = require('./step/createStepletScript.js');
 var handOffAndPoll = require('./step/handOffAndPoll.js');
-var readJobStatus = require('./step/readJobStatus.js');
+var readStepStatus = require('./step/readStepStatus.js');
 var processOUTs = require('./step/processOUTs.js');
 var postVersion = require('./step/postVersion.js');
 
@@ -51,7 +51,7 @@ function executeStep(externalBag, callback) {
       _createStepletScript.bind(null, bag),
       _closeSetupGroup.bind(null, bag),
       _handOffAndPoll.bind(null, bag),
-      _readJobStatus.bind(null, bag),
+      _readStepStatus.bind(null, bag),
       _processOUTs.bind(null, bag),
       _postVersion.bind(null, bag),
       _updateStepStatus.bind(null, bag),
@@ -469,10 +469,10 @@ function _handOffAndPoll(bag, next) {
   );
 }
 
-function _readJobStatus(bag, next) {
+function _readStepStatus(bag, next) {
   if (bag.error || bag.timeout || bag.cancelled) return next();
 
-  var who = bag.who + '|' + _readJobStatus.name;
+  var who = bag.who + '|' + _readStepStatus.name;
   logger.verbose(who, 'Inside');
 
   // This is required because a group is created
@@ -489,7 +489,7 @@ function _readJobStatus(bag, next) {
     stepId: bag.step.id,
     builderApiAdapter: bag.builderApiAdapter
   };
-  readJobStatus(innerBag,
+  readStepStatus(innerBag,
     function (err, resultBag) {
       if (err) {
         bag.error = true;
@@ -502,13 +502,15 @@ function _readJobStatus(bag, next) {
         bag.timeout = true;
       else if (statusName === 'cancelled')
         bag.cancelled = true;
+      else if (statusName === 'failure')
+        bag.failure = true;
       return next();
     }
   );
 }
 
 function _processOUTs(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.timeout || bag.cancelled || bag.failure) return next();
 
   var who = bag.who + '|' + _processOUTs.name;
   logger.verbose(who, 'Inside');
@@ -531,7 +533,7 @@ function _processOUTs(bag, next) {
 }
 
 function _postVersion(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.timeout || bag.cancelled || bag.failure) return next();
 
   var who = bag.who + '|' + _postVersion.name;
   logger.verbose(who, 'Inside');
