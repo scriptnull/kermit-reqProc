@@ -55,7 +55,8 @@ function executeStep(externalBag, callback) {
       _processOUTs.bind(null, bag),
       _postVersion.bind(null, bag),
       _updateStepStatus.bind(null, bag),
-      _closeCleanupGroup.bind(null, bag)
+      _closeCleanupGroup.bind(null, bag),
+      _postPendingStepConsoles.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -468,6 +469,14 @@ function _readJobStatus(bag, next) {
   var who = bag.who + '|' + _readJobStatus.name;
   logger.verbose(who, 'Inside');
 
+  // This is required because a group is created
+  // no matter what the job status is.
+  // And should probably move up when more functions are added.
+  bag.stepConsoleAdapter.openGrp('Cleanup');
+
+  // We don't know where the group will end so need a flag
+  bag.isCleanupGrpSuccess = true;
+
   var innerBag = {
     runStatusDir: path.join(bag.runDir, 'status'),
     stepConsoleAdapter: bag.stepConsoleAdapter,
@@ -494,14 +503,6 @@ function _readJobStatus(bag, next) {
 
 function _processOUTs(bag, next) {
   if (bag.error || bag.timeout || bag.cancelled) return next();
-
-  // This is required because a group is created
-  // no matter what the job status is.
-  // And should probably move up when more functions are added.
-  bag.stepConsoleAdapter.openGrp('Cleanup');
-
-  // We don't know where the group will end so need a flag
-  bag.isCleanupGrpSuccess = true;
 
   var who = bag.who + '|' + _processOUTs.name;
   logger.verbose(who, 'Inside');
@@ -592,4 +593,36 @@ function _closeCleanupGroup(bag, next) {
   bag.stepConsoleAdapter.closeGrp(bag.isCleanupGrpSuccess);
 
   return next();
+}
+
+function _postPendingStepConsoles(bag, next) {
+  if (_.isEmpty(bag.step)) return next();
+
+  var who = bag.who + '|' + _postPendingStepConsoles.name;
+  logger.verbose(who, 'Inside');
+
+  var retryOpts = {
+    times: 10,
+    interval: function (retryCount) {
+      return 1000 * Math.pow(2, retryCount);
+    }
+  };
+
+  async.retry(retryOpts,
+    function (callback) {
+      var callsPending = 0;
+      if (bag.stepConsoleAdapter)
+        callsPending = bag.stepConsoleAdapter.getPendingApiCallCount();
+
+      if (callsPending < 1) {
+        return callback();
+      }
+      return callback(true);
+    },
+    function (err) {
+      if (err)
+        logger.error('Still posting step consoles');
+      return next();
+    }
+  );
 }
