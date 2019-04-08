@@ -140,7 +140,7 @@ function _getIntegrations(bag, next) {
     return next();
   }
 
-  var projectId = bag.runStepConnections[0].project;
+  var projectId = bag.runStepConnections[0].projectId;
   var query = util.format('names=%s&projectIds=%s',
     integrationNames.join(','), projectId);
   bag.builderApiAdapter.getIntegrations(query,
