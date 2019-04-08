@@ -417,7 +417,13 @@ function _createStepletScript(bag, next) {
     runStatusDir: path.join(bag.runDir, 'status'),
     stepletDir: path.join(bag.runDir, bag.step.name,
       bag.stepletsByStepId[bag.step.id][0].id.toString()),
-    stepConsoleAdapter: bag.stepConsoleAdapter
+    stepConsoleAdapter: bag.stepConsoleAdapter,
+    runtimeTemplate: bag.runtimeTemplate,
+    dependencyStateDir: util.format('%s/%s/%s', bag.runDir, bag.step.name,
+      'dependencyState'),
+    outputDir: util.format('%s/%s/%s', bag.runDir, bag.step.name,
+      'output'),
+    stepJsonPath: bag.stepJsonPath
   };
 
   createStepletScript(innerBag,

@@ -778,15 +778,6 @@ ShippableAdapter.prototype.putAccountIntegration =
     );
   };
 
-ShippableAdapter.prototype.putBuildById =
-  function (id, json, callback) {
-    this.put(
-      util.format('/builds/%s', id),
-      json,
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.putBuildJobById =
   function (buildJobId, json, callback) {
     this.put(
