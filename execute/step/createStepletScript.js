@@ -87,7 +87,7 @@ function _setScriptEnvs(bag, next) {
     'PIPLELINES_RUN_STATUS_DIR': bag.runStatusDir,
     'STEP_JSON_PATH': bag.stepJsonPath,
     'STEPLET_SCRIPT_PATH': bag.stepletScriptPath,
-    'REQEXEC_BIN_PATH': global.config.reqExecCommand,
+    'REQEXEC_BIN_PATH': global.config.baseDir + global.config.reqExecCommand,
     'STEP_DEPENDENCY_STATE_DIR': bag.dependencyStateDir,
     'STEP_OUTPUT_DIR': bag.outputDir,
     'RUNTIME_DRYDOCK_ORG': bag.runtimeTemplate.drydockOrg,

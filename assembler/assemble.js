@@ -153,7 +153,10 @@ function __addTemplate(objectType, parentDirectoryName, currentDirectoryPath,
           }
 
           var callMethod = objectType === parentDirectoryName;
-          generatedScript = __execGrp(callMethod, parentDirectoryName,
+          var methodName = parentDirectoryName;
+          if (contentName === context + '.sh')
+            methodName = context;
+          generatedScript = __execGrp(callMethod, methodName,
             parentDirectoryName, true, script);
         }
 
