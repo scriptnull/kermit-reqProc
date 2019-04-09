@@ -86,7 +86,7 @@ function _prepareStepJSON(bag, next) {
     bag.stepData.step['setup'] = bag.step.setupPropertyBag;
 
   if (!_.isEmpty(bag.step.execPropertyBag))
-    bag.stepData.step['execute'] = bag.step.execPropertyBag;
+    bag.stepData.step['execution'] = bag.step.execPropertyBag;
 
   var integrationsByName = _.indexBy(bag.integrations, 'name');
   var runResourceVersionsByResourceName = _.indexBy(
