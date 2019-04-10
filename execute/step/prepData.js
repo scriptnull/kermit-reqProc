@@ -182,7 +182,7 @@ function _getResources(bag, next) {
   }
 
   var projectId = bag.runStepConnections[0].projectId;
-  var query = util.format('resourceNames=%s&projectIds=%s',
+  var query = util.format('names=%s&projectIds=%s',
     resourceNames.join(','), projectId);
   bag.builderApiAdapter.getResources(query,
     function (err, resources) {

@@ -558,7 +558,7 @@ function _postVersion(bag, next) {
 function _updateStepStatus(bag, next) {
   if (bag.cancelled || bag.timeout || _.isEmpty(bag.step)) return next();
 
-  var who = bag.who + '|' + _postVersion.name;
+  var who = bag.who + '|' + _updateStepStatus.name;
   logger.verbose(who, 'Inside');
 
   bag.stepConsoleAdapter.openCmd('Updating step status');
