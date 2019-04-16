@@ -47,7 +47,7 @@ function _handleDependency(bag, dependency, next) {
     dependency.name);
   bag.stepConsoleAdapter.openCmd(msg);
   bag.stepConsoleAdapter.publishMsg('Version Id: ' +
-    dependency.version.id);
+    (dependency.version && dependency.version.id));
 
   var pathPlaceholder = '{{TYPE}}';
   var osType = global.config.shippableNodeOperatingSystem;

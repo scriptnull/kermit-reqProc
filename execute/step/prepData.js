@@ -200,6 +200,7 @@ function _getResources(bag, next) {
             var resource =
               indexResourcesByName[runResourceVersion.resourceName];
             if (!_.isEmpty(resource)) {
+              runResourceVersion.resourceId = resource.id;
               runResourceVersion.systemPropertyBag = resource.systemPropertyBag;
             }
           }
