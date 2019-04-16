@@ -83,24 +83,38 @@ function _setScriptEnvs(bag, next) {
   var who = bag.who + '|' + _setScriptEnvs.name;
   logger.verbose(who, 'Inside');
 
-  bag.scriptEnvs = {
-    'PIPLELINES_RUN_STATUS_DIR': bag.runStatusDir,
-    'STEP_JSON_PATH': bag.stepJsonPath,
-    'STEPLET_SCRIPT_PATH': bag.stepletScriptPath,
-    'REQEXEC_BIN_PATH': global.config.baseDir + global.config.reqExecCommand,
-    'STEP_DEPENDENCY_STATE_DIR': bag.dependencyStateDir,
-    'STEP_OUTPUT_DIR': bag.outputDir,
-    'RUNTIME_DRYDOCK_ORG': bag.runtimeTemplate.drydockOrg,
-    'RUNTIME_DRYDOCK_FAMILY': bag.runtimeTemplate.drydockFamily,
-    'RUNTIME_DRYDOCK_TAG': bag.runtimeTemplate.drydockTag,
-    'RUNTIME_VERSION': bag.runtimeTemplate.version,
-    'DEFAULT_DOCKER_IMAGE_NAME': util.format('%s/%s:%s',
-      bag.runtimeTemplate.drydockOrg, bag.runtimeTemplate.defaultTaskImage,
-      bag.runtimeTemplate.version),
-    'OPERATING_SYSTEM': global.config.shippableNodeOperatingSystem,
-    'ARCHITECTURE': global.config.shippableNodeArchitecture,
-    'REQEXEC_DIR': global.config.reqExecDir
-  };
+  var scriptEnvs = [];
+
+  _.each({
+      'PIPLELINES_RUN_STATUS_DIR': bag.runStatusDir,
+      'STEP_JSON_PATH': bag.stepJsonPath,
+      'STEPLET_SCRIPT_PATH': bag.stepletScriptPath,
+      'REQEXEC_BIN_PATH': global.config.baseDir + global.config.reqExecCommand,
+      'STEP_DEPENDENCY_STATE_DIR': bag.dependencyStateDir,
+      'STEP_OUTPUT_DIR': bag.outputDir,
+      'RUNTIME_DRYDOCK_ORG': bag.runtimeTemplate.drydockOrg,
+      'RUNTIME_DRYDOCK_FAMILY': bag.runtimeTemplate.drydockFamily,
+      'RUNTIME_DRYDOCK_TAG': bag.runtimeTemplate.drydockTag,
+      'RUNTIME_VERSION': bag.runtimeTemplate.version,
+      'DEFAULT_DOCKER_IMAGE_NAME': util.format('%s/%s:%s',
+        bag.runtimeTemplate.drydockOrg, bag.runtimeTemplate.defaultTaskImage,
+        bag.runtimeTemplate.version),
+      'OPERATING_SYSTEM': global.config.shippableNodeOperatingSystem,
+      'ARCHITECTURE': global.config.shippableNodeArchitecture,
+      'REQEXEC_DIR': global.config.reqExecDir
+    }, function (value, key) {
+      scriptEnvs.push({
+        'key': key,
+        'value': value
+      });
+    }
+  );
+
+  if (_.isEmpty(bag.stepData.step.setup))
+    bag.stepData.step.setup = {};
+
+  bag.stepData.step.setup.environmentVariables =
+    scriptEnvs.concat(bag.stepData.step.setup.environmentVariables);
 
   return next();
 }
@@ -114,8 +128,7 @@ function _assembleScript(bag, next) {
     execTemplatesRootDir: bag.execTemplatesRootDir,
     json: bag.stepData.step,
     objectType: 'steps',
-    objectSubType: bag.stepData.step.type,
-    scriptEnvs: bag.scriptEnvs
+    objectSubType: bag.stepData.step.type
   };
 
   assemble(innerBag,
