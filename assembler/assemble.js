@@ -11,10 +11,6 @@ var path = require('path');
 _.templateSettings = _.extend(_.templateSettings,
   { interpolate: /\%\%([\s\S]+?)\%\%/g });
 
-
-var scriptEnvsTemplate = _.template(fs.readFileSync(path.resolve(
-  __dirname, '_templates', 'scriptEnvs.sh'), 'utf8').toString());
-
 var isDirectory = require('../_common/helpers/isDirectory.js');
 var isFile = require('../_common/helpers/isFile.js');
 
@@ -24,8 +20,7 @@ function assemble(externalBag, callback) {
     objectType: externalBag.objectType,
     objectSubType: externalBag.objectSubType,
     json: externalBag.json,
-    execTemplatesRootDir: externalBag.execTemplatesRootDir,
-    scriptEnvs: externalBag.scriptEnvs
+    execTemplatesRootDir: externalBag.execTemplatesRootDir
   };
 
   bag.who = util.format('%s|assembler|%s', msName, self.name);
@@ -83,21 +78,10 @@ function _assembleScript(bag, next) {
 
   var rootDirectoryPath = path.resolve(bag.execTemplatesRootDir, bag.objectType,
     bag.objectSubType);
-  var headerFilePath = path.join(bag.execTemplatesRootDir, '_common',
-    'header.sh');
 
   if (!isDirectory(rootDirectoryPath))
     return next(util.format('Root directory: %s is incorrect',
       rootDirectoryPath));
-
-  if (!isFile(headerFilePath))
-    return next(util.format('Header file path: %s is incorrect',
-      headerFilePath));
-
-  bag.assembledScript = fs.readFileSync(headerFilePath, 'utf8').toString();
-
-  if (!_.isEmpty(bag.scriptEnvs))
-    bag.assembledScript += scriptEnvsTemplate({ envs: bag.scriptEnvs});
 
   __addTemplate(bag.objectSubType, rootDirectoryPath, bag.json, bag);
   return next();
@@ -119,18 +103,6 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
       if (b === 'footer.sh') return -1;
       if (a < b) return -1;
       return 1;
-    }
-  );
-  directoryContents.sort(
-    function (a, b) {
-      if (isFile(path.join(currentDirectoryPath, a)) &&
-        isFile(path.join(currentDirectoryPath, b))) return 0;
-      if (isDirectory(path.join(currentDirectoryPath, a)) &&
-        isDirectory(path.join(currentDirectoryPath, b))) return 0;
-      if (isFile(path.join(currentDirectoryPath, a)) &&
-        isDirectory(path.join(currentDirectoryPath, b))) return -1;
-      if (isDirectory(path.join(currentDirectoryPath, a)) &&
-        isFile(path.join(currentDirectoryPath, b))) return 1;
     }
   );
   _.each(directoryContents,
@@ -176,8 +148,7 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
             contentName), 'utf8').toString();
         }
 
-        var generatedScript = header + script + footer;
-        bag.assembledScript += generatedScript;
+        bag.assembledScript += (header + script + footer);
       }
     }
   );
