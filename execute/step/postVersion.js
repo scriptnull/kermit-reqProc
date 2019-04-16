@@ -83,7 +83,7 @@ function _postOutResourceVersions(bag, next) {
         stepOutDir: bag.stepOutDir,
         builderApiAdapter: bag.builderApiAdapter,
         dependency: outDependency,
-        versionJson: null,
+        versionJson: {},
         hasEnv: true,
         isChanged: false,
         isGrpSuccess: true
@@ -92,6 +92,7 @@ function _postOutResourceVersions(bag, next) {
       bag.stepConsoleAdapter.openCmd('Processing version for ' +
         innerBag.dependency.name);
       async.series([
+          __readReplicateJSON.bind(null, innerBag),
           __readVersionEnv.bind(null, innerBag),
           __compareVersions.bind(null, innerBag),
           __postResourceVersion.bind(null, innerBag)
@@ -111,6 +112,42 @@ function _postOutResourceVersions(bag, next) {
       return next(err);
     }
   );
+}
+
+function __readReplicateJSON(bag, next) {
+  var who = bag.who + '|' + __readReplicateJSON.name;
+  logger.debug(who, 'Inside');
+
+  bag.stepConsoleAdapter.publishMsg('Reading resource replication file');
+
+  var jsonFilePath = path.join(bag.stepOutDir, 'resources', bag.dependency.name,
+    'replicate.json');
+  var jsonFile;
+  try {
+    jsonFile = fs.readFileSync(jsonFilePath).toString();
+    // Remove BOM characters which get added in Windows
+    // Refer https://github.com/nodejs/node-v0.x-archive/issues/1918
+    jsonFile = jsonFile.replace(/^\uFEFF/, '');
+  } catch (err) {
+    bag.stepConsoleAdapter.publishMsg(
+      util.format('Could not read file %s. Skipping.', jsonFilePath));
+    return next();
+  }
+
+  try {
+    var replicateJSON = JSON.parse(jsonFile);
+
+    bag.versionJson = _.extend(bag.versionJson,
+      replicateJSON.resourceVersionContentPropertyBag);
+  } catch (err) {
+    bag.stepConsoleAdapter.publishMsg(
+      util.format('Could not parse file %s. Skipping.', jsonFilePath));
+    bag.stepConsoleAdapter.closeCmd(false);
+    return next();
+  }
+
+  bag.stepConsoleAdapter.publishMsg('Successfully parsed replicate.json file.');
+  return next();
 }
 
 function __readVersionEnv(bag, next) {
@@ -145,7 +182,6 @@ function __readVersionEnv(bag, next) {
         envFilePath));
     bag.stepConsoleAdapter.publishMsg(
       util.format('unable to read file %s.env', bag.dependency.name));
-    bag.stepConsoleAdapter.closeCmd(false);
     bag.hasEnv = false;
   }
   bag.stepConsoleAdapter.publishMsg('Successfully parsed .env file.');
@@ -160,8 +196,8 @@ function __compareVersions(bag, next) {
   bag.stepConsoleAdapter.publishMsg('Comparing current version to original');
   var originalVersion = bag.dependency.resourceVersionContentPropertyBag;
 
-  if (!_.isEqual(originalVersion,
-    bag.versionJson)) {
+  if (!_.isEmpty(bag.versionJson) &&
+    !_.isEqual(originalVersion, bag.versionJson)) {
     bag.isChanged = true;
     bag.stepConsoleAdapter.publishMsg('version has changed');
   }
@@ -180,7 +216,7 @@ function __postResourceVersion(bag, next) {
   bag.stepConsoleAdapter.publishMsg('Posting new version');
   var newResourceVersion = {
     resourceId: bag.dependency.id,
-    contentPopertyBag: bag.versionJson,
+    contentPropertyBag: bag.versionJson,
     projectId: bag.dependency.projectId
   };
 
@@ -198,8 +234,7 @@ function __postResourceVersion(bag, next) {
 
       bag.outVersion = version;
       msg = util.format('Post new resource version for resourceId: %s ' +
-        'succeeded with version %s', version.resourceId,
-        util.inspect(version.versionNumber)
+        'succeeded with version %s', version.resourceId, version.id
       );
       bag.stepConsoleAdapter.publishMsg(msg);
       return next();

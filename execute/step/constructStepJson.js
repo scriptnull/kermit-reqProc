@@ -101,7 +101,6 @@ function _prepareStepJSON(bag, next) {
       var integrationObject;
       if (runResourceVersion) {
         var resource = runResourceVersion;
-        resource.resourceId = runStepConnection.operationRunResourceVersionId;
         resource.operation = runStepConnection.operation;
         resource.isTrigger = runStepConnection.isTrigger;
 
