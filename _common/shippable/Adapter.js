@@ -276,14 +276,6 @@ ShippableAdapter.prototype.getRunStepConnections =
     );
   };
 
-ShippableAdapter.prototype.getRuntimeTemplates =
-  function (query, callback) {
-    this.get(
-      util.format('/runtimeTemplates?%s', query),
-      callback
-    );
-  };
-
 // steps
 
 // TODO: Make use of the actual API here, when it is available

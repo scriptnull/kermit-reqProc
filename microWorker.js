@@ -25,7 +25,6 @@ function microWorker(message) {
       _checkInputParams.bind(null, bag),
       _updateClusterNodeStatus.bind(null, bag),
       _getClusters.bind(null, bag),
-      _getRuntimeTemplates.bind(null, bag),
       _cleanupRunDirectory.bind(null, bag),
       _executeStep.bind(null, bag),
       _cleanupRunDirectory.bind(null, bag)
@@ -108,33 +107,6 @@ function _getClusters(bag, next) {
         return next(true);
       }
 
-      bag.runtimeTemplateId = clusters[0].runtimeTemplateId;
-      return next();
-    }
-  );
-}
-
-function _getRuntimeTemplates(bag, next) {
-  var who = bag.who + '|' + _getClusters.name;
-  logger.verbose(who, 'Inside');
-
-  bag.builderApiAdapter.getRuntimeTemplates(
-    util.format('runtimeTeplateIds=%s', bag.runtimeTemplateId),
-    function (err, runtimeTemplates) {
-      if (err) {
-        logger.warn(util.format('%s, getRuntimeTemplates for ' +
-          'runtimeTeplateId %s failed with error: %s', bag.who,
-          bag.runtimeTeplateId, err));
-        return next(true);
-      }
-
-      if (_.isEmpty(runtimeTemplates)) {
-        logger.warn(util.format('%s, runtimeTemplates is empty for ' +
-          'runtimeTemplateIds: %s', bag.clusterId));
-        return next(true);
-      }
-
-      bag.runtimeTemplate = runtimeTemplates[0];
       return next();
     }
   );
@@ -167,7 +139,6 @@ function _executeStep(bag, next) {
   var innerBag = {
     stepId: bag.stepIds[0],
     builderApiAdapter: bag.builderApiAdapter,
-    runtimeTemplate: bag.runtimeTemplate,
     runDir: bag.runDir,
     execTemplatesDir: bag.execTemplatesDir,
     execTemplatesRootDir: bag.execTemplatesRootDir,

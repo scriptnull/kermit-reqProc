@@ -24,7 +24,6 @@ function executeStep(externalBag, callback) {
   var bag = {
     stepId: externalBag.stepId,
     builderApiAdapter: externalBag.builderApiAdapter,
-    runtimeTemplate: externalBag.runtimeTemplate,
     runDir: externalBag.runDir,
     execTemplatesDir: externalBag.execTemplatesDir,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
@@ -81,11 +80,6 @@ function _checkInputParams(bag, next) {
 
   if (_.isEmpty(bag.builderApiAdapter)) {
     logger.warn(util.format('%s, builderApiAdapter is empty', who));
-    return next(true);
-  }
-
-  if (_.isEmpty(bag.runtimeTemplate)) {
-    logger.warn(util.format('%s, runtimeTemplate is empty.', who));
     return next(true);
   }
 
@@ -419,7 +413,6 @@ function _createStepletScript(bag, next) {
     stepletDir: path.join(bag.runDir, bag.step.name,
       bag.stepletsByStepId[bag.step.id][0].id.toString()),
     stepConsoleAdapter: bag.stepConsoleAdapter,
-    runtimeTemplate: bag.runtimeTemplate,
     dependencyStateDir: util.format('%s/%s/%s', bag.runDir, bag.step.name,
       'dependencyState'),
     outputDir: util.format('%s/%s/%s', bag.runDir, bag.step.name,
