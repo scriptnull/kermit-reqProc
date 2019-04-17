@@ -174,14 +174,6 @@ ShippableAdapter.prototype.postClusterNodeStats =
     );
   };
 
-ShippableAdapter.prototype.getClusters =
-  function (query, callback) {
-    this.get(
-      util.format('/clusters?%s', query),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.getFilesByResourceId =
   function(resourceId, query, callback) {
     this.get(
@@ -276,14 +268,6 @@ ShippableAdapter.prototype.getRunStepConnections =
     );
   };
 
-ShippableAdapter.prototype.getRuntimeTemplates =
-  function (query, callback) {
-    this.get(
-      util.format('/runtimeTemplates?%s', query),
-      callback
-    );
-  };
-
 // steps
 
 // TODO: Make use of the actual API here, when it is available
@@ -366,14 +350,6 @@ ShippableAdapter.prototype.validateSystemNodeById =
   function (systemNodeId, callback) {
     this.get(
       util.format('/systemNodes/%s/validate', systemNodeId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSystemClusters =
-  function (query, callback) {
-    this.get(
-      util.format('/systemClusters?%s', query),
       callback
     );
   };

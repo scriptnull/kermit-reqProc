@@ -18,7 +18,6 @@ function createStepletScript(externalBag, callback) {
     builderApiToken: externalBag.builderApiToken,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
     stepletDir: externalBag.stepletDir,
-    runtimeTemplate: externalBag.runtimeTemplate,
     dependencyStateDir: externalBag.dependencyStateDir,
     outputDir: externalBag.outputDir,
     stepJsonPath: externalBag.stepJsonPath
@@ -57,7 +56,6 @@ function _checkInputParams(bag, next) {
     'runStatusDir',
     'stepletDir',
     'stepConsoleAdapter',
-    'runtimeTemplate',
     'dependencyStateDir',
     'outputDir'
   ];
@@ -92,13 +90,6 @@ function _setScriptEnvs(bag, next) {
       'REQEXEC_BIN_PATH': global.config.baseDir + global.config.reqExecCommand,
       'STEP_DEPENDENCY_STATE_DIR': bag.dependencyStateDir,
       'STEP_OUTPUT_DIR': bag.outputDir,
-      'RUNTIME_DRYDOCK_ORG': bag.runtimeTemplate.drydockOrg,
-      'RUNTIME_DRYDOCK_FAMILY': bag.runtimeTemplate.drydockFamily,
-      'RUNTIME_DRYDOCK_TAG': bag.runtimeTemplate.drydockTag,
-      'RUNTIME_VERSION': bag.runtimeTemplate.version,
-      'DEFAULT_DOCKER_IMAGE_NAME': util.format('%s/%s:%s',
-        bag.runtimeTemplate.drydockOrg, bag.runtimeTemplate.defaultTaskImage,
-        bag.runtimeTemplate.version),
       'OPERATING_SYSTEM': global.config.shippableNodeOperatingSystem,
       'ARCHITECTURE': global.config.shippableNodeArchitecture,
       'REQEXEC_DIR': global.config.reqExecDir
