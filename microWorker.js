@@ -24,7 +24,6 @@ function microWorker(message) {
   async.series([
       _checkInputParams.bind(null, bag),
       _updateClusterNodeStatus.bind(null, bag),
-      _getClusters.bind(null, bag),
       _cleanupRunDirectory.bind(null, bag),
       _executeStep.bind(null, bag),
       _cleanupRunDirectory.bind(null, bag)
@@ -80,30 +79,6 @@ function _updateClusterNodeStatus(bag, next) {
       if (err) {
         logger.warn(util.format('%s, putClusterNodeById for nodeId %s failed ' +
           'with error: %s', bag.who, global.config.nodeId, err));
-        return next(true);
-      }
-
-      bag.clusterId = clusterNode.clusterId;
-      return next();
-    }
-  );
-}
-
-function _getClusters(bag, next) {
-  var who = bag.who + '|' + _getClusters.name;
-  logger.verbose(who, 'Inside');
-
-  bag.builderApiAdapter.getClusters(util.format('clusterIds=%s', bag.clusterId),
-    function (err, clusters) {
-      if (err) {
-        logger.warn(util.format('%s, getClusters for clusterId %s failed ' +
-          'with error: %s', bag.who, bag.clusterId, err));
-        return next(true);
-      }
-
-      if (_.isEmpty(clusters)) {
-        logger.warn(util.format('%s, clusters is empty for clusterIds: %s',
-          bag.clusterId));
         return next(true);
       }
 
