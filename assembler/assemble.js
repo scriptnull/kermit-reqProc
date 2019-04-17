@@ -14,13 +14,17 @@ _.templateSettings = _.extend(_.templateSettings,
 var isDirectory = require('../_common/helpers/isDirectory.js');
 var isFile = require('../_common/helpers/isFile.js');
 
+var assemblyOrder = ['onSuccess', 'onFailure', 'onComplete',
+  'environmentVariables', 'image', 'onStart', 'onExecute'];
+
 function assemble(externalBag, callback) {
   var bag = {
-    assembledScript: '',
+    assembledScript: {},
     objectType: externalBag.objectType,
     objectSubType: externalBag.objectSubType,
     json: externalBag.json,
-    execTemplatesRootDir: externalBag.execTemplatesRootDir
+    execTemplatesRootDir: externalBag.execTemplatesRootDir,
+    script: ''
   };
 
   bag.who = util.format('%s|assembler|%s', msName, self.name);
@@ -28,7 +32,8 @@ function assemble(externalBag, callback) {
 
   async.series([
       _checkInputParams.bind(null, bag),
-      _assembleScript.bind(null, bag)
+      _assembleScript.bind(null, bag),
+      _combineScript.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -37,7 +42,7 @@ function assemble(externalBag, callback) {
         logger.info(bag.who, 'Successfully assembled script');
 
       var resultBag = {
-        assembledScript: bag.assembledScript
+        assembledScript: bag.script
       };
 
       return callback(err, resultBag);
@@ -87,6 +92,21 @@ function _assembleScript(bag, next) {
   return next();
 }
 
+function _combineScript(bag, next) {
+  var who = bag.who + '|' + _combineScript.name;
+  logger.verbose(who, 'Inside');
+
+  _.each([ bag.objectSubType ].concat(assemblyOrder),
+    function (component) {
+      if (!_.isEmpty(bag.assembledScript[component]))
+        bag.script += (bag.assembledScript[component].header +
+          bag.assembledScript[component].script +
+          bag.assembledScript[component].footer);
+    }
+  );
+  return next();
+}
+
 // parentDirectoryName: parent directory of the directory being operated on
 // currentDirectoryPath: directory path of the directory opreated on
 // context: context pertaining to current directory
@@ -117,9 +137,17 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
             path.join(currentDirectoryPath, contentName),
             context[santizedContentName], bag);
       } else if (isFile(path.join(currentDirectoryPath, contentName))) {
-        var header = '';
-        var footer = '';
         var script = '';
+
+        if (!bag.assembledScript[parentDirectoryName])
+          bag.assembledScript[parentDirectoryName] = {};
+        if (_.isEmpty(bag.assembledScript[parentDirectoryName].script))
+          bag.assembledScript[parentDirectoryName].script = '';
+        if (_.isEmpty(bag.assembledScript[parentDirectoryName].header))
+          bag.assembledScript[parentDirectoryName].header = '';
+        if (_.isEmpty(bag.assembledScript[parentDirectoryName].footer))
+          bag.assembledScript[parentDirectoryName].footer = '';
+
         if (contentName === parentDirectoryName + '.sh' ||
           contentName === context + '.sh') {
           var templateScript = fs.readFileSync(path.join(currentDirectoryPath,
@@ -140,15 +168,17 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
           } else if (_.isObject(context)) {
             script = template({ 'context': context });
           }
-        } else if (contentName === 'header.sh') {
-          header = fs.readFileSync(path.join(currentDirectoryPath,
-            contentName), 'utf8').toString();
-        } else if (contentName === 'footer.sh') {
-          footer = fs.readFileSync(path.join(currentDirectoryPath,
-            contentName), 'utf8').toString();
-        }
 
-        bag.assembledScript += (header + script + footer);
+          bag.assembledScript[parentDirectoryName].script += script;
+        } else if (contentName === 'header.sh') {
+          bag.assembledScript[parentDirectoryName].header =
+            fs.readFileSync(path.join(currentDirectoryPath, contentName),
+              'utf8').toString();
+        } else if (contentName === 'footer.sh') {
+          bag.assembledScript[parentDirectoryName].footer =
+            fs.readFileSync(path.join(currentDirectoryPath, contentName),
+              'utf8').toString();
+        }
       }
     }
   );
