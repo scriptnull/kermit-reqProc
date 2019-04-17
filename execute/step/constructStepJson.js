@@ -140,7 +140,8 @@ function __createIntegrationObject(integration) {
   var integrationObject = {};
   integrationObject.integrationValues = {
     id: integration.id,
-    name: integration.name
+    name: integration.name,
+    masterName: integration.masterIntegrationName
   };
   integrationObject.formJSONValues =
     getValuesFromIntegrationJson(integration.formJSONValues);
