@@ -342,7 +342,8 @@ function _constructStepJson(bag, next) {
         bag.error = true;
         bag.isSetupGrpSuccess = false;
       } else {
-        bag = _.extend(bag, resultBag);
+        bag.stepData = resultBag.stepData;
+        bag.stepEnvs = resultBag.stepEnvs;
       }
 
       return next();
@@ -405,6 +406,7 @@ function _createStepletScript(bag, next) {
 
   var innerBag = {
     stepData: bag.stepData,
+    stepEnvs: bag.stepEnvs,
     execTemplatesRootDir: bag.execTemplatesRootDir,
     stepletScriptPath: bag.stepletScriptPaths[0],
     builderApiToken: bag.builderApiToken,

@@ -13,6 +13,8 @@ function constructStepJson(externalBag, callback) {
     integrations: externalBag.integrations,
     step: externalBag.step,
     stepData: {},
+    stepEnvs: [],
+    rawEnvs: {},
     stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
@@ -20,7 +22,8 @@ function constructStepJson(externalBag, callback) {
 
   async.series([
       _checkInputParams.bind(null, bag),
-      _prepareStepJSON.bind(null, bag)
+      _prepareStepJSON.bind(null, bag),
+      _validateStepEnvs.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -29,9 +32,9 @@ function constructStepJson(externalBag, callback) {
         logger.info(bag.who, util.format('Successfully created step.json'));
 
       var result = {
-        stepData: bag.stepData
+        stepData: bag.stepData,
+        stepEnvs: bag.stepEnvs
       };
-
       return callback(err, result);
     }
   );
@@ -81,6 +84,9 @@ function _prepareStepJSON(bag, next) {
     resources: {},
     integrations: {}
   };
+  bag.rawEnvs['STEP_ID'] = bag.step.id;
+  bag.rawEnvs['STEP_NAME'] = bag.step.name;
+  bag.rawEnvs['STEP_TYPE'] = global.systemCodesByCode[bag.step.typeCode].name;
 
   if (!_.isEmpty(bag.step.setupPropertyBag))
     bag.stepData.step['setup'] = bag.step.setupPropertyBag;
@@ -110,7 +116,6 @@ function _prepareStepJSON(bag, next) {
           resource.resourcePath = util.format(
             '%s/%s/dependencyState/resources/%s',
             global.config.runDir, bag.step.name, resource.resourceName);
-
         if (integrationsByName[
           runResourceVersion.resourceConfigPropertyBag.integrationName]) {
           integration = integrationsByName[
@@ -123,6 +128,22 @@ function _prepareStepJSON(bag, next) {
           bag.stepData.resources[
             runResourceVersion.resourceName] = resource;
         }
+
+        var resPrefix = 'res_' + runResourceVersion.resourceName + '_';
+        bag.rawEnvs[resPrefix + 'resourcePath'] = resource.resourcePath;
+        bag.rawEnvs[resPrefix + 'operation'] = resource.operation;
+        bag.rawEnvs[resPrefix + 'isTrigger'] = resource.isTrigger;
+        _.each(resource.resourceVersionContentPropertyBag,
+          function (value, key) {
+            bag.rawEnvs[resPrefix + key] = value;
+          }
+        );
+        var resIntPrefix = resPrefix + 'int_';
+        _.each(resource.integration,
+          function (value, key) {
+            bag.rawEnvs[resIntPrefix + key] = value;
+          }
+        );
       }
 
       if (integrationsByName[
@@ -134,6 +155,12 @@ function _prepareStepJSON(bag, next) {
           bag.stepData.integrations[integration.name] =
             _.extend(integrationObject.integrationValues,
               integrationObject.formJSONValues);
+          var intPrefix = 'int_' + integration.name + '_';
+          _.each(bag.stepData.integrations[integration.name],
+            function (value, key) {
+              bag.rawEnvs[intPrefix + key] = value;
+            }
+          );
         }
       }
     }
@@ -141,6 +168,39 @@ function _prepareStepJSON(bag, next) {
   bag.stepConsoleAdapter.publishMsg('Successfully created step.json');
   bag.stepConsoleAdapter.closeCmd(true);
   return next();
+}
+
+function _validateStepEnvs(bag, next) {
+  var who = bag.who + '|' + _validateStepEnvs.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.openCmd('Validating ENV list');
+  _.each(bag.rawEnvs,
+    function (value, key) {
+      var escapedValue = __escapeSingleQuotes(value);
+      var validator = RegExp(/^[a-zA-Z_][a-zA-Z0-9_]*$/);
+      if (validator.test(key))
+        bag.stepEnvs.push({
+          key: key,
+          value: escapedValue
+        });
+      else
+        bag.stepConsoleAdapter.publishMsg(
+          util.format('Warning: key "%s" violates shell ENV naming rules', key)
+        );
+    }
+  );
+
+  bag.stepConsoleAdapter.publishMsg('Finished validating ENV list');
+  bag.stepConsoleAdapter.closeCmd(true);
+
+  return next();
+}
+
+function __escapeSingleQuotes(value) {
+  if (_.isEmpty(value) || !_.isString(value))
+    return value;
+  return value.replace(/'/g, '\'"\'"\'');
 }
 
 function __createIntegrationObject(integration) {
