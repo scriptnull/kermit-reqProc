@@ -156,8 +156,8 @@ function __readVersionEnv(bag, next) {
 
   bag.stepConsoleAdapter.publishMsg('Reading resource env file');
 
-  var envFilePath = path.join(bag.stepOutDir, 'resources', util.format('%s.env',
-    bag.dependency.name));
+  var envFilePath = path.join(bag.stepOutDir, 'resources', util.format('%s/%s.env',
+    bag.dependency.name, bag.dependency.name));
   try {
     var envFile = fs.readFileSync(envFilePath).toString();
     // Remove BOM characters which get added in case of Windows
