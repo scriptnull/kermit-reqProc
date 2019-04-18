@@ -11,6 +11,7 @@ var assemble = require('../../assembler/assemble.js');
 function createStepletScript(externalBag, callback) {
   var bag = {
     stepData: externalBag.stepData,
+    stepEnvs: externalBag.stepEnvs,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
     stepletScriptPath: externalBag.stepletScriptPath,
     runStatusDir: externalBag.runStatusDir,
@@ -49,6 +50,7 @@ function _checkInputParams(bag, next) {
 
   var expectedParams = [
     'stepData',
+    'stepEnvs',
     'execTemplatesRootDir',
     'stepletScriptPath',
     'stepletId',
@@ -81,7 +83,7 @@ function _setScriptEnvs(bag, next) {
   var who = bag.who + '|' + _setScriptEnvs.name;
   logger.verbose(who, 'Inside');
 
-  var scriptEnvs = [];
+  var scriptEnvs = bag.stepEnvs || [];
 
   _.each({
       'PIPLELINES_RUN_STATUS_DIR': bag.runStatusDir,
