@@ -167,12 +167,16 @@ function __readVersionEnv(bag, next) {
 
     _.each(lines,
       function (line) {
-        var nameAndValue = line.split('=');
-        var key = nameAndValue[0];
-        var value = nameAndValue[1];
-        if (key) {
-          bag.stepConsoleAdapter.publishMsg('found a key: ' + key);
-          bag.versionJson[key] = value;
+        var splitIndex = line.indexOf('=');
+        if (splitIndex !== -1) {
+          var key = line.slice(0, splitIndex);
+          var value = line.slice(splitIndex + 1);
+          if (key) {
+            bag.stepConsoleAdapter.publishMsg('found a key: ' + key);
+            bag.versionJson[key] = value;
+          }
+        } else if (line) {
+          bag.stepConsoleAdapter.publishMsg('Unable to parse ' + line);
         }
       }
     );
