@@ -103,6 +103,13 @@ function _prepareStepJSON(bag, next) {
         var resource = runResourceVersion;
         resource.operation = runStepConnection.operation;
         resource.isTrigger = runStepConnection.isTrigger;
+        if (resource.operation === 'OUT')
+          resource.resourcePath = util.format('%s/%s/output/resources/%s',
+            global.config.runDir, bag.step.name, resource.resourceName);
+        else if (resource.operation === 'IN')
+          resource.resourcePath = util.format(
+            '%s/%s/dependencyState/resources/%s',
+            global.config.runDir, bag.step.name, resource.resourceName);
 
         if (integrationsByName[
           runResourceVersion.resourceConfigPropertyBag.integrationName]) {
