@@ -18,6 +18,21 @@ exec_cmd() {
   return $cmd_status
 }
 
+retry_command() {
+  for i in $(seq 1 3);
+  do
+    {
+      "$@"
+      ret=$?
+      [ $ret -eq 0 ] && break;
+    } || {
+      echo "retrying $i of 3 times..."
+      echo "$@"
+    }
+  done
+  return $ret
+}
+
 export PRIVATE_KEY="%%privateKey%%"
 export PROJECT_CLONE_URL="%%projectUrl%%"
 export PROJECT_CLONE_LOCATION="%%cloneLocation%%"
@@ -51,7 +66,7 @@ git_sync() {
   if [ ! -z "$SHIPPABLE_DEPTH" ]; then
     git_clone_cmd="git clone --no-single-branch --depth $SHIPPABLE_DEPTH $PROJECT_CLONE_URL $PROJECT_CLONE_LOCATION"
   fi
-  shippable_retry ssh-agent bash -c "ssh-add $PROJECT_KEY_LOCATION; $git_clone_cmd"
+  retry_command ssh-agent bash -c "ssh-add $PROJECT_KEY_LOCATION; $git_clone_cmd"
 
   echo "----> Pushing Directory $PROJECT_CLONE_LOCATION"
   pushd $PROJECT_CLONE_LOCATION
@@ -66,7 +81,7 @@ git_sync() {
     if [ ! -z "$SHIPPABLE_DEPTH" ]; then
       git_fetch_cmd="git fetch --depth $SHIPPABLE_DEPTH origin merge-requests/$PULL_REQUEST/head"
     fi
-    shippable_retry ssh-agent bash -c "ssh-add $PROJECT_KEY_LOCATION; $git_fetch_cmd"
+    retry_command ssh-agent bash -c "ssh-add $PROJECT_KEY_LOCATION; $git_fetch_cmd"
     git checkout -f FETCH_HEAD
     merge_result=0
     {
