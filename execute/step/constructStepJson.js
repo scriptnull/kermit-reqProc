@@ -177,17 +177,10 @@ function _validateStepEnvs(bag, next) {
   bag.stepConsoleAdapter.openCmd('Validating ENV list');
   _.each(bag.rawEnvs,
     function (value, key) {
-      var escapedValue = __escapeSingleQuotes(value);
-      var validator = RegExp(/^[a-zA-Z_][a-zA-Z0-9_]*$/);
-      if (validator.test(key))
-        bag.stepEnvs.push({
-          key: key,
-          value: escapedValue
-        });
-      else
-        bag.stepConsoleAdapter.publishMsg(
-          util.format('Warning: key "%s" violates shell ENV naming rules', key)
-        );
+      bag.stepEnvs.push({
+        key: key,
+        value: value
+      });
     }
   );
 
@@ -195,12 +188,6 @@ function _validateStepEnvs(bag, next) {
   bag.stepConsoleAdapter.closeCmd(true);
 
   return next();
-}
-
-function __escapeSingleQuotes(value) {
-  if (_.isEmpty(value) || !_.isString(value))
-    return value;
-  return value.replace(/'/g, '\'"\'"\'');
 }
 
 function __createIntegrationObject(integration) {
