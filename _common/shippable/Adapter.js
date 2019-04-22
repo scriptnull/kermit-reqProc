@@ -551,6 +551,15 @@ ShippableAdapter.prototype.deleteVersionById =
 
 //#######################  POST  by alphabetical order  ########################
 
+ShippableAdapter.prototype.decryptByProjectId =
+  function (projectId, json, callback) {
+    this.post(
+      util.format('/projects/%s/decrypt', projectId),
+      json,
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.postBuild =
   function (json, callback) {
     this.post(
@@ -623,8 +632,6 @@ ShippableAdapter.prototype.postScmSubscription =
     );
   };
 
-// stepConsoles
-// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.postStepConsoles =
   function (json, callback) {
     this.post(

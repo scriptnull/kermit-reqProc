@@ -13,6 +13,7 @@ var prepData = require('./step/prepData.js');
 var pollStepStatus = require('./step/pollStepStatus.js');
 var setupDirectories = require('./step/setupDirectories.js');
 var constructStepJson = require('./step/constructStepJson.js');
+var decryptSecureEnvs = require('./step/decryptSecureEnvs.js');
 var processINs = require('./step/processINs.js');
 var createStepletScript = require('./step/createStepletScript.js');
 var handOffAndPoll = require('./step/handOffAndPoll.js');
@@ -45,6 +46,7 @@ function executeStep(externalBag, callback) {
       _pollStepStatus.bind(null, bag),
       _setExecutorAsReqProc.bind(null, bag),
       _constructStepJson.bind(null, bag),
+      _decryptSecureEnvs.bind(null, bag),
       _addStepJson.bind(null, bag),
       _processINs.bind(null, bag),
       _createStepletScript.bind(null, bag),
@@ -112,6 +114,7 @@ function _getStep(bag, next) {
         'cancelled';
       bag.timeout = global.systemCodesByCode[bag.step.statusCode].name ===
         'timeout';
+      bag.projectId = steps[0].projectId;
       return next();
     }
   );
@@ -350,6 +353,34 @@ function _constructStepJson(bag, next) {
     }
   );
 }
+
+function _decryptSecureEnvs(bag, next) {
+  if (bag.error || bag.timeout || bag.cancelled) return next();
+
+  var who = bag.who + '|' + _decryptSecureEnvs.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    stepData: bag.stepData,
+    projectId: bag.projectId,
+    stepConsoleAdapter: bag.stepConsoleAdapter,
+    builderApiAdapter: bag.builderApiAdapter
+  };
+
+  decryptSecureEnvs(innerBag,
+    function (err, resultBag) {
+      if (err) {
+        bag.error = true;
+        bag.isSetupGrpSuccess = false;
+      } else {
+        bag.stepData = resultBag.stepData;
+      }
+
+      return next();
+    }
+  );
+}
+
 
 function _addStepJson(bag, next) {
   if (bag.error || bag.timeout || bag.cancelled) return next();
