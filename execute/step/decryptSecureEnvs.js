@@ -64,10 +64,6 @@ function _decryptSecureEnvs(bag, next) {
   var who = bag.who + '|' + _decryptSecureEnvs.name;
   logger.verbose(who, 'Inside');
 
-  if (!bag.stepData.step || !bag.stepData.step.setup ||
-    !bag.stepData.step.setup.environmentVariables)
-    return next();
-
   var error = false;
   bag.stepConsoleAdapter.openCmd('Decrypting secure envs');
 

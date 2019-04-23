@@ -357,6 +357,10 @@ function _constructStepJson(bag, next) {
 function _decryptSecureEnvs(bag, next) {
   if (bag.error || bag.timeout || bag.cancelled) return next();
 
+  if (!bag.stepData.step || !bag.stepData.step.setup ||
+    !bag.stepData.step.setup.environmentVariables)
+    return next();
+
   var who = bag.who + '|' + _decryptSecureEnvs.name;
   logger.verbose(who, 'Inside');
 
