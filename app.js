@@ -82,9 +82,9 @@ if (!global.config.shippableReleaseVersion)
     util.format('%s is missing: shippableReleaseVersion', who)
   );
 
-if (!global.config.shippableAMIVersion)
+if (!global.config.shippableRuntimeVersion)
   consoleErrors.push(
-    util.format('%s is missing: shippableAMIVersion', who)
+    util.format('%s is missing: shippableRuntimeVersion', who)
   );
 
 if (!global.config.clusterTypeCode)
