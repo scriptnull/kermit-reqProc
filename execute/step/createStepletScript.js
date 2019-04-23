@@ -108,7 +108,7 @@ function _setScriptEnvs(bag, next) {
     bag.stepData.step.setup = {};
 
   bag.stepData.step.setup.environmentVariables =
-    scriptEnvs.concat(bag.stepData.step.setup.environmentVariables);
+    scriptEnvs.concat(bag.stepData.step.setup.environmentVariables || []);
 
   return next();
 }
