@@ -148,7 +148,8 @@ function _updateStepToProcessing(bag, next) {
   var statusCode = global.systemCodesByName['processing'].code;
 
   var update = {
-    statusCode: statusCode
+    statusCode: statusCode,
+    startedAt: new Date()
   };
   bag.builderApiAdapter.putStepById(bag.step.id, update,
     function (err) {
@@ -564,7 +565,8 @@ function _updateStepStatus(bag, next) {
     statusCode = global.systemCodesByName['failure'].code;
 
   var update = {
-    statusCode: statusCode
+    statusCode: statusCode,
+    endedAt: new Date()
   };
   bag.builderApiAdapter.putStepById(bag.step.id, update,
     function (err) {
