@@ -211,6 +211,7 @@ function _prepData(bag, next) {
   logger.verbose(who, 'Inside');
 
   bag.stepId = bag.step.id;
+  bag.pipelineId = bag.step.pipelineId;
 
   prepData(bag,
     function (err, resultBag) {
@@ -246,12 +247,15 @@ function _setupDirectories(bag, next) {
     }
   );
 
+  bag.stepWorkspacePath = path.join(bag.runDir, bag.step.name, 'workspace');
+
   var innerBag = {
     step: bag.step,
     stepletsByStepId: bag.stepletsByStepId,
     runDir: bag.runDir,
     resDirToBeCreated: resDirToBeCreated,
     stepJsonPath: bag.stepJsonPath,
+    stepWorkspacePath: bag.stepWorkspacePath,
     stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
@@ -420,6 +424,7 @@ function _createStepletScript(bag, next) {
       'dependencyState'),
     outputDir: util.format('%s/%s/%s', bag.runDir, bag.step.name,
       'output'),
+    stepWorkspacePath: bag.stepWorkspacePath,
     stepJsonPath: bag.stepJsonPath
   };
 
