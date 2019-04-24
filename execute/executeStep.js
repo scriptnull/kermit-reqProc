@@ -19,6 +19,7 @@ var createStepletScript = require('./step/createStepletScript.js');
 var handOffAndPoll = require('./step/handOffAndPoll.js');
 var readStepStatus = require('./step/readStepStatus.js');
 var processOUTs = require('./step/processOUTs.js');
+var postReports = require('./step/postReports.js');
 var postVersion = require('./step/postVersion.js');
 
 function executeStep(externalBag, callback) {
@@ -54,6 +55,7 @@ function executeStep(externalBag, callback) {
       _handOffAndPoll.bind(null, bag),
       _readStepStatus.bind(null, bag),
       _processOUTs.bind(null, bag),
+      _postReports.bind(null, bag),
       _postVersion.bind(null, bag),
       _updateStepStatus.bind(null, bag),
       _closeCleanupGroup.bind(null, bag),
@@ -452,6 +454,7 @@ function _createStepletScript(bag, next) {
     builderApiToken: bag.builderApiToken,
     stepletId: bag.stepletsByStepId[bag.step.id][0].id,
     runStatusDir: path.join(bag.runDir, 'status'),
+    runDir: bag.runDir,
     stepletDir: path.join(bag.runDir, bag.step.name,
       bag.stepletsByStepId[bag.step.id][0].id.toString()),
     stepConsoleAdapter: bag.stepConsoleAdapter,
@@ -562,6 +565,29 @@ function _processOUTs(bag, next) {
       if (err) {
         bag.isCleanupGrpSuccess = false;
         bag.error = true;
+      }
+      return next();
+    }
+  );
+}
+
+function _postReports(bag, next) {
+  var who = bag.who + '|' + _postReports.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    stepData: bag.stepData,
+    projectId: bag.step.projectId,
+    stepConsoleAdapter: bag.stepConsoleAdapter,
+    stepWorkspacePath: bag.stepWorkspacePath,
+    stepOutDir: bag.stepOutDir,
+    builderApiAdapter: bag.builderApiAdapter
+  };
+  postReports(innerBag,
+    function (err) {
+      if (err) {
+        bag.error = true;
+        bag.isCleanupGrpSuccess = false;
       }
       return next();
     }
