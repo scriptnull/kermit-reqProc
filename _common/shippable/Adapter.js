@@ -208,6 +208,14 @@ ShippableAdapter.prototype.getMasterIntegrations =
     );
   };
 
+ShippableAdapter.prototype.getPipelineById =
+  function (id, callback) {
+    this.get(
+      util.format('/pipelines/%s', id),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getPlanById =
   function (id, callback) {
     this.get(
@@ -298,18 +306,11 @@ ShippableAdapter.prototype.getSteplets =
     );
   };
 
-ShippableAdapter.prototype.getSubscriptions =
-  function (query, callback) {
-    this.get(
-      util.format('/subscriptions?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSubscriptionById =
-  function (id, callback) {
-    this.get(
-      util.format('/subscriptions/%s', id),
+ShippableAdapter.prototype.postStepTestReports =
+  function (json, callback) {
+    this.post(
+      util.format('/stepTestReports'),
+      json,
       callback
     );
   };

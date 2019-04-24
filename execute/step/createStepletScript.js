@@ -21,6 +21,7 @@ function createStepletScript(externalBag, callback) {
     stepletDir: externalBag.stepletDir,
     dependencyStateDir: externalBag.dependencyStateDir,
     outputDir: externalBag.outputDir,
+    stepWorkspacePath: externalBag.stepWorkspacePath,
     stepJsonPath: externalBag.stepJsonPath
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
@@ -93,6 +94,7 @@ function _setScriptEnvs(bag, next) {
       'REQEXEC_BIN_PATH': global.config.baseDir + global.config.reqExecCommand,
       'STEP_DEPENDENCY_STATE_DIR': bag.dependencyStateDir,
       'STEP_OUTPUT_DIR': bag.outputDir,
+      'STEP_WORKSPACE_DIR': bag.stepWorkspacePath,
       'OPERATING_SYSTEM': global.config.shippableNodeOperatingSystem,
       'ARCHITECTURE': global.config.shippableNodeArchitecture,
       'REQEXEC_DIR': global.config.reqExecDir
