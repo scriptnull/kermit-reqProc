@@ -296,6 +296,14 @@ ShippableAdapter.prototype.getSteps =
     );
   };
 
+ShippableAdapter.prototype.getStepArtifactUrls =
+  function (stepId, query, callback) {
+    this.get(
+      util.format('/steps/%s/artifactUrl?%s', stepId, query),
+      callback
+    );
+  };
+
 // steplets
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getSteplets =
