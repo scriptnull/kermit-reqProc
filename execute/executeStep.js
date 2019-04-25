@@ -20,6 +20,7 @@ var handOffAndPoll = require('./step/handOffAndPoll.js');
 var readStepStatus = require('./step/readStepStatus.js');
 var processOUTs = require('./step/processOUTs.js');
 var postReports = require('./step/postReports.js');
+var uploadArtifacts = require('./step/uploadArtifacts.js');
 var postVersion = require('./step/postVersion.js');
 
 function executeStep(externalBag, callback) {
@@ -56,6 +57,7 @@ function executeStep(externalBag, callback) {
       _readStepStatus.bind(null, bag),
       _processOUTs.bind(null, bag),
       _postReports.bind(null, bag),
+      _uploadArtifacts.bind(null, bag),
       _postVersion.bind(null, bag),
       _updateStepStatus.bind(null, bag),
       _closeCleanupGroup.bind(null, bag),
@@ -584,6 +586,28 @@ function _postReports(bag, next) {
     builderApiAdapter: bag.builderApiAdapter
   };
   postReports(innerBag,
+    function (err) {
+      if (err) {
+        bag.error = true;
+        bag.isCleanupGrpSuccess = false;
+      }
+      return next();
+    }
+  );
+}
+
+function _uploadArtifacts(bag, next) {
+  var who = bag.who + '|' + _uploadArtifacts.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    stepData: bag.stepData,
+    stepConsoleAdapter: bag.stepConsoleAdapter,
+    stepWorkspacePath: bag.stepWorkspacePath,
+    builderApiAdapter: bag.builderApiAdapter
+  };
+
+  uploadArtifacts(innerBag,
     function (err) {
       if (err) {
         bag.error = true;

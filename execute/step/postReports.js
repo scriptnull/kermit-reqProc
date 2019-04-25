@@ -130,7 +130,7 @@ function _readTestReport(bag, next) {
   } catch (err) {
     bag.stepConsoleAdapter.publishMsg(
       util.format('Could not parse file %s. Skipping.', jsonFilePath));
-    bag.stepConsoleAdapter.closeCmd(false);
+    bag.isGrpSuccess = false;
     return next();
   }
 
@@ -157,7 +157,6 @@ function _postTestReport(bag, next) {
           'stepId: %s', who, bag.step.id, err);
 
         bag.stepConsoleAdapter.publishMsg(msg);
-        bag.stepConsoleAdapter.closeCmd(false);
         bag.isGrpSuccess = false;
         return next(true);
       }
