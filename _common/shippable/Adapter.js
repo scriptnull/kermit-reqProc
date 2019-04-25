@@ -304,6 +304,14 @@ ShippableAdapter.prototype.getStepArtifactUrls =
     );
   };
 
+ShippableAdapter.prototype.getLatestArtifactUrlForStepName =
+  function (projectId, stepName, callback) {
+    this.get(
+      util.format('/projects/%s/%s/latestArchive', projectId, stepName),
+      callback
+    );
+  };
+
 // steplets
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getSteplets =
