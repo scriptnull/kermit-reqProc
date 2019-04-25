@@ -8,7 +8,6 @@ var upload = require('./scripts/upload.js');
 
 function uploadArtifacts(externalBag, callback) {
   var bag = {
-    artifactName: 'artifacts.tar.gz',
     stepData: externalBag.stepData,
     stepWorkspacePath: externalBag.stepWorkspacePath,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
@@ -71,6 +70,8 @@ function _checkInputParams(bag, next) {
     id: bag.stepData.step.id,
     name: bag.stepData.step.name
   };
+
+  bag.artifactName = util.format('%s.tar.gz', bag.step.id);
 
   return next(hasErrors);
 }
