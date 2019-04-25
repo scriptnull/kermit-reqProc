@@ -21,6 +21,7 @@ var readStepStatus = require('./step/readStepStatus.js');
 var processOUTs = require('./step/processOUTs.js');
 var postReports = require('./step/postReports.js');
 var uploadArtifacts = require('./step/uploadArtifacts.js');
+var downloadArtifacts = require('./step/downloadArtifacts.js');
 var postVersion = require('./step/postVersion.js');
 
 function executeStep(externalBag, callback) {
@@ -50,6 +51,7 @@ function executeStep(externalBag, callback) {
       _constructStepJson.bind(null, bag),
       _decryptSecureEnvs.bind(null, bag),
       _addStepJson.bind(null, bag),
+      _downloadArtifacts.bind(null, bag),
       _processINs.bind(null, bag),
       _createStepletScript.bind(null, bag),
       _closeSetupGroup.bind(null, bag),
@@ -412,6 +414,29 @@ function _addStepJson(bag, next) {
         bag.stepConsoleAdapter.publishMsg('Successfully saved step.json at: ' +
           bag.stepJsonPath);
         bag.stepConsoleAdapter.closeCmd(true);
+      }
+      return next();
+    }
+  );
+}
+
+function _downloadArtifacts(bag, next) {
+  var who = bag.who + '|' + _downloadArtifacts.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    stepData: bag.stepData,
+    projectId: bag.projectId,
+    stepConsoleAdapter: bag.stepConsoleAdapter,
+    stepWorkspacePath: bag.stepWorkspacePath,
+    builderApiAdapter: bag.builderApiAdapter
+  };
+
+  downloadArtifacts(innerBag,
+    function (err) {
+      if (err) {
+        bag.error = true;
+        bag.isCleanupGrpSuccess = false;
       }
       return next();
     }
