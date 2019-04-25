@@ -15,7 +15,7 @@ var isDirectory = require('../_common/helpers/isDirectory.js');
 var isFile = require('../_common/helpers/isFile.js');
 
 var assemblyOrder = ['onSuccess', 'onFailure', 'onComplete',
-  'environmentVariables', 'image', 'onStart', 'onExecute'];
+  'environmentVariables', 'image', 'auto', 'onStart', 'onExecute'];
 
 function assemble(externalBag, callback) {
   var bag = {
