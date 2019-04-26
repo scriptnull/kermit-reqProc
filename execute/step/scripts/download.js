@@ -4,7 +4,6 @@ module.exports = self;
 
 var fs = require('fs');
 var executeScript = require('./executeScript.js');
-var exec = require('child_process').exec;
 var path = require('path');
 
 var _ = require('underscore');

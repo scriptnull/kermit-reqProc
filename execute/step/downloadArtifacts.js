@@ -3,7 +3,6 @@
 var self = downloadArtifacts;
 module.exports = self;
 
-var path = require('path');
 var download = require('./scripts/download.js');
 
 function downloadArtifacts(externalBag, callback) {

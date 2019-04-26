@@ -421,6 +421,12 @@ function _addStepJson(bag, next) {
 }
 
 function _downloadArtifacts(bag, next) {
+  if (bag.step.configPropertyBag && bag.step.configPropertyBag.reset) {
+    bag.stepConsoleAdapter.openCmd('Skipping artifact and cache download');
+    bag.stepConsoleAdapter.publishMsg('Step triggered with reset.');
+    bag.stepConsoleAdapter.closeCmd(true);
+    return next();
+  }
   var who = bag.who + '|' + _downloadArtifacts.name;
   logger.verbose(who, 'Inside');
 

@@ -3,7 +3,6 @@
 var self = uploadArtifacts;
 module.exports = self;
 
-var path = require('path');
 var upload = require('./scripts/upload.js');
 
 function uploadArtifacts(externalBag, callback) {
