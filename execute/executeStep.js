@@ -14,7 +14,7 @@ var pollStepStatus = require('./step/pollStepStatus.js');
 var setupDirectories = require('./step/setupDirectories.js');
 var constructStepJson = require('./step/constructStepJson.js');
 var decryptSecureEnvs = require('./step/decryptSecureEnvs.js');
-var processINs = require('./step/processINs.js');
+var createDependencyScripts = require('./step/createDependencyScripts.js');
 var createStepletScript = require('./step/createStepletScript.js');
 var handOffAndPoll = require('./step/handOffAndPoll.js');
 var readStepStatus = require('./step/readStepStatus.js');
@@ -52,7 +52,7 @@ function executeStep(externalBag, callback) {
       _decryptSecureEnvs.bind(null, bag),
       _addStepJson.bind(null, bag),
       _downloadArtifacts.bind(null, bag),
-      _processINs.bind(null, bag),
+      _createDependencyScripts.bind(null, bag),
       _createStepletScript.bind(null, bag),
       _closeSetupGroup.bind(null, bag),
       _handOffAndPoll.bind(null, bag),
@@ -449,25 +449,27 @@ function _downloadArtifacts(bag, next) {
   );
 }
 
-function _processINs(bag, next) {
+function _createDependencyScripts(bag, next) {
   if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.stepData && _.isEmpty(bag.stepData.resources)) return next();
 
-  var who = bag.who + '|' + _processINs.name;
+  var who = bag.who + '|' + _createDependencyScripts.name;
   logger.verbose(who, 'Inside');
 
   var innerBag = {
+    execTemplatesRootDir: bag.execTemplatesRootDir,
     stepData: bag.stepData,
-    stepInDir: bag.stepInDir,
-    builderApiAdapter: bag.builderApiAdapter,
     stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
-  processINs(innerBag,
-    function (err) {
+  createDependencyScripts(innerBag,
+    function (err, resultBag) {
       if (err) {
         bag.isSetupGrpSuccess = false;
         bag.error = true;
       }
+
+      bag.stepData = resultBag.stepData;
       return next();
     }
   );
