@@ -138,6 +138,16 @@ function _prepareStepJSON(bag, next) {
             bag.rawEnvs[resPrefix + key] = value;
           }
         );
+        _.each(resource.systemPropertyBag,
+          function (value, key) {
+            bag.rawEnvs[resPrefix + key] = value;
+          }
+        );
+        _.each(resource.staticPropertyBag,
+          function (value, key) {
+            bag.rawEnvs[resPrefix + key] = value;
+          }
+        );
         var resIntPrefix = resPrefix + 'int_';
         _.each(resource.integration,
           function (value, key) {

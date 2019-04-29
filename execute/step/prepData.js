@@ -206,6 +206,9 @@ function _getResources(bag, next) {
             if (!_.isEmpty(resource)) {
               runResourceVersion.resourceId = resource.id;
               runResourceVersion.systemPropertyBag = resource.systemPropertyBag;
+              runResourceVersion.staticPropertyBag = resource.staticPropertyBag;
+              runResourceVersion.configPropertyBag =
+                resource.ymlConfigPropertyBag;
             }
           }
         );
