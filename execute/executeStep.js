@@ -6,9 +6,6 @@ module.exports = self;
 var fs = require('fs-extra');
 var path = require('path');
 
-var StepConsoleAdapter =
-  require('../_common/shippable/stepConsole/stepConsoleAdapter.js');
-
 var prepData = require('./step/prepData.js');
 var pollStepStatus = require('./step/pollStepStatus.js');
 var setupDirectories = require('./step/setupDirectories.js');
@@ -29,6 +26,7 @@ function executeStep(externalBag, callback) {
     stepId: externalBag.stepId,
     builderApiAdapter: externalBag.builderApiAdapter,
     baseDir: externalBag.baseDir,
+    stepConsoleAdapter: externalBag.stepConsoleAdapter,
     execTemplatesDir: externalBag.execTemplatesDir,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
     builderApiToken: externalBag.builderApiToken,
@@ -41,7 +39,6 @@ function executeStep(externalBag, callback) {
   async.series([
       _checkInputParams.bind(null, bag),
       _getStep.bind(null, bag),
-      _initializeStepConsoleAdapter.bind(null, bag),
       _updateStepToProcessing.bind(null, bag),
       _getSteplets.bind(null, bag),
       _prepData.bind(null, bag),
@@ -71,8 +68,8 @@ function executeStep(externalBag, callback) {
           bag.step && bag.step.id));
       else
         logger.info(bag.who, util.format('Successfully executed step'));
-
-      return callback(err);
+      var badStatus = bag.error || bag.timeout || bag.cancelled || bag.failure;
+      return callback(err, badStatus);
     }
   );
 }
@@ -123,22 +120,6 @@ function _getStep(bag, next) {
       return next();
     }
   );
-}
-
-function _initializeStepConsoleAdapter(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
-
-  var who = bag.who + '|' + _initializeStepConsoleAdapter.name;
-  logger.verbose(who, 'Inside');
-
-  var batchSize = global.systemSettings &&
-    global.systemSettings.jobConsoleBatchSize;
-  var timeInterval = global.systemSettings &&
-    global.systemSettings.jobConsoleBufferTimeIntervalInMS;
-
-  bag.stepConsoleAdapter = new StepConsoleAdapter(bag.builderApiToken,
-    bag.step.id, batchSize, timeInterval);
-  return next();
 }
 
 function _updateStepToProcessing(bag, next) {
