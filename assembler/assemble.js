@@ -16,6 +16,8 @@ var isFile = require('../_common/helpers/isFile.js');
 
 var assemblyOrder = ['onSuccess', 'onFailure', 'onComplete',
   'environmentVariables', 'image', 'auto', 'input', 'onStart', 'onExecute'];
+var singleQuoteEscapeSections = ['onSuccess', 'onFailure', 'onComplete',
+  'onStart', 'onExecute'];
 
 function assemble(externalBag, callback) {
   var bag = {
@@ -154,12 +156,16 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
             contentName), 'utf8').toString();
           var template = _.template(templateScript);
           if (_.isString(context)) {
-            script = template({ 'context': __escapeString(context) });
+            script = template({ 'context': context });
           } else if (_.isArray(context)) {
             _.each(context,
               function (element) {
                 if (_.isString(element)) {
-                  script += template({ 'context': __escapeString(element) });
+                  if (_.contains(singleQuoteEscapeSections,
+                    parentDirectoryName) ||
+                    _.contains(singleQuoteEscapeSections, contentName))
+                    element = __escapeString(element);
+                  script += template({ 'context': element });
                 } else if (_.isObject(element)) {
                   script += template({ 'context': element });
                 }
