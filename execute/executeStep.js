@@ -451,6 +451,7 @@ function _downloadArtifacts(bag, next) {
 
 function _createDependencyScripts(bag, next) {
   if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.stepData && _.isEmpty(bag.stepData.resources)) return next();
 
   var who = bag.who + '|' + _createDependencyScripts.name;
   logger.verbose(who, 'Inside');

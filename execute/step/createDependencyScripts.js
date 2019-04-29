@@ -18,8 +18,7 @@ function assembleDependencyScripts(externalBag, callback) {
 
   async.series([
       _checkInputParams.bind(null, bag),
-      _groupResources.bind(null, bag),
-      _assembleInDependencyScripts.bind(null, bag),
+      _assembleDependencyScripts.bind(null, bag),
       _addDependencyScriptsToStep.bind(null, bag)
     ],
     function (err) {
@@ -66,40 +65,8 @@ function _checkInputParams(bag, next) {
   return next(hasErrors);
 }
 
-function _groupResources(bag, next) {
-  var who = bag.who + '|' + _groupResources.name;
-  logger.verbose(who, 'Inside');
-
-  bag.resources = {
-    in: [],
-    out: []
-  };
-  _.each(bag.stepData.resources,
-    function (resource) {
-      if (resource.operation === 'IN')
-        bag.resources.in.push(resource);
-      else if (resource.operation === 'OUT')
-        bag.resources.out.push(resource);
-    }
-  );
-
-  bag.resources.in = _.groupBy(bag.resources.in,
-    function (resource) {
-      return global.systemCodesByCode[resource.resourceTypeCode].name;
-    }
-  );
-
-  bag.resources.out = _.groupBy(bag.resources.out,
-    function (resource) {
-      return global.systemCodesByCode[resource.resourceTypeCode].name;
-    }
-  );
-
-  return next();
-}
-
-function _assembleInDependencyScripts(bag, next) {
-  var who = bag.who + '|' + _assembleInDependencyScripts.name;
+function _assembleDependencyScripts(bag, next) {
+  var who = bag.who + '|' + _assembleDependencyScripts.name;
   logger.verbose(who, 'Inside');
 
   var error = false;
@@ -107,8 +74,10 @@ function _assembleInDependencyScripts(bag, next) {
 
   bag.stepConsoleAdapter.openCmd('Assembling scripts for required resources');
 
-  _.each(bag.resources.in,
-    function (resources, resourceType) {
+  _.each(bag.stepData.resources,
+    function (resource) {
+      var resourceType =
+        global.systemCodesByCode[resource.resourceTypeCode].name;
       var templateScript;
       var dependencyTemplatePath = path.join(bag.execTemplatesRootDir,
         'resources', resourceType, resourceType + '.sh');
@@ -119,29 +88,26 @@ function _assembleInDependencyScripts(bag, next) {
         logger.debug(util.inspect(e));
       }
       if (_.isEmpty(templateScript)) return;
-      _.each(resources,
-        function (resource) {
-          var err = false;
-          var template = _.template(templateScript);
-          try {
-            bag.inDependencyScripts.push(template({ 'context': resource }));
-          } catch(e) {
-            err = true;
-            error = true;
-            logger.error(util.inspect(e));
-          }
-          if (err)
-            bag.stepConsoleAdapter.publishMsg(
-              util.format('Failed to create dependency script for resource: %s',
-              resource.resourceName)
-            );
-          else
-            bag.stepConsoleAdapter.publishMsg(
-              util.format('Successfully created dependency script for ' +
-              'resource: %s', resource.resourceName)
-            );
-        }
-      );
+      var err = false;
+      var template = _.template(templateScript);
+      try {
+        if (resource.operation === 'IN')
+          bag.inDependencyScripts.push(template({ 'context': resource }));
+      } catch(e) {
+        err = true;
+        error = true;
+        logger.error(util.inspect(e));
+      }
+      if (err)
+        bag.stepConsoleAdapter.publishMsg(
+          util.format('Failed to create dependency script for resource: %s',
+          resource.resourceName)
+        );
+      else
+        bag.stepConsoleAdapter.publishMsg(
+          util.format('Successfully created dependency script for ' +
+          'resource: %s', resource.resourceName)
+        );
     }
   );
 
