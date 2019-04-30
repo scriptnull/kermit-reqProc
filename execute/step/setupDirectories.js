@@ -6,7 +6,7 @@ module.exports = self;
 var path = require('path');
 var createDirectories = require('../../_common/helpers/createDirectories.js');
 var createFiles = require('../../_common/helpers/createFiles.js');
-var isDirectory = require('../../_common/helpers/isDirectory.js')
+var isDirectory = require('../../_common/helpers/isDirectory.js');
 
 function setupDirectories(externalBag, callback) {
   var bag = {

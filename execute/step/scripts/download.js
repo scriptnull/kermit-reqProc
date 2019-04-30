@@ -14,9 +14,13 @@ function download(externalBag, callback) {
     templatePath: path.resolve(__dirname,
       'Ubuntu_16.04/templates/download.sh'),
     scriptPath: path.resolve(externalBag.stepWorkspacePath, 'download.sh'),
-    artifactUrl: externalBag.artifactUrl,
-    artifactName: externalBag.artifactName,
+    stepArtifactUrl: externalBag.stepArtifactUrl,
+    runArtifactUrl: externalBag.runArtifactUrl,
+    runArtifactHeadUrl: externalBag.runArtifactHeadUrl,
+    stepArtifactName: externalBag.stepArtifactName,
+    runArtifactName: externalBag.runArtifactName,
     stepWorkspacePath: externalBag.stepWorkspacePath,
+    runWorkspacePath: externalBag.runWorkspacePath,
     builderApiAdapter: externalBag.builderApiAdapter,
     stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
@@ -48,9 +52,9 @@ function _checkInputParams(bag, next) {
       util.format('%s is missing: stepWorkspacePath', who)
     );
 
-  if (!bag.artifactUrl)
+  if (!bag.runWorkspacePath)
     consoleErrors.push(
-      util.format('%s is missing: artifactUrl', who)
+      util.format('%s is missing: runWorkspacePath', who)
     );
 
   if (!bag.scriptPath)
@@ -78,9 +82,13 @@ function _generateScript(bag, next) {
   logger.debug(who, 'Inside');
 
   var params = {
-    artifactUrl: bag.artifactUrl,
-    artifactName: bag.artifactName,
-    stepWorkspaceDir: bag.stepWorkspacePath
+    stepArtifactUrl: bag.stepArtifactUrl,
+    runArtifactUrl: bag.runArtifactUrl,
+    runArtifactHeadUrl: bag.runArtifactHeadUrl,
+    stepArtifactName: bag.stepArtifactName,
+    runArtifactName: bag.runArtifactName,
+    stepWorkspaceDir: bag.stepWorkspacePath,
+    runWorkspaceDir: bag.runWorkspacePath
   };
 
   var scriptContent =
