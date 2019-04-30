@@ -18,6 +18,7 @@ function setupDirectories(externalBag, callback) {
     filesToBeCreated: [],
     stepJsonPath: externalBag.stepJsonPath,
     stepWorkspacePath: externalBag.stepWorkspacePath,
+    runWorkspacePath: externalBag.runWorkspacePath,
     stepletScriptPaths: [],
     stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
@@ -55,6 +56,8 @@ function _checkInputParams(bag, next) {
     'stepletsByStepId',
     'runDir',
     'resDirToBeCreated',
+    'stepWorkspacePath',
+    'runWorkspacePath',
     'stepJsonPath',
     'stepConsoleAdapter'
   ];
@@ -84,6 +87,7 @@ function _setupDirectories(bag, next) {
   bag.dirsToBeCreated.push(path.join(bag.runDir, 'workspace'));
   bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'upload'));
   bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'download'));
+  bag.dirsToBeCreated.push(bag.runWorkspacePath);
   bag.dirsToBeCreated.push(path.join(bag.runDir, bag.step.name));
   bag.dirsToBeCreated.push(path.join(bag.runDir, bag.step.name, 'cache'));
   bag.dirsToBeCreated.push(path.join(bag.runDir, 'status'));

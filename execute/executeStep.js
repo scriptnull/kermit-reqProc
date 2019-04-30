@@ -257,6 +257,8 @@ function _setupDirectories(bag, next) {
   );
 
   bag.stepWorkspacePath = path.join(bag.runDir, bag.step.name, 'workspace');
+  bag.runWorkspacePath = path.join(
+    bag.runDir, bag.step.runId.toString(), 'workspace')
 
   var innerBag = {
     step: bag.step,
@@ -265,6 +267,7 @@ function _setupDirectories(bag, next) {
     resDirToBeCreated: resDirToBeCreated,
     stepJsonPath: bag.stepJsonPath,
     stepWorkspacePath: bag.stepWorkspacePath,
+    runWorkspacePath: bag.runWorkspacePath,
     stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
@@ -637,6 +640,7 @@ function _uploadArtifacts(bag, next) {
     stepData: bag.stepData,
     stepConsoleAdapter: bag.stepConsoleAdapter,
     stepWorkspacePath: bag.stepWorkspacePath,
+    runWorkspacePath: bag.runWorkspacePath,
     builderApiAdapter: bag.builderApiAdapter
   };
 
