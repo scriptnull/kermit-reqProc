@@ -6,6 +6,7 @@ module.exports = self;
 var Adapter = require('./_common/shippable/Adapter.js');
 
 var exec = require('child_process').exec;
+var path = require('path');
 
 var cleanup = require('./_common/helpers/cleanup.js');
 var executeStep = require('./execute/executeStep.js');
@@ -13,7 +14,8 @@ var executeStep = require('./execute/executeStep.js');
 function microWorker(message) {
   var bag = {
     rawMessage: message,
-    runDir: global.config.runDir,
+    baseDir: global.config.baseDir,
+    pipelineDir: path.join(global.config.baseDir, 'pipelines'),
     execTemplatesDir: global.config.execTemplatesDir,
     execTemplatesRootDir: global.config.execTemplatesRootDir
   };
@@ -24,9 +26,9 @@ function microWorker(message) {
   async.series([
       _checkInputParams.bind(null, bag),
       _updateClusterNodeStatus.bind(null, bag),
-      _cleanupRunDirectory.bind(null, bag),
+      _cleanupPipelineDirectory.bind(null, bag),
       _executeStep.bind(null, bag),
-      _cleanupRunDirectory.bind(null, bag)
+      _cleanupPipelineDirectory.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -75,7 +77,7 @@ function _updateClusterNodeStatus(bag, next) {
   };
 
   bag.builderApiAdapter.putClusterNodeById(global.config.nodeId, update,
-    function (err, clusterNode) {
+    function (err) {
       if (err) {
         logger.warn(util.format('%s, putClusterNodeById for nodeId %s failed ' +
           'with error: %s', bag.who, global.config.nodeId, err));
@@ -87,12 +89,12 @@ function _updateClusterNodeStatus(bag, next) {
   );
 }
 
-function _cleanupRunDirectory(bag, next) {
-  var who = bag.who + '|' + _cleanupRunDirectory.name;
+function _cleanupPipelineDirectory(bag, next) {
+  var who = bag.who + '|' + _cleanupPipelineDirectory.name;
   logger.verbose(who, 'Inside');
 
   var innerBag = {
-    directory: bag.runDir
+    directory: bag.pipelineDir
   };
 
   cleanup(innerBag,
@@ -112,17 +114,58 @@ function _executeStep(bag, next) {
   logger.verbose(who, 'Inside');
 
   var innerBag = {
+    who: bag.who,
     stepId: bag.stepIds[0],
     builderApiAdapter: bag.builderApiAdapter,
-    runDir: bag.runDir,
+    baseDir: bag.baseDir,
     execTemplatesDir: bag.execTemplatesDir,
     execTemplatesRootDir: bag.execTemplatesRootDir,
     builderApiToken: bag.builderApiToken
   };
+  async.series([
+      __cleanStatus.bind(null, innerBag),
+      __execute.bind(null, innerBag),
+      __cleanStatus.bind(null, innerBag)
+    ],
+    function (err) {
+      if (err) {
+        logger.warn(util.format('%s, failed to execute step %s with error: %s',
+          bag.who, innerBag.stepId, err));
+        return next(true);
+      }
+      return next(err);
+    }
+  );
 
-  executeStep(innerBag,
+}
+
+function __execute(bag, next) {
+  var who = bag.who + '|' + __execute.name;
+  logger.verbose(who, 'Inside');
+
+  executeStep(bag,
     function (err) {
       return next(err);
+    }
+  );
+}
+
+function __cleanStatus(bag, next) {
+  var who = bag.who + '|' + __cleanStatus.name;
+  logger.verbose(who, 'Inside');
+
+  var innerBag = {
+    directory: path.join(bag.baseDir, 'status')
+  };
+
+  cleanup(innerBag,
+    function (err) {
+      if (err) {
+        logger.warn(util.format('%s, status directory cleanup failed ' +
+          'with error: %s', bag.who, err));
+        return next(true);
+      }
+      return next();
     }
   );
 }

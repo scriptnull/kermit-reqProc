@@ -13,6 +13,8 @@ function setupDirectories(externalBag, callback) {
     step: externalBag.step,
     stepletsByStepId: externalBag.stepletsByStepId,
     runDir: externalBag.runDir,
+    statusDir: externalBag.statusDir,
+    stepDir: externalBag.stepDir,
     resDirToBeCreated: externalBag.resDirToBeCreated,
     dirsToBeCreated: [],
     filesToBeCreated: [],
@@ -55,6 +57,8 @@ function _checkInputParams(bag, next) {
     'step',
     'stepletsByStepId',
     'runDir',
+    'statusDir',
+    'stepDir',
     'resDirToBeCreated',
     'stepWorkspacePath',
     'runWorkspacePath',
@@ -84,20 +88,18 @@ function _setupDirectories(bag, next) {
   logger.verbose(who, 'Inside');
 
   // Directories to be created
-  bag.dirsToBeCreated.push(path.join(bag.runDir, 'workspace'));
+  bag.dirsToBeCreated.push(bag.runDir);
+  bag.dirsToBeCreated.push(bag.stepDir);
+  bag.dirsToBeCreated.push(bag.runWorkspacePath);
   bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'upload'));
   bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'download'));
-  bag.dirsToBeCreated.push(bag.runWorkspacePath);
-  bag.dirsToBeCreated.push(path.join(bag.runDir, bag.step.name));
-  bag.dirsToBeCreated.push(path.join(bag.runDir, bag.step.name, 'cache'));
-  bag.dirsToBeCreated.push(path.join(bag.runDir, 'status'));
-  bag.dirsToBeCreated.push(path.join(
-    bag.runDir, bag.step.name, 'dependencyState'));
-  bag.dirsToBeCreated.push(path.join(
-    bag.runDir, bag.step.name, 'dependencyState', 'resources'));
-  bag.dirsToBeCreated.push(path.join(bag.runDir, bag.step.name, 'output'));
-  bag.dirsToBeCreated.push(path.join(
-    bag.runDir, bag.step.name, 'output', 'resources'));
+  bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'cache'));
+  bag.dirsToBeCreated.push(path.join(bag.statusDir));
+  bag.dirsToBeCreated.push(path.join(bag.stepDir, 'dependencyState'));
+  bag.dirsToBeCreated.push(path.join(bag.stepDir, 'dependencyState',
+    'resources'));
+  bag.dirsToBeCreated.push(path.join(bag.stepDir, 'output'));
+  bag.dirsToBeCreated.push(path.join(bag.stepDir, 'output', 'resources'));
 
   // Create directories and files for IN and OUT resources
   _.each(bag.resDirToBeCreated,
@@ -107,13 +109,13 @@ function _setupDirectories(bag, next) {
         if (isDirectory(path.join(global.config.execTemplatesDir,
           'resources', resourceType)))
             bag.dirsToBeCreated.push(
-              path.join(bag.runDir, bag.step.name, 'dependencyState',
+              path.join(bag.stepDir, 'dependencyState',
               'resources', resource.name));
       } else if (resource.operation === 'OUT') {
           bag.dirsToBeCreated.push(
-            path.join(bag.runDir, bag.step.name, 'output',
+            path.join(bag.stepDir, 'output',
             'resources', resource.name));
-          bag.filesToBeCreated.push(path.join(bag.runDir, bag.step.name,
+          bag.filesToBeCreated.push(path.join(bag.stepDir,
             'output', 'resources', resource.name, resource.name + '.env'));
       }
     }
@@ -121,31 +123,27 @@ function _setupDirectories(bag, next) {
 
   // Files to be created
   bag.filesToBeCreated.push(bag.stepJsonPath);
-  bag.filesToBeCreated.push(
-    path.join(bag.runDir, 'status', 'step.who'));
-  bag.filesToBeCreated.push(
-    path.join(bag.runDir, 'status', 'step.status'));
-  bag.filesToBeCreated.push(
-    path.join(bag.runDir, 'status', 'step.env'));
+  bag.filesToBeCreated.push(path.join(bag.statusDir, 'step.who'));
+  bag.filesToBeCreated.push(path.join(bag.statusDir, 'step.status'));
+  bag.filesToBeCreated.push(path.join(bag.statusDir, 'step.env'));
 
   // Directories and Steps to be created for steplets
   _.each(bag.stepletsByStepId[bag.step.id],
     function (steplet){
       bag.dirsToBeCreated.push(
-        path.join(bag.runDir, bag.step.name, steplet.id.toString()));
+        path.join(bag.stepDir, steplet.id.toString()));
       bag.filesToBeCreated.push(
-        path.join(bag.runDir, bag.step.name, steplet.id.toString(),
-        'steplet.json'));
+        path.join(bag.stepDir, steplet.id.toString(), 'steplet.json'));
 
-      var stepletScriptPath = path.join(bag.runDir, bag.step.name,
+      var stepletScriptPath = path.join(bag.stepDir,
         steplet.id.toString(), 'stepletScript.sh');
       bag.filesToBeCreated.push(stepletScriptPath);
       bag.stepletScriptPaths.push(stepletScriptPath);
     }
   );
 
-  bag.stepInDir = path.join(bag.runDir, bag.step.name, 'dependencyState');
-  bag.stepOutDir = path.join(bag.runDir, bag.step.name, 'output');
+  bag.stepInDir = path.join(bag.stepDir, 'dependencyState');
+  bag.stepOutDir = path.join(bag.stepDir, 'output');
   return next();
 }
 

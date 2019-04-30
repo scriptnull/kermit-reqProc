@@ -8,7 +8,7 @@ var path = require('path');
 
 function handoffAndPoll(externalBag, callback) {
   var bag = {
-    runStatusDir: externalBag.runStatusDir,
+    statusDir: externalBag.statusDir,
     stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
   bag.who = util.format('%s|execute|step|%s', msName, self.name);
@@ -36,7 +36,7 @@ function _checkInputParams(bag, next) {
   logger.verbose(who, 'Inside');
 
   var expectedParams = [
-    'runStatusDir',
+    'statusDir',
     'stepConsoleAdapter'
   ];
 
@@ -64,7 +64,7 @@ function _setExecutorAsReqKick(bag, next) {
   logger.verbose(who, 'Inside');
 
   bag.stepConsoleAdapter.openCmd('Setting executor as reqKick');
-  var whoPath = path.join(bag.runStatusDir, 'step.who');
+  var whoPath = path.join(bag.statusDir, 'step.who');
   fs.writeFile(whoPath, 'reqKick\n',
     function (err) {
       if (err) {
@@ -89,7 +89,7 @@ function _pollExecutorForReqProc(bag, next) {
   logger.verbose(who, 'Inside');
 
   function checkForReqProc(bag, callback) {
-    var whoPath = path.join(bag.runStatusDir, 'step.who');
+    var whoPath = path.join(bag.statusDir, 'step.who');
     var isReqProc = false;
 
     try {

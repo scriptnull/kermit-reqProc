@@ -12,6 +12,7 @@ function constructStepJson(externalBag, callback) {
     runStepConnections: externalBag.runStepConnections,
     integrations: externalBag.integrations,
     step: externalBag.step,
+    stepDir: externalBag.stepDir,
     stepData: {},
     stepEnvs: [],
     rawEnvs: {},
@@ -46,6 +47,7 @@ function _checkInputParams(bag, next) {
 
   var expectedParams = [
     'step',
+    'stepDir',
     'runResourceVersions',
     'runStepConnections',
     'integrations',
@@ -111,12 +113,11 @@ function _prepareStepJSON(bag, next) {
         resource.operation = runStepConnection.operation;
         resource.isTrigger = runStepConnection.isTrigger;
         if (resource.operation === 'OUT')
-          resource.resourcePath = util.format('%s/%s/output/resources/%s',
-            global.config.runDir, bag.step.name, resource.resourceName);
+          resource.resourcePath = util.format('%s/output/resources/%s',
+            bag.stepDir, resource.resourceName);
         else if (resource.operation === 'IN')
-          resource.resourcePath = util.format(
-            '%s/%s/dependencyState/resources/%s',
-            global.config.runDir, bag.step.name, resource.resourceName);
+          resource.resourcePath = util.format('%s/dependencyState/resources/%s',
+            bag.stepDir, resource.resourceName);
         if (integrationsByName[
           runResourceVersion.resourceConfigPropertyBag.integrationName]) {
           integration = integrationsByName[

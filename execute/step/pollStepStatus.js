@@ -11,7 +11,7 @@ function pollStepStatus(externalBag, callback) {
     builderApiAdapter: externalBag.builderApiAdapter,
     stepId: externalBag.stepId,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
-    runDir: externalBag.runDir
+    statusDir: externalBag.statusDir
   };
   bag.who = util.format('%s|execute|step|%s', msName, self.name);
 
@@ -33,7 +33,7 @@ function _checkInputParams(bag, next) {
     'builderApiAdapter',
     'stepId',
     'stepConsoleAdapter',
-    'runDir'
+    'statusDir'
   ];
 
   var paramErrors = [];
@@ -60,7 +60,7 @@ function _pollStepStatus(bag, next) {
   var isTerminated = false;
   var cancelledStatusCode = global.systemCodesByName['cancelled'].code;
   var timeoutStatusCode = global.systemCodesByName['timeout'].code;
-  var statusPath = path.join(bag.runDir, 'status', 'step.status');
+  var statusPath = path.join(bag.statusDir, 'step.status');
   function poll(bag) {
     bag.builderApiAdapter.getStepById(bag.stepId,
       function (err, step) {
