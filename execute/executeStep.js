@@ -258,7 +258,7 @@ function _setupDirectories(bag, next) {
 
   bag.stepWorkspacePath = path.join(bag.runDir, bag.step.name, 'workspace');
   bag.runWorkspacePath = path.join(
-    bag.runDir, bag.step.runId.toString(), 'workspace')
+    bag.runDir, bag.step.runId.toString(), 'workspace');
 
   var innerBag = {
     step: bag.step,
@@ -438,6 +438,7 @@ function _downloadArtifacts(bag, next) {
     projectId: bag.projectId,
     stepConsoleAdapter: bag.stepConsoleAdapter,
     stepWorkspacePath: bag.stepWorkspacePath,
+    runWorkspacePath: bag.runWorkspacePath,
     builderApiAdapter: bag.builderApiAdapter
   };
 
