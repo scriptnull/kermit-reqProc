@@ -9,6 +9,7 @@ function uploadArtifacts(externalBag, callback) {
   var bag = {
     stepData: externalBag.stepData,
     stepWorkspacePath: externalBag.stepWorkspacePath,
+    runWorkspacePath: externalBag.runWorkspacePath,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
     builderApiAdapter: externalBag.builderApiAdapter,
     isGrpSuccess: true
@@ -21,7 +22,8 @@ function uploadArtifacts(externalBag, callback) {
 
   async.series([
       _checkInputParams.bind(null, bag),
-      _getArtifactUrl.bind(null, bag),
+      _getStepArtifactUrl.bind(null, bag),
+      _getRunArtifactUrl.bind(null, bag),
       _uploadArtifacts.bind(null, bag)
     ],
     function (err) {
@@ -48,6 +50,7 @@ function _checkInputParams(bag, next) {
     'stepData',
     'stepConsoleAdapter',
     'stepWorkspacePath',
+    'runWorkspacePath',
     'builderApiAdapter'
   ];
 
@@ -65,38 +68,63 @@ function _checkInputParams(bag, next) {
   if (hasErrors)
     logger.error(paramErrors.join('\n'));
 
-  bag.step = {
-    id: bag.stepData.step.id,
-    name: bag.stepData.step.name
-  };
-
-  bag.artifactName = util.format('%s.tar.gz', bag.step.id);
-
   return next(hasErrors);
 }
 
-function _getArtifactUrl(bag, next) {
-  var who = bag.who + '|' + _getArtifactUrl.name;
+function _getStepArtifactUrl(bag, next) {
+  var who = bag.who + '|' + _getStepArtifactUrl.name;
   logger.verbose(who, 'Inside');
 
-  bag.stepConsoleAdapter.publishMsg('Getting upload URL');
+  bag.stepConsoleAdapter.publishMsg('Getting upload URL for step');
 
-  var query = 'artifactName=' + bag.artifactName;
+  bag.stepArtifactName = util.format('%s.tar.gz', bag.stepData.step.id);
 
-  bag.builderApiAdapter.getStepArtifactUrls(bag.step.id, query,
+  var query = 'artifactName=' + bag.stepArtifactName;
+
+  bag.builderApiAdapter.getStepArtifactUrls(bag.stepData.step.id, query,
     function (err, artifactUrls) {
       var msg;
       if (err) {
         msg = util.format('%s, Failed to get artifact URLs for ' +
-          'stepId: %s', who, bag.step.id, err);
+          'stepId: %s', who, bag.stepData.step.id, err);
 
         bag.stepConsoleAdapter.publishMsg(msg);
         return next();
       }
 
-      bag.artifactUrl = artifactUrls.put;
+      bag.stepArtifactUrl = artifactUrls.put;
       msg = util.format(
-        'Got artifact URL for stepId: %s ', bag.step.id);
+        'Got artifact URL for stepId: %s ', bag.stepData.step.id);
+      bag.stepConsoleAdapter.publishMsg(msg);
+      return next();
+    }
+  );
+}
+
+function _getRunArtifactUrl(bag, next) {
+  var who = bag.who + '|' + _getRunArtifactUrl.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.publishMsg('Getting upload URL for run');
+
+  bag.runArtifactName = util.format('%s.tar.gz', bag.stepData.step.runId);
+
+  var query = 'artifactName=' + bag.runArtifactName;
+
+  bag.builderApiAdapter.getRunArtifactUrls(bag.stepData.step.runId, query,
+    function (err, artifactUrls) {
+      var msg;
+      if (err) {
+        msg = util.format('%s, Failed to get artifact URLs for ' +
+          'runId: %s', who, bag.stepData.step.runId, err);
+
+        bag.stepConsoleAdapter.publishMsg(msg);
+        return next();
+      }
+
+      bag.runArtifactUrl = artifactUrls.put;
+      msg = util.format(
+        'Got artifact URL for runId: %s ', bag.stepData.step.runId);
       bag.stepConsoleAdapter.publishMsg(msg);
       return next();
     }
@@ -104,16 +132,18 @@ function _getArtifactUrl(bag, next) {
 }
 
 function _uploadArtifacts(bag, next) {
-  if (!bag.artifactUrl) return next();
   var who = bag.who + '|' + _uploadArtifacts.name;
   logger.verbose(who, 'Inside');
 
-  bag.stepConsoleAdapter.publishMsg('Uploading reports');
+  bag.stepConsoleAdapter.publishMsg('Uploading artifacts');
 
   var scriptBag = {
-    artifactUrl: bag.artifactUrl,
-    artifactName: bag.artifactName,
+    stepArtifactUrl: bag.stepArtifactUrl,
+    runArtifactUrl: bag.runArtifactUrl,
+    stepArtifactName: bag.stepArtifactName,
+    runArtifactName: bag.runArtifactName,
     stepWorkspacePath: bag.stepWorkspacePath,
+    runWorkspacePath: bag.runWorkspacePath,
     builderApiAdapter: bag.builderApiAdapter,
     stepConsoleAdapter: bag.stepConsoleAdapter
   };

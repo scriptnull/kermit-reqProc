@@ -256,6 +256,14 @@ ShippableAdapter.prototype.getResourceById =
     );
   };
 
+ShippableAdapter.prototype.getRunArtifactUrls =
+  function (runId, query, callback) {
+    this.get(
+      util.format('/runs/%s/artifactUrl?%s', runId, query),
+      callback
+    );
+  };
+
 // runResourceVersions
 // TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getRunResourceVersions =
