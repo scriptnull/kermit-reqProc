@@ -184,10 +184,10 @@ ShippableAdapter.prototype.getFilesByResourceId =
 
 // integrations
 
-ShippableAdapter.prototype.getIntegrations =
+ShippableAdapter.prototype.getProjectIntegrations =
   function (query, callback) {
     this.get(
-      util.format('/integrations?%s', query),
+      util.format('/projectIntegrations?%s', query),
       callback
     );
   };
