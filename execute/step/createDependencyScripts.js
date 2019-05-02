@@ -79,8 +79,9 @@ function _assembleDependencyScripts(bag, next) {
       var resourceType =
         global.systemCodesByCode[resource.resourceTypeCode].name;
       var templateScript;
+      var operationType = resource.operation === 'IN'? 'dependsOn' : 'output';
       var dependencyTemplatePath = path.join(bag.execTemplatesRootDir,
-        'resources', resourceType, resourceType + '.sh');
+        'resources', resourceType, operationType + '.sh');
       try {
         templateScript = fs.readFileSync(dependencyTemplatePath,
           'utf8').toString();

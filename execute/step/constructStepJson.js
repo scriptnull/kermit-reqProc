@@ -22,8 +22,7 @@ function constructStepJson(externalBag, callback) {
 
   async.series([
       _checkInputParams.bind(null, bag),
-      _prepareStepJSON.bind(null, bag),
-      _validateStepEnvs.bind(null, bag)
+      _prepareStepJSON.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -131,29 +130,34 @@ function _prepareStepJSON(bag, next) {
         }
 
         var resPrefix = 'res_' + runResourceVersion.resourceName + '_';
-        bag.rawEnvs[resPrefix + 'resourcePath'] = resource.resourcePath;
-        bag.rawEnvs[resPrefix + 'operation'] = resource.operation;
-        bag.rawEnvs[resPrefix + 'isTrigger'] = resource.isTrigger;
-        _.each(resource.resourceVersionContentPropertyBag,
-          function (value, key) {
-            bag.rawEnvs[resPrefix + key] = value;
-          }
+        bag.stepEnvs.push({
+          key: resPrefix + 'resourcePath',
+          value: resource.resourcePath
+        });
+        bag.stepEnvs.push({
+          key: resPrefix + 'operation',
+          value: resource.operation
+        });
+        bag.stepEnvs.push({
+          key: resPrefix + 'isTrigger',
+          value: resource.isTrigger
+        });
+        bag.stepEnvs = bag.stepEnvs.concat(
+          __convertObjToEnvs(resource.resourceVersionContentPropertyBag,
+            resPrefix
+          )
         );
-        _.each(resource.systemPropertyBag,
-          function (value, key) {
-            bag.rawEnvs[resPrefix + key] = value;
-          }
+        bag.stepEnvs = bag.stepEnvs.concat(
+          __convertObjToEnvs(resource.resourceConfigPropertyBag, resPrefix)
         );
-        _.each(resource.staticPropertyBag,
-          function (value, key) {
-            bag.rawEnvs[resPrefix + key] = value;
-          }
+        bag.stepEnvs = bag.stepEnvs.concat(
+          __convertObjToEnvs(resource.systemPropertyBag, resPrefix)
         );
-        var resIntPrefix = resPrefix + 'int_';
-        _.each(resource.integration,
-          function (value, key) {
-            bag.rawEnvs[resIntPrefix + key] = value;
-          }
+        bag.stepEnvs = bag.stepEnvs.concat(
+          __convertObjToEnvs(resource.staticPropertyBag, resPrefix)
+        );
+        bag.stepEnvs = bag.stepEnvs.concat(
+          __convertObjToEnvs(resource.integration, resPrefix + 'int_')
         );
       }
 
@@ -181,26 +185,6 @@ function _prepareStepJSON(bag, next) {
   return next();
 }
 
-function _validateStepEnvs(bag, next) {
-  var who = bag.who + '|' + _validateStepEnvs.name;
-  logger.verbose(who, 'Inside');
-
-  bag.stepConsoleAdapter.openCmd('Validating ENV list');
-  _.each(bag.rawEnvs,
-    function (value, key) {
-      bag.stepEnvs.push({
-        key: key,
-        value: value
-      });
-    }
-  );
-
-  bag.stepConsoleAdapter.publishMsg('Finished validating ENV list');
-  bag.stepConsoleAdapter.closeCmd(true);
-
-  return next();
-}
-
 function __createIntegrationObject(integration) {
   var integrationObject = {};
   integrationObject.integrationValues = {
@@ -212,4 +196,20 @@ function __createIntegrationObject(integration) {
     getValuesFromIntegrationJson(integration.formJSONValues);
 
   return integrationObject;
+}
+
+function __convertObjToEnvs(obj, envPrefix) {
+  var envs = [];
+  _.each(obj,
+    function (val, key) {
+      envs.push(
+        {
+          key: envPrefix + key,
+          value: val
+        }
+      );
+    }
+  );
+
+  return envs;
 }
