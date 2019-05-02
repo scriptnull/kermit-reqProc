@@ -10,7 +10,7 @@ function readStepStatus(externalBag, callback) {
   var bag = {
     stepId: externalBag.stepId,
     builderApiAdapter: externalBag.builderApiAdapter,
-    runStatusDir: externalBag.runStatusDir,
+    statusDir: externalBag.statusDir,
     stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
   bag.who = util.format('%s|execute|step|%s', msName, self.name);
@@ -43,7 +43,7 @@ function _checkInputParams(bag, next) {
   var expectedParams = [
     'stepId',
     'builderApiAdapter',
-    'runStatusDir',
+    'statusDir',
     'stepConsoleAdapter'
   ];
 
@@ -101,7 +101,7 @@ function _readStepStatus(bag, next) {
 
   bag.stepConsoleAdapter.openCmd('Reading step status');
 
-  var statusPath = path.join(bag.runStatusDir, 'step.status');
+  var statusPath = path.join(bag.statusDir, 'step.status');
   fs.readFile(statusPath, 'utf8',
     function (err, status) {
       var msg;

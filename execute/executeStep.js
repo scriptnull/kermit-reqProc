@@ -28,7 +28,7 @@ function executeStep(externalBag, callback) {
   var bag = {
     stepId: externalBag.stepId,
     builderApiAdapter: externalBag.builderApiAdapter,
-    runDir: externalBag.runDir,
+    baseDir: externalBag.baseDir,
     execTemplatesDir: externalBag.execTemplatesDir,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
     builderApiToken: externalBag.builderApiToken,
@@ -115,7 +115,6 @@ function _getStep(bag, next) {
       }
 
       bag.step = steps[0];
-      bag.stepJsonPath = path.join(bag.runDir, bag.step.name, 'step.json');
       bag.cancelled = global.systemCodesByCode[bag.step.statusCode].name ===
         'cancelled';
       bag.timeout = global.systemCodesByCode[bag.step.statusCode].name ===
@@ -240,6 +239,13 @@ function _setupDirectories(bag, next) {
 
   var who = bag.who + '|' + _setupDirectories.name;
   logger.verbose(who, 'Inside');
+  bag.runDir = path.join(bag.baseDir, 'pipelines', bag.pipeline.name,
+    'runs', bag.step.runId.toString());
+  bag.stepDir = path.join(bag.runDir, 'steps', bag.step.name);
+  bag.stepWorkspacePath = path.join(bag.stepDir, 'workspace');
+  bag.runWorkspacePath = path.join(bag.runDir, 'workspace');
+  bag.stepJsonPath = path.join(bag.stepDir, 'step.json');
+  bag.statusDir = path.join(bag.baseDir, 'status');
 
   var resDirToBeCreated = [];
   _.each(bag.runStepConnections,
@@ -256,14 +262,12 @@ function _setupDirectories(bag, next) {
     }
   );
 
-  bag.stepWorkspacePath = path.join(bag.runDir, bag.step.name, 'workspace');
-  bag.runWorkspacePath = path.join(
-    bag.runDir, bag.step.runId.toString(), 'workspace');
-
   var innerBag = {
     step: bag.step,
     stepletsByStepId: bag.stepletsByStepId,
     runDir: bag.runDir,
+    statusDir: bag.statusDir,
+    stepDir: bag.stepDir,
     resDirToBeCreated: resDirToBeCreated,
     stepJsonPath: bag.stepJsonPath,
     stepWorkspacePath: bag.stepWorkspacePath,
@@ -294,7 +298,7 @@ function _pollStepStatus(bag, next) {
     builderApiAdapter: bag.builderApiAdapter,
     stepId: bag.step.id,
     stepConsoleAdapter: bag.stepConsoleAdapter,
-    runDir: bag.runDir
+    statusDir: bag.statusDir
   };
 
   pollStepStatus(innerBag,
@@ -316,7 +320,7 @@ function _setExecutorAsReqProc(bag, next) {
 
   bag.stepConsoleAdapter.openCmd('Setting executor as reqProc');
 
-  var whoPath = path.join(bag.runDir, 'status', 'step.who');
+  var whoPath = path.join(bag.statusDir, 'step.who');
   fs.writeFile(whoPath, 'reqProc\n',
     function (err) {
       if (err) {
@@ -350,6 +354,7 @@ function _constructStepJson(bag, next) {
     runStepConnections: bag.runStepConnections,
     integrations: bag.integrations,
     step: bag.step,
+    stepDir: bag.stepDir,
     stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
@@ -492,15 +497,14 @@ function _createStepletScript(bag, next) {
     stepletScriptPath: bag.stepletScriptPaths[0],
     builderApiToken: bag.builderApiToken,
     stepletId: bag.stepletsByStepId[bag.step.id][0].id,
-    runStatusDir: path.join(bag.runDir, 'status'),
+    statusDir: bag.statusDir,
+    stepDir: bag.stepDir,
     runDir: bag.runDir,
-    stepletDir: path.join(bag.runDir, bag.step.name,
+    stepletDir: path.join(bag.stepDir,
       bag.stepletsByStepId[bag.step.id][0].id.toString()),
     stepConsoleAdapter: bag.stepConsoleAdapter,
-    dependencyStateDir: util.format('%s/%s/%s', bag.runDir, bag.step.name,
-      'dependencyState'),
-    outputDir: util.format('%s/%s/%s', bag.runDir, bag.step.name,
-      'output'),
+    dependencyStateDir: path.join(bag.stepDir, 'dependencyState'),
+    outputDir: path.join(bag.stepDir, 'output'),
     stepWorkspacePath: bag.stepWorkspacePath,
     stepJsonPath: bag.stepJsonPath
   };
@@ -534,7 +538,7 @@ function _handOffAndPoll(bag, next) {
   logger.verbose(who, 'Inside');
 
   var innerBag = {
-    runStatusDir: path.join(bag.runDir, 'status'),
+    statusDir: bag.statusDir,
     stepConsoleAdapter: bag.stepConsoleAdapter
   };
   handOffAndPoll(innerBag,
@@ -562,7 +566,7 @@ function _readStepStatus(bag, next) {
   bag.isCleanupGrpSuccess = true;
 
   var innerBag = {
-    runStatusDir: path.join(bag.runDir, 'status'),
+    statusDir: path.join(bag.baseDir, 'status'),
     stepConsoleAdapter: bag.stepConsoleAdapter,
     stepId: bag.step.id,
     builderApiAdapter: bag.builderApiAdapter

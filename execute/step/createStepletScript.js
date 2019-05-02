@@ -14,12 +14,12 @@ function createStepletScript(externalBag, callback) {
     stepEnvs: externalBag.stepEnvs,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
     stepletScriptPath: externalBag.stepletScriptPath,
-    runStatusDir: externalBag.runStatusDir,
-    runDir: externalBag.runDir,
+    statusDir: externalBag.statusDir,
     stepletId: externalBag.stepletId,
     builderApiToken: externalBag.builderApiToken,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
     stepletDir: externalBag.stepletDir,
+    runDir: externalBag.runDir,
     dependencyStateDir: externalBag.dependencyStateDir,
     outputDir: externalBag.outputDir,
     stepWorkspacePath: externalBag.stepWorkspacePath,
@@ -58,7 +58,8 @@ function _checkInputParams(bag, next) {
     'stepletScriptPath',
     'stepletId',
     'builderApiToken',
-    'runStatusDir',
+    'statusDir',
+    'runDir',
     'stepletDir',
     'stepConsoleAdapter',
     'dependencyStateDir',
@@ -89,12 +90,11 @@ function _setScriptEnvs(bag, next) {
   var scriptEnvs = bag.stepEnvs || [];
 
   _.each({
-      'PIPELINES_RUN_STATUS_DIR': bag.runStatusDir,
+      'STATUS_DIR': bag.statusDir,
       'STEP_JSON_PATH': bag.stepJsonPath,
       'STEPLET_SCRIPT_PATH': bag.stepletScriptPath,
       'REQEXEC_BIN_PATH': global.config.baseDir + global.config.reqExecCommand,
-      'STEP_DIR': path.join(bag.runDir, bag.stepData.step.name),
-      'RUN_DIR': path.join(bag.runDir, bag.stepData.step.runId.toString()),
+      'RUN_DIR': bag.runDir,
       'STEP_DEPENDENCY_STATE_DIR': bag.dependencyStateDir,
       'STEP_OUTPUT_DIR': bag.outputDir,
       'STEP_WORKSPACE_DIR': bag.stepWorkspacePath,
@@ -205,7 +205,7 @@ function _setJobEnvs(bag, next) {
   if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2016')
     jobEnvs.push('REQEXEC_SHELL=powershell.exe');
 
-  var envPath = path.join(bag.runStatusDir, 'step.env');
+  var envPath = path.join(bag.statusDir, 'step.env');
   fs.writeFile(envPath, jobEnvs.join('\n'),
     function (err) {
       if (err) {

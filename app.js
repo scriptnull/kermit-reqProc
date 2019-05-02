@@ -45,19 +45,11 @@ if (!global.config.reqExecDir)
 if (!global.config.reqKickDir)
   consoleErrors.push(util.format('%s is missing: reqKickDir', who));
 
-if (!global.config.runDir)
-  consoleErrors.push(util.format('%s is missing: runDir', who));
-
 if (!global.config.reqProcContainerName)
   consoleErrors.push(util.format('%s is missing: reqProcContainerName', who));
 
 if (!global.config.execTemplatesDir)
   consoleErrors.push(util.format('%s is missing: execTemplatesDir', who));
-
-if (!global.config.defaultTaskContainerMounts)
-  consoleErrors.push(
-    util.format('%s is missing: defaultTaskContainerMounts', who)
-  );
 
 if (!global.config.defaultTaskContainerOptions)
   consoleErrors.push(
@@ -107,10 +99,6 @@ if (!isDirectory(global.config.reqExecDir))
 if (!isDirectory(global.config.reqKickDir))
   consoleErrors.push(util.format('%s is missing directory: %s', who,
     global.config.reqKickDir));
-
-if (!isDirectory(global.config.runDir))
-  consoleErrors.push(util.format('%s is missing directory: %s', who,
-    global.config.runDir));
 
 if (consoleErrors.length > 0) {
   _.each(consoleErrors,
