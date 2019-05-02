@@ -89,7 +89,7 @@ MicroService.prototype._setRunMode = function (bag, nextStep) {
     systemRunMode = global.systemSettings.runMode;
   config.runMode = process.env.RUN_MODE || systemRunMode;
 
-  if (config.runMode === 'dev')
+  if (config.runMode === 'devmode')
     config.logLevel = 'debug';
   else if (config.runMode === 'beta')
     config.logLevel = 'verbose';

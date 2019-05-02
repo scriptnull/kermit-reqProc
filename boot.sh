@@ -26,7 +26,7 @@ if [ "$IS_RESTRICTED_NODE" == "true" ]; then
   fi
 fi
 
-if [ "$RUN_MODE" == "dev" ]; then
+if [ "$RUN_MODE" == "devmode" ]; then
   echo forever is watching file changes
   forever -w -v --minUptime 1000 --spinSleepTime 1000 app.js
 else
