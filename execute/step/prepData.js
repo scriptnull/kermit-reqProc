@@ -21,7 +21,7 @@ function prepData(externalBag, callback) {
       _checkInputParams.bind(null, bag),
       _getRunResourceVersions.bind(null, bag),
       _getRunStepConnections.bind(null, bag),
-      _getIntegrations.bind(null, bag),
+      _getProjectIntegrations.bind(null, bag),
       _getResources.bind(null, bag),
       _getPipeline.bind(null, bag)
     ],
@@ -125,8 +125,8 @@ function _getRunStepConnections(bag, next) {
   );
 }
 
-function _getIntegrations(bag, next) {
-  var who = bag.who + '|' + _getIntegrations.name;
+function _getProjectIntegrations(bag, next) {
+  var who = bag.who + '|' + _getProjectIntegrations.name;
   logger.verbose(who, 'Inside');
 
   bag.stepConsoleAdapter.openCmd('Fetching integrations');
@@ -147,11 +147,12 @@ function _getIntegrations(bag, next) {
   var projectId = bag.runStepConnections[0].projectId;
   var query = util.format('names=%s&projectIds=%s',
     integrationNames.join(','), projectId);
-  bag.builderApiAdapter.getIntegrations(query,
+  bag.builderApiAdapter.getProjectIntegrations(query,
     function (err, integrations) {
       if (err) {
-        var msg = util.format('%s, getIntegrations for integration names %s ' +
-          'failed with error: %s', bag.who, integrationNames.join(','), err);
+        var msg = util.format('%s, getProjectIntegrations for' +
+          ' integration names %s failed with error: %s',
+          bag.who, integrationNames.join(','), err);
         logger.warn(msg);
         bag.stepConsoleAdapter.publishMsg(msg);
         bag.stepConsoleAdapter.closeCmd(false);
