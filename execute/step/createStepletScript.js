@@ -100,7 +100,8 @@ function _setScriptEnvs(bag, next) {
       'STEP_WORKSPACE_DIR': bag.stepWorkspacePath,
       'OPERATING_SYSTEM': global.config.shippableNodeOperatingSystem,
       'ARCHITECTURE': global.config.shippableNodeArchitecture,
-      'REQEXEC_DIR': global.config.reqExecDir
+      'REQEXEC_DIR': global.config.reqExecDir,
+      'NO_VERIFY_SSL': !_.isUndefined(process.env.NODE_TLS_REJECT_UNAUTHORIZED)
     }, function (value, key) {
       scriptEnvs.push({
         'key': key,
