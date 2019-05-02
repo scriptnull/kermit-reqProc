@@ -843,6 +843,14 @@ ShippableAdapter.prototype.putStepById =
       callback
     );
   };
+ShippableAdapter.prototype.putStepletById =
+  function (id, json, callback) {
+    this.put(
+      util.format('/steplets/%s', id),
+      json,
+      callback
+    );
+  };
 
 ShippableAdapter.prototype.putSubscriptionById =
   function (id, json, callback) {
