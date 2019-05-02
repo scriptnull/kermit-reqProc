@@ -86,9 +86,19 @@ function _prepareStepJSON(bag, next) {
     resources: {},
     integrations: {}
   };
-  bag.rawEnvs['STEP_ID'] = bag.step.id;
-  bag.rawEnvs['STEP_NAME'] = bag.step.name;
-  bag.rawEnvs['STEP_TYPE'] = global.systemCodesByCode[bag.step.typeCode].name;
+
+  bag.stepEnvs.push({
+    key: 'STEP_ID',
+    value: bag.step.id
+  });
+  bag.stepEnvs.push({
+    key: 'STEP_NAME',
+    value: bag.step.name
+  });
+  bag.stepEnvs.push({
+    key: 'STEP_TYPE',
+    value: global.systemCodesByCode[bag.step.typeCode].name
+  });
 
   if (!_.isEmpty(bag.step.setupPropertyBag))
     bag.stepData.step['setup'] = bag.step.setupPropertyBag;
