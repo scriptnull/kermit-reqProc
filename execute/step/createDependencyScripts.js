@@ -127,7 +127,7 @@ function _addDependencyScriptsToStep(bag, next) {
   var step = bag.stepData.step || {};
   step.execution = step.execution || {};
   if (!_.isEmpty(bag.inDependencyScripts))
-    step.execution.input = bag.inDependencyScripts;
+    step.execution.dependsOn = bag.inDependencyScripts;
 
   bag.stepData.step = step;
   return next();

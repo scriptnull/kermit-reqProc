@@ -15,7 +15,7 @@ var isDirectory = require('../_common/helpers/isDirectory.js');
 var isFile = require('../_common/helpers/isFile.js');
 
 var assemblyOrder = ['onSuccess', 'onFailure', 'onComplete',
-  'environmentVariables', 'image', 'auto', 'input', 'onStart', 'onExecute'];
+  'environmentVariables', 'image', 'auto', 'dependsOn', 'onStart', 'onExecute'];
 var singleQuoteEscapeSections = ['onSuccess', 'onFailure', 'onComplete',
   'onStart', 'onExecute'];
 
