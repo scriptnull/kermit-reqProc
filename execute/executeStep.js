@@ -15,7 +15,6 @@ var createDependencyScripts = require('./step/createDependencyScripts.js');
 var createStepletScript = require('./step/createStepletScript.js');
 var handOffAndPoll = require('./step/handOffAndPoll.js');
 var readStepStatus = require('./step/readStepStatus.js');
-var processOUTs = require('./step/processOUTs.js');
 var postReports = require('./step/postReports.js');
 var uploadArtifacts = require('./step/uploadArtifacts.js');
 var downloadArtifacts = require('./step/downloadArtifacts.js');
@@ -54,7 +53,6 @@ function executeStep(externalBag, callback) {
       _closeSetupGroup.bind(null, bag),
       _handOffAndPoll.bind(null, bag),
       _readStepStatus.bind(null, bag),
-      _processOUTs.bind(null, bag),
       _postReports.bind(null, bag),
       _uploadArtifacts.bind(null, bag),
       _postVersion.bind(null, bag),
@@ -567,29 +565,6 @@ function _readStepStatus(bag, next) {
         bag.cancelled = true;
       else if (statusName === 'failure')
         bag.failure = true;
-      return next();
-    }
-  );
-}
-
-function _processOUTs(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled || bag.failure) return next();
-
-  var who = bag.who + '|' + _processOUTs.name;
-  logger.verbose(who, 'Inside');
-
-  var innerBag = {
-    stepData: bag.stepData,
-    stepOutDir: bag.stepOutDir,
-    builderApiAdapter: bag.builderApiAdapter,
-    stepConsoleAdapter: bag.stepConsoleAdapter
-  };
-  processOUTs(innerBag,
-    function (err) {
-      if (err) {
-        bag.isCleanupGrpSuccess = false;
-        bag.error = true;
-      }
       return next();
     }
   );
