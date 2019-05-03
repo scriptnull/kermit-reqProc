@@ -15,7 +15,6 @@ function constructStepJson(externalBag, callback) {
     stepDir: externalBag.stepDir,
     stepData: {},
     stepEnvs: [],
-    rawEnvs: {},
     stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
@@ -181,11 +180,9 @@ function _prepareStepJSON(bag, next) {
           bag.stepData.integrations[integration.name] =
             _.extend(integrationObject.integrationValues,
               integrationObject.formJSONValues);
-          var intPrefix = 'int_' + integration.name + '_';
-          _.each(bag.stepData.integrations[integration.name],
-            function (value, key) {
-              bag.rawEnvs[intPrefix + key] = value;
-            }
+          bag.stepEnvs = bag.stepEnvs.concat(
+            __convertObjToEnvs(bag.stepData.integrations[integration.name],
+              'int_' + integration.name + '_')
           );
         }
       }

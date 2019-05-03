@@ -14,7 +14,7 @@ _.templateSettings = _.extend(_.templateSettings,
 var isDirectory = require('../_common/helpers/isDirectory.js');
 var isFile = require('../_common/helpers/isFile.js');
 
-var assemblyOrder = ['onSuccess', 'onFailure', 'onComplete',
+var assemblyOrder = ['onSuccess', 'onFailure', 'onComplete', 'output',
   'environmentVariables', 'image', 'auto', 'dependsOn', 'onStart', 'onExecute'];
 var singleQuoteEscapeSections = ['onSuccess', 'onFailure', 'onComplete',
   'onStart', 'onExecute'];
