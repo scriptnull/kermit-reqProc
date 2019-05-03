@@ -94,6 +94,7 @@ function _setupDirectories(bag, next) {
   bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'upload'));
   bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'download'));
   bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'cache'));
+  bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'tmp'));
   bag.dirsToBeCreated.push(path.join(bag.statusDir));
   bag.dirsToBeCreated.push(path.join(bag.stepDir, 'dependencyState'));
   bag.dirsToBeCreated.push(path.join(bag.stepDir, 'dependencyState',
