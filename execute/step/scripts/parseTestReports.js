@@ -14,6 +14,7 @@ function parseTestReports(externalBag, callback) {
     templatePath: path.resolve(__dirname,
       'Ubuntu_16.04/templates/parseReport.sh'),
     scriptPath: path.resolve(externalBag.stepWorkspacePath, 'parseReport.sh'),
+    baseDir: externalBag.baseDir,
     stepWorkspacePath: externalBag.stepWorkspacePath,
     builderApiAdapter: externalBag.builderApiAdapter,
     stepConsoleAdapter: externalBag.stepConsoleAdapter
@@ -46,6 +47,11 @@ function _checkInputParams(bag, next) {
       util.format('%s is missing: stepWorkspacePath', who)
     );
 
+  if (!bag.baseDir)
+    consoleErrors.push(
+      util.format('%s is missing: baseDir', who)
+    );
+
   if (!bag.scriptPath)
     consoleErrors.push(
       util.format('%s is missing: scriptPath', who)
@@ -71,7 +77,8 @@ function _generateScript(bag, next) {
   logger.debug(who, 'Inside');
 
   var params = {
-    stepWorkspaceDir: bag.stepWorkspacePath
+    stepWorkspaceDir: bag.stepWorkspacePath,
+    baseDir: bag.baseDir
   };
 
   var scriptContent =

@@ -605,6 +605,7 @@ function _postReports(bag, next) {
     stepConsoleAdapter: bag.stepConsoleAdapter,
     stepWorkspacePath: bag.stepWorkspacePath,
     stepOutDir: bag.stepOutDir,
+    baseDir: bag.baseDir,
     builderApiAdapter: bag.builderApiAdapter
   };
   postReports(innerBag,

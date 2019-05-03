@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 export STEP_WORKSPACE_DIR="%%stepWorkspaceDir%%"
+export BASE_DIR="%%baseDir%%"
 
 parse_test_reports() {
   echo 'Parsing test reports'
@@ -12,7 +13,7 @@ parse_test_reports() {
     return 0
   fi
 
-  /pipelines/reports/reports \
+  $BASE_DIR/reports/reports \
     --destination $STEP_WORKSPACE_DIR \
     tests \
     --source $reports_dir
