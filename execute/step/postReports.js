@@ -12,6 +12,7 @@ function postReports(externalBag, callback) {
     stepData: externalBag.stepData,
     projectId: externalBag.projectId,
     stepWorkspacePath: externalBag.stepWorkspacePath,
+    baseDir: externalBag.baseDir,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
     builderApiAdapter: externalBag.builderApiAdapter,
     isGrpSuccess: true
@@ -52,6 +53,7 @@ function _checkInputParams(bag, next) {
     'projectId',
     'stepConsoleAdapter',
     'stepWorkspacePath',
+    'baseDir',
     'builderApiAdapter'
   ];
 
@@ -87,6 +89,7 @@ function _parseTestReport(bag, next) {
   var scriptBag = {
     dependency: bag.dependency,
     stepWorkspacePath: bag.stepWorkspacePath,
+    baseDir: bag.baseDir,
     builderApiAdapter: bag.builderApiAdapter,
     stepConsoleAdapter: bag.stepConsoleAdapter
   };
