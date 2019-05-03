@@ -135,9 +135,9 @@ function _prepareStepJSON(bag, next) {
             resource.integration = _.extend(integrationObject.integrationValues,
               integrationObject.formJSONValues);
           }
-          bag.stepData.resources[
-            runResourceVersion.resourceName] = resource;
         }
+
+        bag.stepData.resources[runResourceVersion.resourceName] = resource;
 
         var resPrefix = 'res_' + runResourceVersion.resourceName + '_';
         bag.stepEnvs.push({

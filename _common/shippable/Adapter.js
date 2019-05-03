@@ -174,14 +174,6 @@ ShippableAdapter.prototype.postClusterNodeStats =
     );
   };
 
-ShippableAdapter.prototype.getFilesByResourceId =
-  function(resourceId, query, callback) {
-    this.get(
-      util.format('/resources/%s/files?%s', resourceId, query),
-      callback
-    );
-  };
-
 // integrations
 
 ShippableAdapter.prototype.getProjectIntegrations =
@@ -607,15 +599,6 @@ ShippableAdapter.prototype.postCubbyholeToken =
   function (json, callback) {
     this.post(
       util.format('/passthrough/vault/cubbyhole'),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postFilesByResourceId =
-  function (resourceId, json, callback) {
-    this.post(
-      util.format('/resources/%s/files', resourceId),
       json,
       callback
     );
