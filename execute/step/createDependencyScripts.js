@@ -71,6 +71,7 @@ function _assembleDependencyScripts(bag, next) {
 
   var error = false;
   bag.inDependencyScripts = [];
+  bag.outDependencyScripts = [];
 
   bag.stepConsoleAdapter.openCmd('Assembling scripts for required resources');
 
@@ -94,6 +95,8 @@ function _assembleDependencyScripts(bag, next) {
       try {
         if (resource.operation === 'IN')
           bag.inDependencyScripts.push(template({ 'context': resource }));
+        else
+          bag.outDependencyScripts.push(template({ 'context': resource }));
       } catch(e) {
         err = true;
         error = true;
@@ -128,6 +131,9 @@ function _addDependencyScriptsToStep(bag, next) {
   step.execution = step.execution || {};
   if (!_.isEmpty(bag.inDependencyScripts))
     step.execution.dependsOn = bag.inDependencyScripts;
+
+  if (!_.isEmpty(bag.outDependencyScripts))
+    step.execution.output = bag.outDependencyScripts;
 
   bag.stepData.step = step;
   return next();
