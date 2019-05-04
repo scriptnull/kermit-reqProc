@@ -102,6 +102,8 @@ function _setScriptEnvs(bag, next) {
       'OPERATING_SYSTEM': global.config.shippableNodeOperatingSystem,
       'ARCHITECTURE': global.config.shippableNodeArchitecture,
       'REQEXEC_DIR': global.config.reqExecDir,
+      'SHIPPABLE_API_URL': global.config.apiUrl,
+      'BUILDER_API_TOKEN': bag.builderApiToken,
       'NO_VERIFY_SSL': !_.isUndefined(process.env.NODE_TLS_REJECT_UNAUTHORIZED)
     }, function (value, key) {
       scriptEnvs.push({

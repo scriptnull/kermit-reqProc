@@ -152,6 +152,10 @@ function _prepareStepJSON(bag, next) {
           key: resPrefix + 'isTrigger',
           value: resource.isTrigger
         });
+        bag.stepEnvs.push({
+          key: resPrefix + 'resourceId',
+          value: resource.resourceId
+        });
         bag.stepEnvs = bag.stepEnvs.concat(
           __convertObjToEnvs(resource.resourceVersionContentPropertyBag,
             resPrefix
