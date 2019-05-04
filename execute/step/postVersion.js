@@ -65,7 +65,7 @@ function _postOutResourceVersions(bag, next) {
   async.eachSeries(bag.stepData.resources,
     function (resource, nextResource) {
       var outDependency = {};
-      if (resource.operation === 'OUT') {
+      if (_.contains(resource.operations, 'OUT')) {
         outDependency.name = resource.resourceName;
         outDependency.id = resource.resourceId;
         outDependency.resourceVersionContentPropertyBag =

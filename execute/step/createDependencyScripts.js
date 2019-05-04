@@ -80,38 +80,43 @@ function _assembleDependencyScripts(bag, next) {
       var resourceType =
         global.systemCodesByCode[resource.resourceTypeCode].name;
       var templateScript;
-      var operationType = resource.operation === 'IN'? 'dependsOn' : 'output';
-      var dependencyTemplatePath = path.join(bag.execTemplatesRootDir,
-        'resources', resourceType, operationType + '.sh');
-      try {
-        templateScript = fs.readFileSync(dependencyTemplatePath,
-          'utf8').toString();
-      } catch(e) {
-        logger.debug(util.inspect(e));
-      }
-      if (_.isEmpty(templateScript)) return;
-      var err = false;
-      var template = _.template(templateScript);
-      try {
-        if (resource.operation === 'IN')
-          bag.inDependencyScripts.push(template({ 'context': resource }));
-        else
-          bag.outDependencyScripts.push(template({ 'context': resource }));
-      } catch(e) {
-        err = true;
-        error = true;
-        logger.error(util.inspect(e));
-      }
-      if (err)
-        bag.stepConsoleAdapter.publishMsg(
-          util.format('Failed to create dependency script for resource: %s',
-          resource.resourceName)
-        );
-      else
-        bag.stepConsoleAdapter.publishMsg(
-          util.format('Successfully created dependency script for ' +
-          'resource: %s', resource.resourceName)
-        );
+      _.each(resource.operations,
+        function (operation) {
+          var operationType = operation === 'IN' ? 'dependsOn' : 'output';
+          var dependencyTemplatePath = path.join(bag.execTemplatesRootDir,
+            'resources', resourceType, operationType + '.sh');
+          try {
+            templateScript = fs.readFileSync(dependencyTemplatePath,
+              'utf8').toString();
+          } catch(e) {
+            logger.debug(util.inspect(e));
+          }
+          if (_.isEmpty(templateScript)) return;
+          var err = false;
+          var template = _.template(templateScript);
+          try {
+            if (operation === 'IN')
+              bag.inDependencyScripts.push(template({ 'context': resource }));
+            else
+              bag.outDependencyScripts.push(template({ 'context': resource }));
+          } catch(e) {
+            err = true;
+            error = true;
+            logger.error(util.inspect(e));
+          }
+          if (err)
+            bag.stepConsoleAdapter.publishMsg(
+              util.format('Failed to create dependency script for resource: %s',
+              resource.resourceName)
+            );
+          else
+            bag.stepConsoleAdapter.publishMsg(
+              util.format('Successfully created dependency script for ' +
+              'resource: %s', resource.resourceName)
+            );
+
+        }
+      )
     }
   );
 
