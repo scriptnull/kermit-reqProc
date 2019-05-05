@@ -110,20 +110,30 @@ function _prepareStepJSON(bag, next) {
     bag.runResourceVersions, 'resourceName');
 
   _.each(bag.runStepConnections,
-    function(runStepConnection) {
+    function (runStepConnection) {
       var runResourceVersion = runResourceVersionsByResourceName[
         runStepConnection.operationRunResourceVersionName];
+
+      var allRunStepConnections = _.filter(bag.runStepConnections,
+        function (connection) {
+          return connection.operationRunResourceVersionName ===
+            runStepConnection.operationRunResourceVersionName;
+        }
+      );
+
+      var triggers = _.pluck(allRunStepConnections, 'isTrigger');
+      var isTrigger = _.contains(triggers, true);
 
       var integration;
       var integrationObject;
       if (runResourceVersion) {
         var resource = runResourceVersion;
-        resource.operation = runStepConnection.operation;
-        resource.isTrigger = runStepConnection.isTrigger;
-        if (resource.operation === 'OUT')
+        resource.operations = _.pluck(allRunStepConnections, 'operation');
+        resource.isTrigger = isTrigger;
+        if (_.contains(resource.operations, 'OUT'))
           resource.resourcePath = util.format('%s/output/resources/%s',
             bag.stepDir, resource.resourceName);
-        else if (resource.operation === 'IN')
+        else if (_.contains(resource.operations, 'IN'))
           resource.resourcePath = util.format('%s/dependencyState/resources/%s',
             bag.stepDir, resource.resourceName);
         if (integrationsByName[
@@ -139,6 +149,12 @@ function _prepareStepJSON(bag, next) {
 
         bag.stepData.resources[runResourceVersion.resourceName] = resource;
 
+        var operation;
+        if (_.contains(resource.operations, 'OUT'))
+          operation = 'OUT';
+        else
+          operation = resource.operations[0];
+
         var resPrefix = 'res_' + runResourceVersion.resourceName + '_';
         bag.stepEnvs.push({
           key: resPrefix + 'resourcePath',
@@ -146,7 +162,7 @@ function _prepareStepJSON(bag, next) {
         });
         bag.stepEnvs.push({
           key: resPrefix + 'operation',
-          value: resource.operation
+          value: operation
         });
         bag.stepEnvs.push({
           key: resPrefix + 'isTrigger',
