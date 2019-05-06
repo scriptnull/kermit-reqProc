@@ -83,6 +83,7 @@ function _postOutResourceVersions(bag, next) {
         stepOutDir: bag.stepOutDir,
         builderApiAdapter: bag.builderApiAdapter,
         dependency: outDependency,
+        stepId: bag.stepData.step.id,
         versionJson: {},
         hasEnv: true,
         isChanged: false,
@@ -221,6 +222,7 @@ function __postResourceVersion(bag, next) {
   var newResourceVersion = {
     resourceId: bag.dependency.id,
     contentPropertyBag: bag.versionJson,
+    createdByStepId: bag.stepId,
     projectId: bag.dependency.projectId
   };
 
