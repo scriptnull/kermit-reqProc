@@ -230,12 +230,20 @@ function __convertObjToEnvs(obj, envPrefix) {
   var envs = [];
   _.each(obj,
     function (val, key) {
-      envs.push(
-        {
-          key: envPrefix + key,
-          value: val
-        }
-      );
+      if (_.isObject(val))
+        envs.push(
+          {
+            key: envPrefix + key,
+            value: JSON.stringify(val)
+          }
+        );
+      else
+        envs.push(
+          {
+            key: envPrefix + key,
+            value: val
+          }
+        );
     }
   );
 

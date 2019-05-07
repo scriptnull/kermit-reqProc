@@ -31,7 +31,7 @@ function createStepletScript(externalBag, callback) {
   async.series([
       _checkInputParams.bind(null, bag),
       _setScriptEnvs.bind(null, bag),
-      _escapeEnvironmentVariables.bind(null, bag),
+      _concatStepEnvsToSetup.bind(null, bag),
       _assembleScript.bind(null, bag),
       _writeScript.bind(null, bag),
       _setJobEnvs.bind(null, bag)
@@ -87,7 +87,7 @@ function _setScriptEnvs(bag, next) {
   var who = bag.who + '|' + _setScriptEnvs.name;
   logger.verbose(who, 'Inside');
 
-  var scriptEnvs = bag.stepEnvs || [];
+  bag.stepEnvs = bag.stepEnvs || [];
 
   _.each({
       'STATUS_DIR': bag.statusDir,
@@ -106,34 +106,32 @@ function _setScriptEnvs(bag, next) {
       'BUILDER_API_TOKEN': bag.builderApiToken,
       'NO_VERIFY_SSL': !_.isUndefined(process.env.NODE_TLS_REJECT_UNAUTHORIZED)
     }, function (value, key) {
-      scriptEnvs.push({
+      bag.stepEnvs.push({
         'key': key,
         'value': value
       });
     }
   );
 
+  _.each(bag.stepEnvs,
+    function(stepEnvObj, index) {
+      bag.stepEnvs[index].value = util.format('\'%s\'',
+        __escapeString(bag.stepEnvs[index].value)
+      );
+    }
+  );
+  return next();
+}
+
+function _concatStepEnvsToSetup(bag, next) {
+  var who = bag.who + '|' + _concatStepEnvsToSetup.name;
+  logger.verbose(who, 'Inside');
+
   if (_.isEmpty(bag.stepData.step.setup))
     bag.stepData.step.setup = {};
 
   bag.stepData.step.setup.environmentVariables =
-    scriptEnvs.concat(bag.stepData.step.setup.environmentVariables || []);
-
-  return next();
-}
-
-function _escapeEnvironmentVariables(bag, next) {
-  var who = bag.who + '|' + _escapeEnvironmentVariables.name;
-  logger.verbose(who, 'Inside');
-
-  _.each(bag.stepData.step.setup.environmentVariables,
-    function(environmentVariableObj, index) {
-      bag.stepData.step.setup.environmentVariables[index].value =
-        __escapeString(
-          bag.stepData.step.setup.environmentVariables[index].value
-        );
-    }
-  );
+    bag.stepEnvs.concat(bag.stepData.step.setup.environmentVariables || []);
 
   return next();
 }
@@ -227,13 +225,5 @@ function _setJobEnvs(bag, next) {
 
 function __escapeString(string) {
   if (!_.isString(string)) return string;
-
-  var charsToBeEscaped = ['\\\\', '\\\$', '\\\`', '\\\"'];
-  _.each(charsToBeEscaped,
-      function (char) {
-        var regex = new RegExp(char, 'g');
-        string = string.replace(regex, char);
-      }
-    );
-  return string;
+  return string.replace(/'/g, '\'"\'"\'');
 }
