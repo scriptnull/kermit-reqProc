@@ -485,7 +485,8 @@ function _createStepletScript(bag, next) {
     dependencyStateDir: path.join(bag.stepDir, 'dependencyState'),
     outputDir: path.join(bag.stepDir, 'output'),
     stepWorkspacePath: bag.stepWorkspacePath,
-    stepJsonPath: bag.stepJsonPath
+    stepJsonPath: bag.stepJsonPath,
+    stepId: bag.stepId
   };
 
   createStepletScript(innerBag,
