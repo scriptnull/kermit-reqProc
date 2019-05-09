@@ -88,7 +88,7 @@ function _pollStepStatus(bag, next) {
           setTimeout(
             function () {
               poll(bag);
-            }, global.config.runShJobStatusPollIntervalMS
+            }, global.config.stepStatusPollIntervalMS
           );
       }
     );
@@ -96,8 +96,8 @@ function _pollStepStatus(bag, next) {
 
   poll(bag);
   bag.stepConsoleAdapter.publishMsg(
-    'Configured job status poll for every ' +
-    global.config.runShJobStatusPollIntervalMS / 1000 + ' seconds');
+    'Configured step status poll for every ' +
+    global.config.stepStatusPollIntervalMS / 1000 + ' seconds');
   bag.stepConsoleAdapter.closeCmd(true);
   return next();
 }

@@ -23,7 +23,8 @@ function createStepletScript(externalBag, callback) {
     dependencyStateDir: externalBag.dependencyStateDir,
     outputDir: externalBag.outputDir,
     stepWorkspacePath: externalBag.stepWorkspacePath,
-    stepJsonPath: externalBag.stepJsonPath
+    stepJsonPath: externalBag.stepJsonPath,
+    stepId: externalBag.stepId
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -63,7 +64,8 @@ function _checkInputParams(bag, next) {
     'stepletDir',
     'stepConsoleAdapter',
     'dependencyStateDir',
-    'outputDir'
+    'outputDir',
+    'stepId'
   ];
 
   var paramErrors = [];
@@ -80,6 +82,8 @@ function _checkInputParams(bag, next) {
   if (hasErrors)
     logger.error(paramErrors.join('\n'));
 
+  bag.stepDockerContainerName = util.format('step-%s-%s', bag.stepId,
+    bag.stepletId);
   return next(hasErrors);
 }
 
@@ -104,7 +108,8 @@ function _setScriptEnvs(bag, next) {
       'REQEXEC_DIR': global.config.reqExecDir,
       'SHIPPABLE_API_URL': global.config.apiUrl,
       'BUILDER_API_TOKEN': bag.builderApiToken,
-      'NO_VERIFY_SSL': !_.isUndefined(process.env.NODE_TLS_REJECT_UNAUTHORIZED)
+      'NO_VERIFY_SSL': !_.isUndefined(process.env.NODE_TLS_REJECT_UNAUTHORIZED),
+      'STEP_DOCKER_CONTAINER_NAME': bag.stepDockerContainerName
     }, function (value, key) {
       bag.stepEnvs.push({
         'key': key,
@@ -202,6 +207,8 @@ function _setJobEnvs(bag, next) {
   jobEnvs.push(util.format('RUN_MODE=%s', global.config.runMode));
   jobEnvs.push(util.format('SCRIPT_PATH=%s', bag.executeScriptPath));
   jobEnvs.push(util.format('STEPLET_DIR=%s', bag.stepletDir));
+  jobEnvs.push(util.format('STEP_DOCKER_CONTAINER_NAME=%s',
+    bag.stepDockerContainerName));
 
   if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2016')
     jobEnvs.push('REQEXEC_SHELL=powershell.exe');
