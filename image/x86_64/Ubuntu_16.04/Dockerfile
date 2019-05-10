@@ -1,4 +1,4 @@
-FROM drydock/u16microbase:{{%TAG%}}
+FROM drydock/u16microbase:{{%TAG%}} as build
 
 # Prefix all image ENVs with IMAGE_ so there are no confusions.
 ENV IMAGE_REQPROC_DIR /root/reqProc
@@ -22,4 +22,14 @@ RUN mkdir -p $IMAGE_REQEXEC_DIR && \
     mv /tmp/reqExec/dist $IMAGE_REQEXEC_DIR/x86_64/Ubuntu_16.04 && \
     rm -rf /tmp/reqExec
 
-ENTRYPOINT $IMAGE_REQPROC_DIR/boot.sh
+FROM drydock/distrobase:master
+
+COPY --from=build /root/reqProc /root/reqProc
+COPY --from=build /root/reqExec /root/reqExec
+COPY --from=build /root/execTemplates /root/execTemplates
+
+ENV IMAGE_REQPROC_DIR /root/reqProc
+ENV IMAGE_REQEXEC_DIR /root/reqExec
+ENV IMAGE_EXEC_TEMPLATES_DIR /root/execTemplates
+
+ENTRYPOINT ["bash", "/root/reqProc/boot.sh"]
