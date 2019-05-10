@@ -248,6 +248,15 @@ ShippableAdapter.prototype.getResourceById =
     );
   };
 
+ShippableAdapter.prototype.getNextSteps =
+  function (runId, json, callback) {
+    this.post(
+      util.format('/runs/%s/nextSteps', runId),
+      json,
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getRunArtifactUrls =
   function (runId, query, callback) {
     this.get(

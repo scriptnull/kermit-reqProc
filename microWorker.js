@@ -19,9 +19,7 @@ function microWorker(message) {
     baseDir: global.config.baseDir,
     pipelineDir: path.join(global.config.baseDir, 'pipelines'),
     execTemplatesDir: global.config.execTemplatesDir,
-    execTemplatesRootDir: global.config.execTemplatesRootDir,
-    completedStepIds: [],
-    skippableSteps: []
+    execTemplatesRootDir: global.config.execTemplatesRootDir
   };
 
   bag.who = util.format('%s|%s', msName, self.name);
@@ -31,11 +29,7 @@ function microWorker(message) {
       _checkInputParams.bind(null, bag),
       _updateClusterNodeStatus.bind(null, bag),
       _cleanupPipelineDirectory.bind(null, bag),
-      _executeStep.bind(null, bag),
-      _getSteplets.bind(null, bag),
-      _skipSteps.bind(null, bag),
-      _skipSteplets.bind(null, bag),
-      _postStepLogs.bind(null, bag),
+      _executeGroupSteps.bind(null, bag),
       _cleanupPipelineDirectory.bind(null, bag)
     ],
     function (err) {
@@ -71,6 +65,8 @@ function _checkInputParams(bag, next) {
   bag.builderApiToken = bag.rawMessage.builderApiToken;
   bag.builderApiAdapter = new Adapter(bag.rawMessage.builderApiToken);
   bag.stepIds = bag.rawMessage.stepIds;
+  bag.affinityGroup = bag.rawMessage.affinityGroup;
+  bag.runId = bag.rawMessage.runId;
   return next();
 }
 
@@ -90,7 +86,6 @@ function _updateClusterNodeStatus(bag, next) {
           'with error: %s', bag.who, global.config.nodeId, err));
         return next(true);
       }
-
       return next();
     }
   );
@@ -116,47 +111,115 @@ function _cleanupPipelineDirectory(bag, next) {
   );
 }
 
-function _executeStep(bag, next) {
-  var who = bag.who + '|' + _executeStep.name;
+function _executeGroupSteps(bag, next) {
+  var who = bag.who + '|' + _executeGroupSteps.name;
   logger.verbose(who, 'Inside');
 
-  async.eachSeries(bag.stepIds,
-    function (stepId, done) {
-      var batchSize = global.systemSettings &&
-          global.systemSettings.jobConsoleBatchSize;
-      var timeInterval = global.systemSettings &&
-        global.systemSettings.jobConsoleBufferTimeIntervalInMS;
-      var stepConsoleAdapter = new StepConsoleAdapter(bag.builderApiToken,
-        stepId, batchSize, timeInterval);
+  var innerBag = {
+    who: bag.who,
+    builderApiAdapter: bag.builderApiAdapter,
+    builderApiToken: bag.builderApiToken,
+    runId: bag.runId,
+    affinityGroup: bag.affinityGroup,
+    baseDir: bag.baseDir,
+    groupComplete: false,
+    execTemplatesDir: bag.execTemplatesDir,
+    execTemplatesRootDir: bag.execTemplatesRootDir
+  };
 
-      var innerBag = {
-        who: bag.who,
-        stepId: stepId,
-        builderApiAdapter: bag.builderApiAdapter,
-        stepConsoleAdapter: stepConsoleAdapter,
-        baseDir: bag.baseDir,
-        execTemplatesDir: bag.execTemplatesDir,
-        execTemplatesRootDir: bag.execTemplatesRootDir,
-        builderApiToken: bag.builderApiToken,
-        badStatus: false,
-        completedStepIds: bag.completedStepIds
-      };
+  async.whilst(
+    function () {
+      return !innerBag.groupComplete;
+    },
+    function (callback) {
       async.series([
-          __cleanStatus.bind(null, innerBag),
-          __execute.bind(null, innerBag),
-          __cleanStatus.bind(null, innerBag)
-        ],
-        function (err) {
-          if (err) {
-            logger.warn(util.format('%s, ' +
-              'failed to execute step %s with error: %s',
-              bag.who, innerBag.stepId, err)
-            );
-          }
-          if (innerBag.badStatus)
-            bag.skippableSteps = _.difference(bag.stepIds,
-              innerBag.completedStepIds);
-          return done(innerBag.badStatus);
+        _getNextStep.bind(null, innerBag),
+        _getSteplets.bind(null, innerBag),
+        _updateStepStatus.bind(null, innerBag),
+        _updateStepletStatus.bind(null, innerBag),
+        _executeStep.bind(null, innerBag)
+      ],
+      function () {
+        return callback();
+      }
+    );
+    },
+    function () {
+      return next();
+    }
+  );
+}
+function _getNextStep(bag, next) {
+  var who = bag.who + '|' + _getNextStep.name;
+  logger.verbose(who, 'Inside');
+
+  var body = {
+    affinityGroup: bag.affinityGroup
+  };
+  bag.builderApiAdapter.getNextSteps(bag.runId, body,
+    function (err, result) {
+      if (err) {
+        logger.warn(util.format('%s, failed to get next step ' +
+        'for group: %s with error: %s', bag.who, bag.affinityGroup, err));
+        bag.groupComplete = true;
+      } else
+        bag.stepId = result.stepIds[0];
+
+      if (!bag.stepId)
+        bag.groupComplete = true;
+      return next();
+    }
+  );
+}
+
+function _getSteplets(bag, next) {
+  if (bag.groupComplete) return next();
+
+  var who = bag.who + '|' + _getSteplets.name;
+  logger.verbose(who, 'Inside');
+
+  var query = 'stepIds=' + bag.stepId;
+  bag.builderApiAdapter.getSteplets(query,
+    function (err, steplets) {
+      if (err)
+        logger.warn(util.format('%s, failed to get steplets for ' +
+        'stepId: %s with error: %s', bag.who, bag.stepId, err));
+      bag.steplets = steplets;
+      return next();
+    }
+  );
+}
+
+function _updateStepStatus(bag, next) {
+  if (bag.groupComplete) return next();
+
+  var who = bag.who + '|' + _updateStepStatus.name;
+  logger.verbose(who, 'Inside');
+
+  var update = {
+    statusCode: global.systemCodesByName['queued'].code
+  };
+  bag.builderApiAdapter.putStepById(bag.stepId, update,
+    function () {
+      return next();
+    }
+  );
+}
+
+function _updateStepletStatus(bag, next) {
+  if (bag.groupComplete) return next();
+
+  var who = bag.who + '|' + _updateStepletStatus.name;
+  logger.verbose(who, 'Inside');
+
+  var update = {
+    statusCode: global.systemCodesByName['queued'].code
+  };
+  async.eachLimit(bag.steplets, 5,
+    function (steplet, done) {
+      bag.builderApiAdapter.putStepletById(steplet.id, update,
+        function () {
+          return done();
         }
       );
     },
@@ -165,18 +228,58 @@ function _executeStep(bag, next) {
     }
   );
 }
+function _executeStep(bag, next) {
+  if (bag.groupComplete) return next();
+
+  var who = bag.who + '|' + _executeStep.name;
+  logger.verbose(who, 'Inside');
+
+
+  var batchSize = global.systemSettings &&
+      global.systemSettings.jobConsoleBatchSize;
+  var timeInterval = global.systemSettings &&
+    global.systemSettings.jobConsoleBufferTimeIntervalInMS;
+  var stepConsoleAdapter = new StepConsoleAdapter(bag.builderApiToken,
+    bag.stepId, batchSize, timeInterval);
+
+  var innerBag = {
+    who: bag.who,
+    stepId: bag.stepId,
+    builderApiAdapter: bag.builderApiAdapter,
+    stepConsoleAdapter: stepConsoleAdapter,
+    baseDir: bag.baseDir,
+    execTemplatesDir: bag.execTemplatesDir,
+    execTemplatesRootDir: bag.execTemplatesRootDir,
+    builderApiToken: bag.builderApiToken,
+    badStatus: false
+  };
+  async.series([
+      __cleanStatus.bind(null, innerBag),
+      __execute.bind(null, innerBag),
+      __cleanStatus.bind(null, innerBag)
+    ],
+    function (err) {
+      if (err) {
+        logger.warn(util.format('%s, ' +
+          'failed to execute step %s with error: %s',
+          bag.who, innerBag.stepId, err)
+        );
+      }
+      return next()
+    }
+  );
+
+}
 
 function __execute(bag, next) {
   var who = bag.who + '|' + __execute.name;
   logger.verbose(who, 'Inside');
 
   executeStep(bag,
-    function (err, badStatus) {
-      bag.completedStepIds.push(bag.stepId);
+    function (err) {
       if (err)
         logger.warn(util.format('%s, step with id %s ended ' +
           'with error: %s', bag.who, bag.stepId, err));
-      bag.badStatus = badStatus;
       return next();
     }
   );
@@ -197,113 +300,6 @@ function __cleanStatus(bag, next) {
           'with error: %s', bag.who, err));
         return next(true);
       }
-      return next();
-    }
-  );
-}
-
-function _getSteplets(bag, next) {
-  if (_.isEmpty(bag.skippableSteps)) return next();
-
-  var who = bag.who + '|' + _getSteplets.name;
-  logger.verbose(who, 'Inside');
-
-  var query = util.format('stepIds=%s', bag.skippableSteps.join(','));
-  bag.builderApiAdapter.getSteplets(query,
-    function (err, steplets) {
-      if (err)
-        logger.warn(util.format('%s, getSteplets failed for stepIds: %s' +
-          ' with error: %s', bag.who, bag.skippableSteps.join(','), err));
-      bag.skippableSteplets = _.pluck(steplets, 'id');
-      return next();
-    }
-  );
-}
-
-function _skipSteps(bag, next) {
-  if (_.isEmpty(bag.skippableSteps)) return next();
-
-  var who = bag.who + '|' + _skipSteps.name;
-  logger.verbose(who, 'Inside');
-
-  var statusCode = global.systemCodesByName['skipped'].code;
-  var update = {
-    statusCode: statusCode
-  };
-  async.eachLimit(bag.skippableSteps, 10,
-    function (stepId, done) {
-
-      bag.builderApiAdapter.putStepById(stepId, update,
-        function (err) {
-          if (err)
-            logger.warn(util.format('%s, putStepById failed for stepId: %s' +
-              ' with error: %s', bag.who, stepId, err));
-          return done();
-        }
-      );
-    },
-    function () {
-      return next();
-    }
-  );
-}
-
-function _skipSteplets(bag, next) {
-  if (_.isEmpty(bag.skippableSteplets)) return next();
-
-  var who = bag.who + '|' + _skipSteplets.name;
-  logger.verbose(who, 'Inside');
-
-  var statusCode = global.systemCodesByName['skipped'].code;
-  var update = {
-    statusCode: statusCode
-  };
-  async.eachLimit(bag.skippableSteplets, 10,
-    function (stepletId, done) {
-      bag.builderApiAdapter.putStepletById(stepletId, update,
-        function (err) {
-          if (err)
-            logger.warn(util.format('%s, putStepletById failed for stepletId: ' +
-              '%s with error: %s', bag.who, stepletId, err));
-          return done();
-        }
-      );
-    },
-    function () {
-      return next();
-    }
-  );
-}
-
-function _postStepLogs(bag, next) {
-  if (_.isEmpty(bag.skippableSteps)) return next();
-
-  var who = bag.who + '|' + _postStepLogs.name;
-  logger.verbose(who, 'Inside');
-
-  async.eachLimit(bag.skippableSteps, 10,
-    function (stepId, done) {
-      var batchSize = global.systemSettings &&
-        global.systemSettings.jobConsoleBatchSize;
-      var timeInterval = global.systemSettings &&
-        global.systemSettings.jobConsoleBufferTimeIntervalInMS;
-
-      var stepConsoleAdapter = new StepConsoleAdapter(bag.builderApiToken,
-        stepId, batchSize, timeInterval);
-      var grpMsg;
-      var logMessage;
-      grpMsg = 'Step skipped';
-      logMessage = 'Skipping step as it has unsuccessful dependencies.';
-
-      stepConsoleAdapter.openGrp(grpMsg);
-      stepConsoleAdapter.openCmd('Info');
-      stepConsoleAdapter.publishMsg(logMessage);
-      stepConsoleAdapter.closeCmd(false);
-      stepConsoleAdapter.closeGrp(false);
-
-      return done();
-    },
-    function () {
       return next();
     }
   );
