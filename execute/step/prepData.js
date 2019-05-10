@@ -86,7 +86,18 @@ function _getRunResourceVersions(bag, next) {
         bag.stepConsoleAdapter.closeCmd(false);
         return next(err);
       } else {
-        bag.runResourceVersions = runResVersions;
+        var rrvMap = {};
+        _.each(runResVersions,
+          function (rrv) {
+            if (_.isEmpty(rrvMap[rrv.resourceName]))
+              rrvMap[rrv.resourceName] = rrv;
+            else {
+              if (rrv.createdAt > rrvMap[rrv.resourceName].createdAt)
+                rrvMap[rrv.resourceName] = rrv;
+            }
+          }
+        );
+        bag.runResourceVersions = _.values(rrvMap);
         bag.stepConsoleAdapter.publishMsg(
           'Successfully fetched run resource versions with stepId: ' +
           bag.stepId);

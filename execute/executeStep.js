@@ -66,8 +66,7 @@ function executeStep(externalBag, callback) {
           bag.step && bag.step.id));
       else
         logger.info(bag.who, util.format('Successfully executed step'));
-      var badStatus = bag.error || bag.timeout || bag.cancelled || bag.failure;
-      return callback(err, badStatus);
+      return callback(err);
     }
   );
 }
