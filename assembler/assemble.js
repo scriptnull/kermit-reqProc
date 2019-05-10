@@ -117,6 +117,8 @@ function _combineNativeScriptFragment(bag, next) {
   );
 
   bag.objectSubType = 'bash';
+  // execution is optional for native steps
+  bag.json.execution = bag.json.execution || {};
   bag.json.execution.onExecute = {
     isScriptFragment: true,
     scriptFragment: fragment
