@@ -87,6 +87,12 @@ function _assembleNativeScriptFragment(bag, next) {
   var who = bag.who + '|' + _assembleNativeScriptFragment.name;
   logger.verbose(who, 'Inside');
 
+  // execution is optional for native steps.
+  // We add a placeholder to force the execution.onExecute template
+  bag.json.execution = bag.json.execution || {
+    onExecute: ['native']
+  };
+
   var rootDirectoryPath = path.resolve(bag.execTemplatesRootDir, bag.objectType,
     bag.objectSubType);
 
@@ -117,8 +123,7 @@ function _combineNativeScriptFragment(bag, next) {
   );
 
   bag.objectSubType = 'bash';
-  // execution is optional for native steps
-  bag.json.execution = bag.json.execution || {};
+
   bag.json.execution.onExecute = {
     isScriptFragment: true,
     scriptFragment: fragment
