@@ -134,9 +134,14 @@ function _updateStepToProcessing(bag, next) {
   bag.stepConsoleAdapter.openCmd('Updating step status to processing');
   var statusCode = global.systemCodesByName['processing'].code;
 
+  var timeoutAt = new Date();
+  timeoutAt.setSeconds(timeoutAt.getSeconds() +
+    bag.step.configPropertyBag.timeoutSeconds);
+
   var update = {
     statusCode: statusCode,
-    startedAt: new Date()
+    startedAt: new Date(),
+    timeoutAt: timeoutAt
   };
   bag.builderApiAdapter.putStepById(bag.step.id, update,
     function (err) {
