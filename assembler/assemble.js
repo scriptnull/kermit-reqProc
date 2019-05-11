@@ -89,9 +89,9 @@ function _assembleNativeScriptFragment(bag, next) {
 
   // execution is optional for native steps.
   // We add a placeholder to force the execution.onExecute template
-  bag.json.execution = bag.json.execution || {
-    onExecute: ['native']
-  };
+  bag.json.execution = bag.json.execution || {};
+  if (!_.has(bag.json.execution, 'onExecute'))
+    bag.json.execution.onExecute = ['native'];
 
   var rootDirectoryPath = path.resolve(bag.execTemplatesRootDir, bag.objectType,
     bag.objectSubType);
