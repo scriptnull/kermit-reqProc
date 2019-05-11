@@ -34,6 +34,8 @@ function assemble(externalBag, callback) {
 
   async.series([
       _checkInputParams.bind(null, bag),
+      _assembleNativeScriptFragment.bind(null, bag),
+      _combineNativeScriptFragment.bind(null, bag),
       _assembleScript.bind(null, bag),
       _combineScript.bind(null, bag)
     ],
@@ -77,6 +79,62 @@ function _checkInputParams(bag, next) {
   if (hasErrors)
     logger.error(paramErrors.join('\n'));
   return next(hasErrors);
+}
+
+function _assembleNativeScriptFragment(bag, next) {
+  if (bag.objectType !== 'steps' || bag.objectSubType === 'bash') return next();
+
+  var who = bag.who + '|' + _assembleNativeScriptFragment.name;
+  logger.verbose(who, 'Inside');
+
+  // execution is optional for native steps.
+  // We add a placeholder to force the execution.onExecute template
+  bag.json.execution = bag.json.execution || {};
+  if (!_.has(bag.json.execution, 'onExecute'))
+    bag.json.execution.onExecute = ['native'];
+
+  var rootDirectoryPath = path.resolve(bag.execTemplatesRootDir, bag.objectType,
+    bag.objectSubType);
+
+  if (!isDirectory(rootDirectoryPath))
+    return next(util.format('Root directory: %s is incorrect',
+      rootDirectoryPath));
+
+  __addTemplate(bag.objectSubType, rootDirectoryPath, bag.json, bag);
+
+  return next();
+}
+
+function _combineNativeScriptFragment(bag, next) {
+  if (bag.objectType !== 'steps' || bag.objectSubType === 'bash') return next();
+
+  var who = bag.who + '|' + _combineNativeScriptFragment.name;
+  logger.verbose(who, 'Inside');
+
+  var fragment = '';
+
+  _.each([ bag.objectSubType ].concat(assemblyOrder),
+    function (component) {
+      if (!_.isEmpty(bag.assembledScript[component]))
+        fragment += (bag.assembledScript[component].header +
+          bag.assembledScript[component].script +
+          bag.assembledScript[component].footer);
+    }
+  );
+
+  // And now we transform this into a bash step with a script fragment
+  // for the onExecute section. This allows the next assemble/combine
+  // functions to create a fully baked bash step for execution.
+  bag.objectSubType = 'bash';
+  bag.json.execution.onExecute = {
+    isScriptFragment: true,
+    scriptFragment: fragment
+  };
+
+  // Reset the assembledScript because we've taken what we need and put
+  // it in the onExecute section
+  bag.assembledScript = {};
+  return next();
 }
 
 function _assembleScript(bag, next) {
@@ -172,7 +230,11 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
               }
             );
           } else if (_.isObject(context)) {
-            script = template({ 'context': context });
+            if (context.isScriptFragment === true) {
+              script = context.scriptFragment;
+            } else {
+              script = template({ 'context': context });
+            }
           }
 
           bag.assembledScript[parentDirectoryName].script += script;
