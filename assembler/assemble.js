@@ -122,13 +122,17 @@ function _combineNativeScriptFragment(bag, next) {
     }
   );
 
+  // And now we transform this into a bash step with a script fragment
+  // for the onExecute section. This allows the next assemble/combine
+  // functions to create a fully baked bash step for execution.
   bag.objectSubType = 'bash';
-
   bag.json.execution.onExecute = {
     isScriptFragment: true,
     scriptFragment: fragment
   };
 
+  // Reset the assembledScript because we've taken what we need and put
+  // it in the onExecute section
   bag.assembledScript = {};
   return next();
 }
