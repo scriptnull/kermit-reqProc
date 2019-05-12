@@ -58,7 +58,8 @@ function executeStep(externalBag, callback) {
       _postVersion.bind(null, bag),
       _updateStepStatus.bind(null, bag),
       _closeCleanupGroup.bind(null, bag),
-      _postPendingStepConsoles.bind(null, bag)
+      _postPendingStepConsoles.bind(null, bag),
+      _updateStepPendingLogsComplete.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -700,6 +701,8 @@ function _postPendingStepConsoles(bag, next) {
   var who = bag.who + '|' + _postPendingStepConsoles.name;
   logger.verbose(who, 'Inside');
 
+  bag.consoleLogsComplete = false;
+
   var retryOpts = {
     times: 10,
     interval: function (retryCount) {
@@ -714,6 +717,7 @@ function _postPendingStepConsoles(bag, next) {
         callsPending = bag.stepConsoleAdapter.getPendingApiCallCount();
 
       if (callsPending < 1) {
+        bag.consoleLogsComplete = true;
         return callback();
       }
       return callback(true);
@@ -721,6 +725,28 @@ function _postPendingStepConsoles(bag, next) {
     function (err) {
       if (err)
         logger.error('Still posting step consoles');
+      return next();
+    }
+  );
+}
+
+function _updateStepPendingLogsComplete(bag, next) {
+  if (!bag.consoleLogsComplete) return next();
+  // All of the consoles should have been posted, but if not the builder token
+  // may still be in use.  It will remain until expiration.
+
+  var who = bag.who + '|' + _updateStepPendingLogsComplete.name;
+  logger.verbose(who, 'Inside');
+
+  var update = {
+    pendingLogsComplete: true
+  };
+
+  bag.builderApiAdapter.putStepById(bag.step.id, update,
+    function (err) {
+      if (err)
+        logger.error(err);
+
       return next();
     }
   );
