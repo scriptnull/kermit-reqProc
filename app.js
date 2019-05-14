@@ -48,8 +48,8 @@ if (!global.config.reqKickDir)
 if (!global.config.reqProcContainerName)
   consoleErrors.push(util.format('%s is missing: reqProcContainerName', who));
 
-if (!global.config.execTemplatesDir)
-  consoleErrors.push(util.format('%s is missing: execTemplatesDir', who));
+if (!global.config.execTemplatesRootDir)
+  consoleErrors.push(util.format('%s is missing: execTemplatesRootDir', who));
 
 if (!global.config.defaultTaskContainerOptions)
   consoleErrors.push(

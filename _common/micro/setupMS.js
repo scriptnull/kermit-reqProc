@@ -37,10 +37,6 @@ function setupMS(params) {
   global.config.shippableNodeOperatingSystem =
     process.env.SHIPPABLE_NODE_OPERATING_SYSTEM;
   global.config.execTemplatesRootDir = process.env.IMAGE_EXEC_TEMPLATES_DIR;
-  global.config.execTemplatesDir = path.join(
-    process.env.IMAGE_EXEC_TEMPLATES_DIR,
-    process.env.SHIPPABLE_NODE_OPERATING_SYSTEM
-  );
 
   if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2016') {
     global.config.scriptExtension = 'ps1';
