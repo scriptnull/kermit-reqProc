@@ -18,7 +18,6 @@ function microWorker(message) {
     rawMessage: message,
     baseDir: global.config.baseDir,
     pipelineDir: path.join(global.config.baseDir, 'pipelines'),
-    execTemplatesDir: global.config.execTemplatesDir,
     execTemplatesRootDir: global.config.execTemplatesRootDir
   };
 
@@ -123,7 +122,6 @@ function _executeGroupSteps(bag, next) {
     affinityGroup: bag.affinityGroup,
     baseDir: bag.baseDir,
     groupComplete: false,
-    execTemplatesDir: bag.execTemplatesDir,
     execTemplatesRootDir: bag.execTemplatesRootDir
   };
 
@@ -248,7 +246,6 @@ function _executeStep(bag, next) {
     builderApiAdapter: bag.builderApiAdapter,
     stepConsoleAdapter: stepConsoleAdapter,
     baseDir: bag.baseDir,
-    execTemplatesDir: bag.execTemplatesDir,
     execTemplatesRootDir: bag.execTemplatesRootDir,
     builderApiToken: bag.builderApiToken,
     badStatus: false
@@ -265,7 +262,7 @@ function _executeStep(bag, next) {
           bag.who, innerBag.stepId, err)
         );
       }
-      return next()
+      return next();
     }
   );
 

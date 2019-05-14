@@ -26,7 +26,6 @@ function executeStep(externalBag, callback) {
     builderApiAdapter: externalBag.builderApiAdapter,
     baseDir: externalBag.baseDir,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
-    execTemplatesDir: externalBag.execTemplatesDir,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
     builderApiToken: externalBag.builderApiToken,
     error: false
@@ -256,7 +255,8 @@ function _setupDirectories(bag, next) {
     stepJsonPath: bag.stepJsonPath,
     stepWorkspacePath: bag.stepWorkspacePath,
     runWorkspacePath: bag.runWorkspacePath,
-    stepConsoleAdapter: bag.stepConsoleAdapter
+    stepConsoleAdapter: bag.stepConsoleAdapter,
+    execTemplatesRootDir: bag.execTemplatesRootDir
   };
 
   setupDirectories(innerBag,

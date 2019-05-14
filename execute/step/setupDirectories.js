@@ -22,7 +22,8 @@ function setupDirectories(externalBag, callback) {
     stepWorkspacePath: externalBag.stepWorkspacePath,
     runWorkspacePath: externalBag.runWorkspacePath,
     stepletScriptPaths: [],
-    stepConsoleAdapter: externalBag.stepConsoleAdapter
+    stepConsoleAdapter: externalBag.stepConsoleAdapter,
+    execTemplatesRootDir: externalBag.execTemplatesRootDir
   };
   bag.who = util.format('%s|step|%s', msName, self.name);
   logger.info(bag.who, 'Inside');
@@ -63,7 +64,8 @@ function _checkInputParams(bag, next) {
     'stepWorkspacePath',
     'runWorkspacePath',
     'stepJsonPath',
-    'stepConsoleAdapter'
+    'stepConsoleAdapter',
+    'execTemplatesRootDir'
   ];
 
   var paramErrors = [];
@@ -107,7 +109,7 @@ function _setupDirectories(bag, next) {
     function (resource) {
       if (resource.operation === 'IN') {
         var resourceType = global.systemCodesByCode[resource.typeCode].name;
-        if (isDirectory(path.join(global.config.execTemplatesDir,
+        if (isDirectory(path.join(bag.execTemplatesRootDir,
           'resources', resourceType)))
             bag.dirsToBeCreated.push(
               path.join(bag.stepDir, 'dependencyState',
@@ -121,6 +123,7 @@ function _setupDirectories(bag, next) {
       }
     }
   );
+  console.log(bag.dirsToBeCreated);
 
   // Files to be created
   bag.filesToBeCreated.push(bag.stepJsonPath);
