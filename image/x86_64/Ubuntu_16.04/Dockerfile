@@ -22,6 +22,14 @@ RUN mkdir -p $IMAGE_REQEXEC_DIR && \
     mv /tmp/reqExec/dist $IMAGE_REQEXEC_DIR/x86_64/Ubuntu_16.04 && \
     rm -rf /tmp/reqExec
 
+RUN mkdir -p $IMAGE_REQEXEC_DIR && \
+    wget https://github.com/Shippable/kermit-reqExec/archive/{{%TAG%}}.tar.gz -O /tmp/reqExec.tar.gz && \
+    mkdir -p /tmp/reqExec && tar -xzf /tmp/reqExec.tar.gz -C /tmp/reqExec --strip-components=1 && \
+    cd /tmp/reqExec && package/x86_64/CentOS_7/package.sh && \
+    mkdir -p $IMAGE_REQEXEC_DIR/x86_64/CentOS_7 && \
+    mv /tmp/reqExec/dist $IMAGE_REQEXEC_DIR/x86_64/CentOS_7 && \
+    rm -rf /tmp/reqExec
+
 FROM drydock/distrobase:master
 
 COPY --from=build /root/reqProc /root/reqProc
