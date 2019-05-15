@@ -123,7 +123,6 @@ function _setupDirectories(bag, next) {
       }
     }
   );
-  console.log(bag.dirsToBeCreated);
 
   // Files to be created
   bag.filesToBeCreated.push(bag.stepJsonPath);

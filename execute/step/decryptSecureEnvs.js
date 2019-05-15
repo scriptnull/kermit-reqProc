@@ -69,7 +69,7 @@ function _decryptSecureEnvs(bag, next) {
 
   async.eachOfLimit(bag.stepData.step.setup.environmentVariables, 10,
     function (envObject, index, nextEnvObject) {
-      if (!envObject.isSecure) return nextEnvObject();
+      if (!envObject.isEncrypted) return nextEnvObject();
 
       var body = {
         'encryptedText': envObject.value
