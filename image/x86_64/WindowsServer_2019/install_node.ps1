@@ -16,7 +16,7 @@ New-Item $($env:APPDATA + '\npm') ;
   [Environment]::SetEnvironmentVariable('PATH', $env:PATH, [EnvironmentVariableTarget]::Machine)
 
 echo "installing node dependencies using npm"
-# needed to build disk-usage package for during npm install
+# needed to build diskusage package during npm install
 npm install --global --production windows-build-tools@1.3.2
 
 echo "checking node version"
