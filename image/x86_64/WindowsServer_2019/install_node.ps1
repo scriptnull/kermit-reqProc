@@ -1,6 +1,5 @@
 $ErrorActionPreference = "Stop";
 
-#TODO: move this to microbase later
 echo "downloading node zip"
 $env:NODE_VERSION = "8.11.3"
 

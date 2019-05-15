@@ -1,6 +1,5 @@
 $ErrorActionPreference = "Stop";
 
-# TODO: move this to microbase later
 echo "installing chocolatey"
 Set-ExecutionPolicy Bypass -Scope Process -Force
 iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
