@@ -103,7 +103,7 @@ function _prepareStepJSON(bag, next) {
     _.each(bag.step.staticPropertyBag,
       function (value, key) {
         bag.stepEnvs.push({
-          key: 'STEP_' + key,
+          key: 'step_' + key,
           value: value
         });
       }
