@@ -52,119 +52,6 @@ function ShippableAdapter(token) {
 
  */
 
- ShippableAdapter.prototype.getAccountById =
-   function (id, callback) {
-     this.get(
-       util.format('/accounts/%s', id),
-       callback
-     );
-   };
-
-ShippableAdapter.prototype.getAccounts =
-  function (query, callback) {
-    this.get(
-      util.format('/accounts?' + query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getAccountIntegrationById =
-  function (id, callback) {
-    this.get(
-      util.format('/accountIntegrations/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getAccountIntegrations =
-  function (query, callback) {
-    this.get(
-      util.format('/accountIntegrations?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getAccountProfiles =
-  function (query, callback) {
-    this.get(
-      util.format('/accountProfiles?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getAccountTokens =
-  function (query, callback) {
-    this.get(
-      util.format('/accountTokens?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getArtifactUrlByBuildJobId =
-  function (buildJobId, query, callback) {
-    this.get(
-      util.format('/buildJobs/%s/artifactUrl?%s', buildJobId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postAccountProfile =
-  function (json, callback) {
-    this.post(
-      util.format('/accountProfiles'),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getBuildJobById =
-  function (id, callback) {
-    this.get(
-      util.format('/buildJobs/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getBuilds =
-  function (query, callback) {
-    this.get(
-      util.format('/builds?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getBuildJobs =
-  function (query, callback) {
-    this.get(
-      util.format('/buildJobs?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getBuildJobConsolesByBuildJobId =
-  function (buildJobId, query, callback) {
-    this.get(
-      util.format('/buildJobs/%s/consoles?%s', buildJobId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getClusterNodes =
-  function (query, callback) {
-    this.get(
-      util.format('/clusterNodes?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getClusterNodeById =
-  function (clusterNodeId, callback) {
-    this.get(
-      util.format('/clusterNodes/%s', clusterNodeId),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.postClusterNodeStats =
   function (json, callback) {
     this.post(
@@ -184,22 +71,6 @@ ShippableAdapter.prototype.getProjectIntegrations =
     );
   };
 
-ShippableAdapter.prototype.getJobStateMaps =
-  function (query, callback) {
-    this.get(
-      util.format('/jobStatesMap?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getMasterIntegrations =
-  function (query, callback) {
-    this.get(
-      util.format('/masterIntegrations?%s', query),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.getPipelineById =
   function (id, callback) {
     this.get(
@@ -208,11 +79,12 @@ ShippableAdapter.prototype.getPipelineById =
     );
   };
 
-ShippableAdapter.prototype.getPlanById =
+ShippableAdapter.prototype.getProjectById =
   function (id, callback) {
     this.get(
-      util.format('/plans/%s', id),
-      callback);
+      util.format('/projects/%s', id),
+      callback
+    );
   };
 
 ShippableAdapter.prototype.getProviderById =
@@ -231,7 +103,6 @@ ShippableAdapter.prototype.getProviders =
     );
   };
 
-// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getResources =
   function (query, callback) {
     this.get(
@@ -266,7 +137,6 @@ ShippableAdapter.prototype.getRunArtifactUrls =
   };
 
 // runResourceVersions
-// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getRunResourceVersions =
   function (query, callback) {
     this.get(
@@ -276,7 +146,6 @@ ShippableAdapter.prototype.getRunResourceVersions =
   };
 
 // runStepConnections
-// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getRunStepConnections =
   function (query, callback) {
     this.get(
@@ -286,8 +155,6 @@ ShippableAdapter.prototype.getRunStepConnections =
   };
 
 // steps
-
-// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getStepById =
   function (id, callback) {
     this.get(
@@ -296,7 +163,6 @@ ShippableAdapter.prototype.getStepById =
     );
   };
 
-// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getSteps =
   function (query, callback) {
     this.get(
@@ -322,7 +188,6 @@ ShippableAdapter.prototype.getLatestArtifactUrlForStepName =
   };
 
 // steplets
-// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.getSteplets =
   function (query, callback) {
     this.get(
@@ -340,82 +205,10 @@ ShippableAdapter.prototype.postStepTestReports =
     );
   };
 
-ShippableAdapter.prototype.getSystemMachineImageById =
-  function (id, callback) {
-    this.get(
-      util.format('/systemMachineImages/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSystemMachineImages =
-  function (query, callback) {
-    this.get(
-      util.format('/systemMachineImages?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSystemNodeById =
-  function (id, callback) {
-    this.get(
-      util.format('/systemNodes/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSystemNodes =
-  function (query, callback) {
-    this.get(
-      util.format('/systemNodes?%s', query),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.validateSystemNodeById =
   function (systemNodeId, callback) {
     this.get(
       util.format('/systemNodes/%s/validate', systemNodeId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSubscriptionAccounts =
-  function (query, callback) {
-    this.get(
-      util.format('/subscriptionAccounts?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSubscriptionIntegrations =
-  function (query, callback) {
-    this.get(
-      util.format('/subscriptionIntegrations?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSubscriptionIntegrationById =
-  function (id, callback) {
-    this.get(
-      util.format('/subscriptionIntegrations/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSubscriptionIntegrationPermissions =
-  function (query, callback) {
-    this.get(
-      util.format('/subscriptionIntegrationPermissions?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSubscriptionStateById =
-  function (id, callback) {
-    this.get(
-      util.format('/subscriptions/%s/state', id),
       callback
     );
   };
@@ -432,22 +225,6 @@ ShippableAdapter.prototype.getSystemSettings =
   function (callback) {
     this.get(
       '/systemSettings',
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getTransactionById =
-  function (id, callback) {
-    this.get(
-      util.format('/transactions/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getTransactions =
-  function (query, callback) {
-    this.get(
-      util.format('/transactions?%s', query),
       callback
     );
   };
@@ -470,110 +247,7 @@ ShippableAdapter.prototype.postResourceVersion =
     );
   };
 
-
-// workflowControllers
-ShippableAdapter.prototype.getWorkflowControllers =
-  function (query, callback) {
-    this.get(
-      util.format('/workflowControllers?%s', query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postWorkflowControllers =
-  function (body, callback) {
-    var url = '/workflowControllers';
-    this.post(url, body, callback);
-  };
-
-// jobDependencies
-ShippableAdapter.prototype.getJobDependencies =
-  function (query, callback) {
-    var url = '/jobDependencies?' + query;
-    this.get(url, callback);
-};
-
-ShippableAdapter.prototype.postJobDependency =
-  function (json, callback) {
-    var url = '/jobDependencies';
-    this.post(url, json, callback);
-  };
-
-ShippableAdapter.prototype.deleteJobDependencyById =
-  function (id, callback) {
-    var url = '/jobDependencies/' + id;
-    this.delete(url, callback);
-};
-
-ShippableAdapter.prototype.putJobDependencyById =
-  function (id, json, callback) {
-    var url = '/jobDependencies/' + id;
-    this.put(url, json, callback);
-  };
-
 //#######################  DELETE  by alphabetical order  ######################
-ShippableAdapter.prototype.deleteBuildJobConsolesByBuildJobId =
-  function (buildJobId, query, callback) {
-    var url = util.format('/buildJobs/%s/consoles?%s',
-      buildJobId, query);
-    this.delete(url, callback);
-  };
-
-ShippableAdapter.prototype.deleteClusterNodeById =
-  function (clusterNodeId, callback) {
-    this.delete(
-      util.format('/clusterNodes/%s', clusterNodeId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteClusterNodeConsolesByClusterNodeId =
-  function (clusterNodeId, callback) {
-    this.delete(
-      util.format('/clusterNodes/%s/clusterNodeConsoles', clusterNodeId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteClusterNodeStatsByClusterNodeId =
-  function (clusterNodeId, query, callback) {
-    this.delete(
-      util.format('/clusterNodes/%s/clusterNodeStats?%s', clusterNodeId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteResourceById =
-  function (resourceId, query, callback) {
-    this.delete(
-      util.format('/resources/%s?%s', resourceId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteSubscriptionAccountById =
-  function (id, callback) {
-    this.delete(
-      util.format('/subscriptionAccounts/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteSystemNodeStatsBySystemNodeId =
-  function (systemNodeId, query, callback) {
-    this.delete(
-      util.format('/systemNodes/%s/systemNodeStats?%s', systemNodeId, query),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteVersionById =
-  function (versionId, callback) {
-    this.delete(
-      util.format('/versions/%s', versionId),
-      callback
-    );
-  };
 
 //#######################  POST  by alphabetical order  ########################
 
@@ -581,33 +255,6 @@ ShippableAdapter.prototype.decryptByProjectId =
   function (projectId, json, callback) {
     this.post(
       util.format('/projects/%s/decrypt', projectId),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postBuild =
-  function (json, callback) {
-    this.post(
-      util.format('/builds'),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postBuildJob =
-  function (json, callback) {
-    this.post(
-      util.format('/buildJobs'),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postCubbyholeToken =
-  function (json, callback) {
-    this.post(
-      util.format('/passthrough/vault/cubbyhole'),
       json,
       callback
     );
@@ -622,33 +269,6 @@ ShippableAdapter.prototype.postSystemNodeStats =
     );
   };
 
-ShippableAdapter.prototype.postOfflineAccount =
-  function (json, callback) {
-    this.post(
-      '/accounts/offline',
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postResource =
-  function (json, callback) {
-    this.post(
-      '/resources',
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postScmSubscription =
-  function (json, callback) {
-    this.post(
-      '/subscriptions/postScm',
-      json,
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.postStepConsoles =
   function (json, callback) {
     this.post(
@@ -658,134 +278,7 @@ ShippableAdapter.prototype.postStepConsoles =
     );
   };
 
-ShippableAdapter.prototype.postSubscriptionAccounts =
-  function (json, callback) {
-    this.post(
-      '/subscriptionAccounts',
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postToClusterNode =
-  function (clusterNode, callback) {
-    this.post(
-      '/clusterNodes',
-      clusterNode,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postToClusterNodeConsoles =
-  function (json, callback) {
-    this.post(
-      '/clusterNodeConsoles',
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postToDailyAggs =
-  function (callback) {
-    this.post(
-      '/dailyAggs',
-      {},
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postToProjectDailyAggs =
-  function (callback) {
-    this.post(
-      '/projectDailyAggs',
-      {},
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postToSubscriptionDailyAggs =
-  function (callback) {
-    this.post(
-      '/subscriptionDailyAggs',
-      {},
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postToVortex =
-  function (message, callback) {
-    this.post(
-      '/vortex',
-      message,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postToSUVortex =
-  function (message, callback) {
-    this.post(
-      '/vortexSU',
-      message,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postToVortexUrl =
-  function (message, callback) {
-    this.post(
-      '/vortex',
-      message,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postTransaction =
-  function (json, callback) {
-    this.post(
-      '/transactions',
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.triggerNewBuildByResourceId =
-  function (resourceId, json, callback) {
-    this.post(
-      util.format('/resources/%s/triggerNewBuildRequest', resourceId),
-      json,
-      callback
-    );
-  };
-
-
 //#######################  PUT  by alphabetical order  ########################
-
-ShippableAdapter.prototype.putAccountById =
-  function (id, json, callback) {
-    this.put(
-      util.format('/accounts/%s', id),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.putAccountIntegration =
-  function (id, json, callback) {
-    this.put(
-      util.format('/accountIntegrations/%s', id),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.putBuildJobById =
-  function (buildJobId, json, callback) {
-    this.put(
-      util.format('/buildJobs/%s', buildJobId),
-      json,
-      callback
-    );
-  };
 
 ShippableAdapter.prototype.putClusterNodeById =
   function (clusterNodeId, clusterNode, callback) {
@@ -796,37 +289,7 @@ ShippableAdapter.prototype.putClusterNodeById =
     );
   };
 
-ShippableAdapter.prototype.putResourceById =
-  function (id, json, callback) {
-    this.put(
-      util.format('/resources/%s', id),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSHAByAccountIntegrationId =
-  function (accountIntegrationId, owner, repo, branch, callback) {
-    this.get(
-      util.format(
-        '/passthrough/accountIntegrations/%s/repos/%s/%s/%s',
-        accountIntegrationId, owner, repo, branch),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getJenkinsJobsByJobname =
-  function (accountIntegrationId, jobName, callback) {
-    this.get(
-      util.format(
-        '/passthrough/accountIntegrations/%s/jenkins/%s/builds',
-        accountIntegrationId, jobName),
-      callback
-    );
-  };
-
 // steps
-// TODO: Make use of the actual API here, when it is available
 ShippableAdapter.prototype.putStepById =
   function (id, json, callback) {
     this.put(
@@ -844,34 +307,6 @@ ShippableAdapter.prototype.putStepletById =
     );
   };
 
-ShippableAdapter.prototype.putSubscriptionById =
-  function (id, json, callback) {
-    this.put(
-      util.format('/subscriptions/%s', id),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.putSystemIntegrationById =
-  function (id, query, json, callback) {
-    this.put(
-      util.format('/systemIntegrations/%s?%s', id, query),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.putSystemSettings =
-  function (id, json, callback) {
-    this.put(
-      util.format('/systemSettings/%s', id),
-      json,
-      callback
-    );
-  };
-
-
 ShippableAdapter.prototype.putSystemNodeById =
   function (id, json, callback) {
     this.put(
@@ -881,51 +316,10 @@ ShippableAdapter.prototype.putSystemNodeById =
     );
   };
 
-ShippableAdapter.prototype.putTransaction =
-  function (id, json, callback) {
-    this.put(
-      util.format('/transactions/%s', id),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSystemIntegrationById =
-  function (id, callback) {
-    this.get(
-      util.format('/systemIntegrations/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getSystemIntegrations =
-  function (query, callback) {
-    this.get(
-      util.format('/systemIntegrations?%s', query),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.validateClusterNodeById =
   function (clusterNodeId, callback) {
     this.get(
       util.format('/clusterNodes/%s/validate', clusterNodeId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.deleteSystemNodeConsolesBySystemNodeId =
-  function (systemNodeId, callback) {
-    this.delete(
-      util.format('/systemNodes/%s/systemNodeConsoles', systemNodeId),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getProviderById =
-  function (providerId, callback) {
-    this.get(
-      util.format('/providers/%s', providerId),
       callback
     );
   };

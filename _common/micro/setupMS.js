@@ -18,6 +18,7 @@ function setupMS(params) {
   /* Env Set */
   global.config.amqpExchange = 'shippableEx';
   global.config.apiUrl = process.env.SHIPPABLE_API_URL;
+  global.config.wwwUrl = process.env.SHIPPABLE_WWW_URL;
   global.config.inputQueue = process.env.LISTEN_QUEUE;
   global.config.amqpUrl = process.env.SHIPPABLE_AMQP_URL;
   global.config.nodeId = process.env.NODE_ID;
