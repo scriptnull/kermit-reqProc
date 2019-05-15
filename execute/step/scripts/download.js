@@ -86,8 +86,11 @@ function _generateScript(bag, next) {
 
   var params = {
     stepArtifactUrl: bag.stepArtifactUrl,
+    stepArtifactUrlOpts: bag.stepArtifactUrlOpts,
     runArtifactUrl: bag.runArtifactUrl,
+    runArtifactUrlOpts: bag.runArtifactUrlOpts,
     runArtifactHeadUrl: bag.runArtifactHeadUrl,
+    runArtifactHeadUrlOpts: bag.runArtifactHeadUrlOpts,
     stepArtifactName: bag.stepArtifactName,
     runArtifactName: bag.runArtifactName,
     stepWorkspaceDir: bag.stepWorkspacePath,
