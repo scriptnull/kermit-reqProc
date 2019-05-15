@@ -93,7 +93,7 @@ function _getStepArtifactUrl(bag, next) {
       }
 
       bag.stepArtifactUrl = artifactUrls.get;
-      bag.stepArtifactUrlOpts = artifactUrls.putOpts;
+      bag.stepArtifactUrlOpts = artifactUrls.getOpts;
       msg = util.format(
         'Got artifact URL for step %s', bag.stepData.step.name);
       bag.stepConsoleAdapter.publishMsg(msg);
@@ -124,7 +124,7 @@ function _getRunArtifactUrl(bag, next) {
       }
 
       bag.runArtifactUrl = artifactUrls.get;
-      bag.runArtifactUrlOpts = artifactUrls.putOpts;
+      bag.runArtifactUrlOpts = artifactUrls.getOpts;
 
       bag.runArtifactHeadUrl = artifactUrls.head;
       bag.runArtifactHeadUrlOpts = artifactUrls.headOpts;
