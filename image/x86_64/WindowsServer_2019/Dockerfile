@@ -26,13 +26,13 @@ RUN mkdir -p $env:IMAGE_REQEXEC_DIR\x86_64\WindowsServer_2019\; \
     Remove-Item -Recurse -Force $env:IMAGE_REQPROC_DIR\reqExec;
 
 # Docker client binary
-RUN Invoke-WebRequest https://download.docker.com/win/static/stable/x86_64/docker-17.06.2-ce.zip -OutFile docker-17.06.2-ce.zip; \
+RUN Invoke-WebRequest https://download.docker.com/components/engine/windows-server/18.09/docker-18.09.6.zip -OutFile docker-18.09.6.zip; \
     mkdir c:\docker; \
-    Expand-Archive  .\docker-17.06.2-ce.zip -DestinationPath $env:TEMP/docker/ -Force; \
+    Expand-Archive  .\docker-18.09.6.zip -DestinationPath $env:TEMP/docker/ -Force; \
     Move-Item $env:TEMP\docker\docker\docker.exe c:\docker\docker.exe; \
     $env:PATH = '{0};c:\docker' -f $env:PATH ; \
     [Environment]::SetEnvironmentVariable('PATH', $env:PATH, [EnvironmentVariableTarget]::Machine); \
-    Remove-Item .\docker-17.06.2-ce.zip; \
+    Remove-Item .\docker-18.09.6.zip; \
     Remove-Item -recur -force $env:TEMP\docker;
 
 # Install git
