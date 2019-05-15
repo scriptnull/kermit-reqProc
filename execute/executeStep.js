@@ -338,6 +338,8 @@ function _constructStepJson(bag, next) {
     runStepConnections: bag.runStepConnections,
     integrations: bag.integrations,
     step: bag.step,
+    pipeline: bag.pipeline,
+    project: bag.project,
     stepDir: bag.stepDir,
     stepConsoleAdapter: bag.stepConsoleAdapter
   };

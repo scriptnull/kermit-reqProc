@@ -12,6 +12,8 @@ function constructStepJson(externalBag, callback) {
     runStepConnections: externalBag.runStepConnections,
     integrations: externalBag.integrations,
     step: externalBag.step,
+    pipeline: externalBag.pipeline,
+    project: externalBag.project,
     stepDir: externalBag.stepDir,
     stepData: {},
     stepEnvs: [],
@@ -45,6 +47,8 @@ function _checkInputParams(bag, next) {
 
   var expectedParams = [
     'step',
+    'pipeline',
+    'project',
     'stepDir',
     'runResourceVersions',
     'runStepConnections',
@@ -97,6 +101,16 @@ function _prepareStepJSON(bag, next) {
   bag.stepEnvs.push({
     key: 'STEP_TYPE',
     value: global.systemCodesByCode[bag.step.typeCode].name
+  });
+  bag.stepEnvs.push({
+    key: 'STEP_URL',
+    value: util.format('%s/%s/pipelines/%s/runs/%s/%s',
+      global.config.wwwUrl, bag.project.name, bag.pipeline.name,
+      bag.step.runId, bag.step.id)
+  });
+  bag.stepEnvs.push({
+    key: 'PIPELINE_NAME',
+    value: bag.pipeline.name
   });
 
   if (!_.isEmpty(bag.step.setupPropertyBag))

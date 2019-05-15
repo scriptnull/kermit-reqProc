@@ -12,6 +12,7 @@ function prepData(externalBag, callback) {
     runResourceVersions: [],
     runStepConnections: [],
     pipeline: {},
+    project: {},
     integrations: []
   };
   bag.who = util.format('%s|executeStep|step|%s', msName, self.name);
@@ -23,7 +24,8 @@ function prepData(externalBag, callback) {
       _getRunStepConnections.bind(null, bag),
       _getProjectIntegrations.bind(null, bag),
       _getResources.bind(null, bag),
-      _getPipeline.bind(null, bag)
+      _getPipeline.bind(null, bag),
+      _getProject.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -35,6 +37,7 @@ function prepData(externalBag, callback) {
         runResourceVersions: bag.runResourceVersions,
         runStepConnections: bag.runStepConnections,
         pipeline: bag.pipeline,
+        project: bag.project,
         integrations: bag.integrations
       };
 
@@ -253,6 +256,28 @@ function _getPipeline(bag, next) {
 
       bag.stepConsoleAdapter.publishMsg('Successfully fetched pipeline');
       bag.stepConsoleAdapter.closeCmd(true);
+      return next();
+    }
+  );
+}
+
+function _getProject(bag, next) {
+  var who = bag.who + '|' + _getProject.name;
+  logger.verbose(who, 'Inside');
+
+  bag.builderApiAdapter.getProjectById(bag.pipeline.projectId,
+    function (err, project) {
+      if (err) {
+        var msg = util.format('%s, getProjectById for id %s ' +
+          'failed with error: %s', bag.who, bag.pipeline.projectId, err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.openCmd('Fetching project');
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
+        return next(true);
+      }
+
+      bag.project = project;
       return next();
     }
   );
