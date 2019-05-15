@@ -7,8 +7,6 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
 echo "Installing python2"
 choco install -y python2
 
-echo "Installing vim"
-choco install -y vim
 refreshenv
 
 echo "Installing openssh"
