@@ -1,7 +1,9 @@
 #!/bin/bash -e
 
 export STEP_ARTIFACT_URL="%%stepArtifactUrl%%"
+export STEP_ARTIFACT_URL_OPTS="%%stepArtifactUrlOpts%%"
 export RUN_ARTIFACT_URL="%%runArtifactUrl%%"
+export RUN_ARTIFACT_URL_OPTS="%%runArtifactUrlOpts%%"
 export STEP_ARTIFACT_NAME="%%stepArtifactName%%"
 export RUN_ARTIFACT_NAME="%%runArtifactName%%"
 export STEP_WORKSPACE_DIR="%%stepWorkspaceDir%%"
@@ -22,6 +24,7 @@ upload_step_artifacts() {
     -s \
     --connect-timeout 60 \
     --max-time 120 \
+    "$STEP_ARTIFACT_URL_OPTS" \
     -XPUT "$STEP_ARTIFACT_URL" \
     -T "$archive_file"
 
@@ -49,6 +52,7 @@ upload_run_state() {
     -s \
     --connect-timeout 60 \
     --max-time 120 \
+    "$RUN_ARTIFACT_URL_OPTS" \
     -XPUT "$RUN_ARTIFACT_URL" \
     -T "$archive_file"
 

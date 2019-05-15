@@ -1,8 +1,11 @@
 #!/bin/bash -e
 
 export STEP_ARTIFACT_URL="%%stepArtifactUrl%%"
+export STEP_ARTIFACT_URL_OPTS="%%stepArtifactUrlOpts%%"
 export RUN_ARTIFACT_URL="%%runArtifactUrl%%"
+export RUN_ARTIFACT_URL_OPTS="%%runArtifactUrlOpts%%"
 export RUN_ARTIFACT_HEAD_URL="%%runArtifactHeadUrl%%"
+export RUN_ARTIFACT_HEAD_URL_OPTS="%%runArtifactHeadUrlOpts%%"
 export STEP_ARTIFACT_NAME="%%stepArtifactName%%"
 export RUN_ARTIFACT_NAME="%%runArtifactName%%"
 export STEP_WORKSPACE_DIR="%%stepWorkspaceDir%%"
@@ -20,6 +23,7 @@ download_step_artifacts() {
     -s \
     --connect-timeout 60 \
     --max-time 120 \
+    "$STEP_ARTIFACT_URL_OPTS" \
     -XGET "$STEP_ARTIFACT_URL" \
     -o "$archive_file"
 
@@ -47,6 +51,7 @@ download_run_state() {
     --max-time 120 \
     -o /dev/null \
     -w "%{http_code}" \
+    "$RUN_ARTIFACT_HEAD_URL_OPTS" \
     --head "$RUN_ARTIFACT_HEAD_URL")
 
   if [ $check_artifact -eq 200 ]; then
@@ -55,6 +60,7 @@ download_run_state() {
       -s \
       --connect-timeout 60 \
       --max-time 120 \
+      "$RUN_ARTIFACT_URL_OPTS" \
       -XGET "$RUN_ARTIFACT_URL" \
       -o "$archive_file"
 

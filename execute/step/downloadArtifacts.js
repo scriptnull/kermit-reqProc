@@ -93,6 +93,7 @@ function _getStepArtifactUrl(bag, next) {
       }
 
       bag.stepArtifactUrl = artifactUrls.get;
+      bag.stepArtifactUrlOpts = artifactUrls.getOpts;
       msg = util.format(
         'Got artifact URL for step %s', bag.stepData.step.name);
       bag.stepConsoleAdapter.publishMsg(msg);
@@ -123,7 +124,10 @@ function _getRunArtifactUrl(bag, next) {
       }
 
       bag.runArtifactUrl = artifactUrls.get;
+      bag.runArtifactUrlOpts = artifactUrls.getOpts;
+
       bag.runArtifactHeadUrl = artifactUrls.head;
+      bag.runArtifactHeadUrlOpts = artifactUrls.headOpts;
       msg = util.format(
         'Got artifact URL for runId: %s ', bag.stepData.step.runId);
       bag.stepConsoleAdapter.publishMsg(msg);
@@ -140,8 +144,11 @@ function _downloadArtifacts(bag, next) {
 
   var scriptBag = {
     stepArtifactUrl: bag.stepArtifactUrl,
+    stepArtifactUrlOpts: bag.stepArtifactUrlOpts,
     runArtifactUrl: bag.runArtifactUrl,
+    runArtifactUrlOpts: bag.runArtifactUrlOpts,
     runArtifactHeadUrl: bag.runArtifactHeadUrl,
+    runArtifactHeadUrlOpts: bag.runArtifactHeadUrlOpts,
     stepArtifactName: bag.stepArtifactName,
     runArtifactName: bag.runArtifactName,
     stepWorkspacePath: bag.stepWorkspacePath,
