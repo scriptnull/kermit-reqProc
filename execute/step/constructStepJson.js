@@ -99,11 +99,22 @@ function _prepareStepJSON(bag, next) {
     value: global.systemCodesByCode[bag.step.typeCode].name
   });
 
+  if (!_.isEmpty(bag.step.staticPropertyBag)) {
+    _.each(bag.step.staticPropertyBag,
+      function (value, key) {
+        bag.stepEnvs.push({
+          key: 'step_' + key,
+          value: value
+        });
+      }
+    );
+  }
+
   if (!_.isEmpty(bag.step.setupPropertyBag))
-    bag.stepData.step['setup'] = bag.step.setupPropertyBag;
+    bag.stepData.step.setup = bag.step.setupPropertyBag;
 
   if (!_.isEmpty(bag.step.execPropertyBag))
-    bag.stepData.step['execution'] = bag.step.execPropertyBag;
+    bag.stepData.step.execution = bag.step.execPropertyBag;
 
   var integrationsByName = _.indexBy(bag.integrations, 'name');
   var runResourceVersionsByResourceName = _.indexBy(
