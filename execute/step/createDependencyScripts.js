@@ -114,9 +114,8 @@ function _assembleDependencyScripts(bag, next) {
               util.format('Successfully created dependency script for ' +
               'resource: %s', resource.resourceName)
             );
-
         }
-      )
+      );
     }
   );
 
