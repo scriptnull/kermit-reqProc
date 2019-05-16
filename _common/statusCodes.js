@@ -3,72 +3,42 @@
 // ANY CHANGES MADE TO THIS MUST BE DOCUMENTED HERE:
 // https://github.com/Shippable/slack/wiki/Build-status-codes
 
-/** Status Codes:
- * 00 -- WAITING -------- Initial state.
- * 10 -- QUEUED --------- Between initial state and in progress state.
- * 20 -- PROCESSING ----- In progress state.
- * 30 -- SUCCESS ----+
- * 40 -- SKIPPED     |
- * 50 -- UNSTABLE    +--- Completed states.
- * 60 -- TIMEOUT     |
- * 70 -- CANCELED    |
- * 80 -- FAILED -----+
- **/
+ /** Status Codes:
+  * 4005 -- WAITING -------- Initial state.
+  * 4000 -- QUEUED --------- Between initial state and in progress state.
+  * 4001 -- PROCESSING ----- In progress state.
+  * 4002 -- SUCCESS ----+
+  * 4008 -- SKIPPED     |
+  * 4007 -- UNSTABLE    +--- Completed states.
+  * 4009 -- TIMEOUT     |
+  * 4006 -- CANCELED    |
+  * 4003 -- FAILED      |
+  * 4010 -- STOPPED     |
+  * 4011 -- DELETED     |
+  * 4012 -- CACHED  ----+
+  **/
 
 // Incomplete states:
-exports.WAITING    =   0;
-exports.QUEUED     =  10;
-exports.PROCESSING =  20;
+exports.WAITING    = 4005;
+exports.QUEUED     = 4000;
+exports.PROCESSING = 4001;
 
 // Completed states:
-exports.SUCCESS    =  30;
-exports.SKIPPED    =  40;
-exports.UNSTABLE   =  50;
-exports.TIMEOUT    =  60;
-exports.CANCELED   =  70;
-exports.FAILED     =  80;
-exports.STOPPED    =  90;
-
-//Not Initialized:
-exports.NOTINITIALIZED = 100;
-
-//Not Deployed:
-exports.NOTDEPLOYED = 101;
-
-exports.colourCodes = {
-  '20':'#5183a0',
-  '30':'#65cea7',
-  '40':'#f8a97d',
-  '50':'#f3ce85',
-  '60':'#a87073',
-  '70':'#6bafbd',
-  '80':'#fc8675',
-  '90':'#6bafbd',
-  '101':'#6bafbd',
-  '4001':'#5183a0',
-  '4002':'#65cea7',
-  '4003':'#fc8675',
-  '4004':'#fc8675',
-  '4006':'#6bafbd'
-};
-
-// This adds grammatical changes to the status text
-exports.statusMessages = {
-  '20':'STARTED',
-  '30':'SUCCEEDED',
-  '40':'SKIPPED',
-  '50':'UNSTABLE',
-  '60':'TIMEOUT',
-  '70':'CANCELED',
-  '80':'FAILED',
-  '90':'STOPPED'
-};
+exports.SUCCESS    = 4002;
+exports.SKIPPED    = 4008;
+exports.UNSTABLE   = 4007;
+exports.TIMEOUT    = 4009;
+exports.CANCELED   = 4006;
+exports.FAILED     = 4003;
+exports.STOPPED    = 4010;
+exports.DELETED    = 4011;
+exports.CACHED     = 4012;
 
 exports.names = [
   'WAITING', 'QUEUED', 'PROCESSING',
   'SUCCESS', 'SKIPPED', 'UNSTABLE',
   'TIMEOUT', 'CANCELED', 'FAILED',
-  'STOPPED', 'NOTINITIALIZED', 'NOTDEPLOYED'
+  'STOPPED', 'DELETED', 'CACHED'
 ];
 
 // Lookup status code name from code.
@@ -89,9 +59,7 @@ exports.idle = createSubset('WAITING', 'QUEUED');
 exports.processing = createSubset('PROCESSING');
 
 // Subset of incomplete status codes.
-exports.incomplete = createSubset(
-  'WAITING', 'QUEUED', 'PROCESSING', 'NOTINITIALIZED', 'NOTDEPLOYED'
-);
+exports.incomplete = createSubset('WAITING', 'QUEUED', 'PROCESSING');
 
 exports.started = createSubset('QUEUED', 'PROCESSING');
 
@@ -103,7 +71,7 @@ exports.complete = createSubset(
 );
 
 // Subset of successfully completed status code.
-exports.successful = createSubset('SUCCESS', 'SKIPPED');
+exports.successful = createSubset('SUCCESS', 'SKIPPED', 'STOPPED', 'DELETED');
 
 // Subset of unsuccessfully completed status codes.
 exports.unsuccessful =
@@ -114,19 +82,6 @@ exports.buildGroup = createSubset(
   'WAITING', 'PROCESSING',
   'SUCCESS', 'SKIPPED',
   'CANCELED', 'FAILED'
-);
-
-// Subset of valid build item status codes. (All)
-exports.buildItem = exports;
-
-// Subset of valid status code for build item steps.
-exports.buildItemStep = createSubset(
-  'WAITING', 'QUEUED', 'PROCESSING',
-  'SUCCESS', 'FAILED'
-);
-
-exports.activeCellStates = createSubset(
-  'QUEUED', 'PROCESSING', 'SUCCESS'
 );
 
 // Check if status code is a in progress or pending code.
@@ -142,10 +97,6 @@ exports.processingLookup = function (code) {
   return !!exports.processing.lookup(code);
 };
 
-// Check if status code can represent an 'active' cell state
-exports.activeLookup = function (code) {
-  return !!exports.activeCellStates.lookup(code);
-};
 // Check if status code is a complete status code.
 exports.completedLookup = function (code) {
   return !!exports.complete.lookup(code);
@@ -175,7 +126,7 @@ exports.extractList = function (statusNames) {
 // Creates a status code subset.
 function createSubset(/*subsetStatusCodeNames...*/) {
   var statusCodeSubset = {},
-      statusNames = Array.prototype.slice.call(arguments, 0);
+    statusNames = Array.prototype.slice.call(arguments, 0);
   statusCodeSubset.names = statusNames;
   statusNames.forEach(function (statusName) {
     statusCodeSubset[statusName] = exports[statusName];

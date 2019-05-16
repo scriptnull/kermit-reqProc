@@ -75,7 +75,7 @@ function _updateClusterNodeStatus(bag, next) {
   logger.verbose(who, 'Inside');
 
   var update = {
-    statusCode: global.systemCodesByName['PROCESSING'].code,
+    statusCode: global.systemCodesByName['processing'].code,
     stepId: bag.stepIds[0]
   };
 
