@@ -7,7 +7,6 @@ var fs = require('fs-extra');
 var path = require('path');
 
 var prepData = require('./step/prepData.js');
-var pollStepStatus = require('./step/pollStepStatus.js');
 var setupDirectories = require('./step/setupDirectories.js');
 var constructStepJson = require('./step/constructStepJson.js');
 var decryptSecureEnvs = require('./step/decryptSecureEnvs.js');
@@ -28,7 +27,8 @@ function executeStep(externalBag, callback) {
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
     builderApiToken: externalBag.builderApiToken,
-    error: false
+    error: false,
+    stepStatusPoller: externalBag.stepStatusPoller
   };
 
   bag.who = util.format('%s|execute|%s', msName, self.name);
@@ -52,6 +52,7 @@ function executeStep(externalBag, callback) {
       _closeSetupGroup.bind(null, bag),
       _handOffAndPoll.bind(null, bag),
       _readStepStatus.bind(null, bag),
+      _clearStepStatusPoller.bind(null, bag),
       _postReports.bind(null, bag),
       _uploadArtifacts.bind(null, bag),
       _postVersion.bind(null, bag),
@@ -278,22 +279,13 @@ function _pollStepStatus(bag, next) {
   var who = bag.who + '|' + _pollStepStatus.name;
   logger.verbose(who, 'Inside');
 
-  var innerBag = {
-    builderApiAdapter: bag.builderApiAdapter,
-    stepId: bag.step.id,
-    stepConsoleAdapter: bag.stepConsoleAdapter,
-    statusDir: bag.statusDir
-  };
-
-  pollStepStatus(innerBag,
-    function (err) {
-      if (err) {
-        bag.isSetupGrpSuccess = false;
-        bag.error = true;
-      }
-      return next();
-    }
-  );
+  bag.stepConsoleAdapter.openCmd('Starting step status poll');
+  bag.stepStatusPoller.addStep(bag.stepId);
+  bag.stepConsoleAdapter.publishMsg(
+    'Configured step status poll for every ' +
+    global.config.stepStatusPollIntervalMS / 1000 + ' seconds');
+  bag.stepConsoleAdapter.closeCmd(true);
+  return next();
 }
 
 function _setExecutorAsReqProc(bag, next) {
@@ -576,6 +568,17 @@ function _readStepStatus(bag, next) {
       return next();
     }
   );
+}
+
+function _clearStepStatusPoller(bag, next) {
+  var who = bag.who + '|' + _clearStepStatusPoller.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.openCmd('Clearing step status poller');
+  bag.stepStatusPoller.removeStep(bag.stepId);
+  bag.stepConsoleAdapter.publishMsg('Cleared step status poller');
+  bag.stepConsoleAdapter.closeCmd(true);
+  return next();
 }
 
 function _postReports(bag, next) {

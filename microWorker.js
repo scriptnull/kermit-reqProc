@@ -6,6 +6,7 @@ module.exports = self;
 var Adapter = require('./_common/shippable/Adapter.js');
 var StepConsoleAdapter =
   require('./_common/shippable/stepConsole/stepConsoleAdapter.js');
+var StepStatusPoller = require('./_common/helpers/StepStatusPoller.js');
 
 var exec = require('child_process').exec;
 var path = require('path');
@@ -66,6 +67,8 @@ function _checkInputParams(bag, next) {
   bag.stepIds = bag.rawMessage.stepIds;
   bag.affinityGroup = bag.rawMessage.affinityGroup;
   bag.runId = bag.rawMessage.runId;
+  bag.stepStatusPoller = new StepStatusPoller(bag.builderApiAdapter,
+    path.join(bag.baseDir, 'status', 'step.status'));
   return next();
 }
 
@@ -122,7 +125,8 @@ function _executeGroupSteps(bag, next) {
     affinityGroup: bag.affinityGroup,
     baseDir: bag.baseDir,
     groupComplete: false,
-    execTemplatesRootDir: bag.execTemplatesRootDir
+    execTemplatesRootDir: bag.execTemplatesRootDir,
+    stepStatusPoller: bag.stepStatusPoller,
   };
 
   async.whilst(
@@ -248,7 +252,8 @@ function _executeStep(bag, next) {
     baseDir: bag.baseDir,
     execTemplatesRootDir: bag.execTemplatesRootDir,
     builderApiToken: bag.builderApiToken,
-    badStatus: false
+    badStatus: false,
+    stepStatusPoller: bag.stepStatusPoller
   };
   async.series([
       __cleanStatus.bind(null, innerBag),
