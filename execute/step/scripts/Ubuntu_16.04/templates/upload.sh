@@ -21,6 +21,9 @@ upload_step_artifacts() {
 
   echo 'Saving step artifacts'
 
+  env
+  echo "----"
+  echo "$STEP_ARTIFACT_URL_OPTS"
   if [ -z "$STEP_ARTIFACT_URL_OPTS" ]; then
     echo "uploading with basic auth"
     curl \
