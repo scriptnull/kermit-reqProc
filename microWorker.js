@@ -162,7 +162,7 @@ function _getNextStep(bag, next) {
     function (err, result) {
       if (err) {
         logger.warn(util.format('%s, failed to get next step ' +
-        'for group: %s with error: %s', bag.who, bag.affinityGroup, err));
+          'for group: %s with error: %s', bag.who, bag.affinityGroup, err));
         bag.groupComplete = true;
       } else
         bag.stepId = result.stepIds[0];
@@ -185,7 +185,7 @@ function _getSteplets(bag, next) {
     function (err, steplets) {
       if (err)
         logger.warn(util.format('%s, failed to get steplets for ' +
-        'stepId: %s with error: %s', bag.who, bag.stepId, err));
+          'stepId: %s with error: %s', bag.who, bag.stepId, err));
       bag.steplets = steplets;
       return next();
     }
