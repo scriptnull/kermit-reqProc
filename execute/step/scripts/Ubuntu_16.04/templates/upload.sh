@@ -1,9 +1,9 @@
 #!/bin/bash -e
 
 export STEP_ARTIFACT_URL="%%stepArtifactUrl%%"
-export STEP_ARTIFACT_URL_OPTS="%%stepArtifactUrlOpts%%"
+export STEP_ARTIFACT_URL_OPTS='%%stepArtifactUrlOpts%%'
 export RUN_ARTIFACT_URL="%%runArtifactUrl%%"
-export RUN_ARTIFACT_URL_OPTS="%%runArtifactUrlOpts%%"
+export RUN_ARTIFACT_URL_OPTS='%%runArtifactUrlOpts%%'
 export STEP_ARTIFACT_NAME="%%stepArtifactName%%"
 export RUN_ARTIFACT_NAME="%%runArtifactName%%"
 export STEP_WORKSPACE_DIR="%%stepWorkspaceDir%%"
@@ -22,6 +22,7 @@ upload_step_artifacts() {
   echo 'Saving step artifacts'
 
   if [ -z "$STEP_ARTIFACT_URL_OPTS" ]; then
+    echo "uploading with basic auth"
     curl \
       -s \
       --connect-timeout 60 \
@@ -29,6 +30,7 @@ upload_step_artifacts() {
       -XPUT "$STEP_ARTIFACT_URL" \
       -T "$archive_file"
   else
+    echo "uploading with artifactory creds"
     curl \
       -s \
       --connect-timeout 60 \
@@ -60,6 +62,7 @@ upload_run_state() {
   echo 'Saving run state'
 
   if [ -z "$RUN_ARTIFACT_URL_OPTS" ]; then
+    echo "uploading with basic auth"
     curl \
       -s \
       --connect-timeout 60 \
@@ -67,6 +70,7 @@ upload_run_state() {
       -XPUT "$RUN_ARTIFACT_URL" \
       -T "$archive_file"
   else
+    echo "uploading with artifactory creds"
     curl \
       -s \
       --connect-timeout 60 \
