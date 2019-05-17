@@ -20,13 +20,23 @@ upload_step_artifacts() {
   tar -czf $archive_file -C $STEP_WORKSPACE_DIR/upload .
 
   echo 'Saving step artifacts'
-  curl \
-    -s \
-    --connect-timeout 60 \
-    --max-time 120 \
-    "$STEP_ARTIFACT_URL_OPTS" \
-    -XPUT "$STEP_ARTIFACT_URL" \
-    -T "$archive_file"
+
+  if [ -z "$STEP_ARTIFACT_URL_OPTS" ]; then
+    curl \
+      -s \
+      --connect-timeout 60 \
+      --max-time 120 \
+      -XPUT "$STEP_ARTIFACT_URL" \
+      -T "$archive_file"
+  else
+    curl \
+      -s \
+      --connect-timeout 60 \
+      --max-time 120 \
+      "$STEP_ARTIFACT_URL_OPTS" \
+      -XPUT "$STEP_ARTIFACT_URL" \
+      -T "$archive_file"
+  fi
 
   echo 'Saved step artifacts'
 
@@ -48,13 +58,23 @@ upload_run_state() {
   tar -czf $archive_file -C $RUN_WORKSPACE_DIR .
 
   echo 'Saving run state'
-  curl \
-    -s \
-    --connect-timeout 60 \
-    --max-time 120 \
-    "$RUN_ARTIFACT_URL_OPTS" \
-    -XPUT "$RUN_ARTIFACT_URL" \
-    -T "$archive_file"
+
+  if [ -z "$RUN_ARTIFACT_URL_OPTS" ]; then
+    curl \
+      -s \
+      --connect-timeout 60 \
+      --max-time 120 \
+      -XPUT "$RUN_ARTIFACT_URL" \
+      -T "$archive_file"
+  else
+    curl \
+      -s \
+      --connect-timeout 60 \
+      --max-time 120 \
+      "$RUN_ARTIFACT_URL_OPTS" \
+      -XPUT "$RUN_ARTIFACT_URL" \
+      -T "$archive_file"
+  fi
 
   echo 'Saved run state'
 
