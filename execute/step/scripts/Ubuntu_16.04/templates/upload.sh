@@ -21,27 +21,25 @@ upload_step_artifacts() {
 
   echo 'Saving step artifacts'
 
-  env
-  echo "----"
-  echo "$STEP_ARTIFACT_URL_OPTS"
-  if [ -z "$STEP_ARTIFACT_URL_OPTS" ]; then
-    echo "uploading with basic auth"
-    curl \
+  local put_cmd="curl \
       -s \
       --connect-timeout 60 \
       --max-time 120 \
-      -XPUT "$STEP_ARTIFACT_URL" \
-      -T "$archive_file"
-  else
-    echo "uploading with artifactory creds"
-    curl \
+      -XPUT $STEP_ARTIFACT_URL \
+      -T $archive_file"
+
+  if [ ! -z "$STEP_ARTIFACT_URL_OPTS" ]; then
+    put_cmd="curl \
       -s \
       --connect-timeout 60 \
       --max-time 120 \
       $STEP_ARTIFACT_URL_OPTS \
-      -XPUT "$STEP_ARTIFACT_URL" \
-      -T "$archive_file"
+      -XPUT $STEP_ARTIFACT_URL \
+      -T $archive_file"
   fi
+
+  echo "Executing: $put_cmd"
+  eval "$put_cmd"
 
   echo 'Saved step artifacts'
 
@@ -64,24 +62,71 @@ upload_run_state() {
 
   echo 'Saving run state'
 
-  if [ -z "$RUN_ARTIFACT_URL_OPTS" ]; then
-    echo "uploading with basic auth"
-    curl \
+  local put_cmd="curl \
       -s \
       --connect-timeout 60 \
       --max-time 120 \
-      -XPUT "$RUN_ARTIFACT_URL" \
-      -T "$archive_file"
-  else
-    echo "uploading with artifactory creds"
-    curl \
+      -XPUT $RUN_ARTIFACT_URL \
+      -T $archive_file"
+
+  if [ ! -z "$RUN_ARTIFACT_URL_OPTS" ]; then
+    put_cmd="curl \
       -s \
       --connect-timeout 60 \
       --max-time 120 \
       $RUN_ARTIFACT_URL_OPTS \
-      -XPUT "$RUN_ARTIFACT_URL" \
-      -T "$archive_file"
+      -XPUT $RUN_ARTIFACT_URL \
+      -T $archive_file"
   fi
+
+  echo "Executing: $put_cmd"
+  eval "$put_cmd"
+
+  echo 'Saved step artifacts'
+
+  rm $archive_file
+}
+
+upload_run_state() {
+  if [ -z "$RUN_ARTIFACT_URL" ]; then
+    echo "No run state storage available."
+    return 0
+  fi
+
+  local archive_file="$STEP_WORKSPACE_DIR/$RUN_ARTIFACT_NAME"
+
+  if [ -z "$(ls -A $RUN_WORKSPACE_DIR)" ]; then
+    echo "Run state is empty."
+  fi
+
+  tar -czf $archive_file -C $RUN_WORKSPACE_DIR .
+
+  echo 'Saving run state'
+
+  local put_cmd="curl \
+      -s \
+      --connect-timeout 60 \
+      --max-time 120 \
+      -XPUT $RUN_ARTIFACT_URL \
+      -T $archive_file"
+
+  if [ ! -z "$RUN_ARTIFACT_URL_OPTS" ]; then
+    put_cmd="curl \
+      -s \
+      --connect-timeout 60 \
+      --max-time 120 \
+      $RUN_ARTIFACT_URL_OPTS \
+      -XPUT $RUN_ARTIFACT_URL \
+      -T $archive_file"
+  fi
+
+  echo 'Saved run state'
+
+  rm $archive_file
+}
+
+upload_step_artifacts
+upload_run_state
 
   echo 'Saved run state'
 
