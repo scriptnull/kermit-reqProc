@@ -38,7 +38,6 @@ upload_step_artifacts() {
       -T $archive_file"
   fi
 
-  echo "Executing: $put_cmd"
   eval "$put_cmd"
 
   echo 'Saved step artifacts'
@@ -79,7 +78,6 @@ upload_run_state() {
       -T $archive_file"
   fi
 
-  echo "Executing: $put_cmd"
   eval "$put_cmd"
 
   echo 'Saved step artifacts'
@@ -119,14 +117,6 @@ upload_run_state() {
       -XPUT $RUN_ARTIFACT_URL \
       -T $archive_file"
   fi
-
-  echo 'Saved run state'
-
-  rm $archive_file
-}
-
-upload_step_artifacts
-upload_run_state
 
   echo 'Saved run state'
 
