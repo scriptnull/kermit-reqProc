@@ -20,22 +20,24 @@ download_step_artifacts() {
 
   echo 'Downloading step artifacts'
 
-  if [ -z "$STEP_ARTIFACT_URL_OPTS" ]; then
-    curl \
+  local get_cmd="curl \
       -s \
       --connect-timeout 60 \
       --max-time 120 \
-      -XGET "$STEP_ARTIFACT_URL" \
-      -o "$archive_file"
-  else
-    curl \
+      -XGET $STEP_ARTIFACT_URL \
+      -o $archive_file"
+
+  if [ ! -z "$STEP_ARTIFACT_URL_OPTS" ]; then
+    get_cmd="curl \
       -s \
       --connect-timeout 60 \
       --max-time 120 \
-      "$STEP_ARTIFACT_URL_OPTS" \
-      -XGET "$STEP_ARTIFACT_URL" \
-      -o "$archive_file"
+      $STEP_ARTIFACT_URL_OPTS \
+      -XGET $STEP_ARTIFACT_URL \
+      -o $archive_file"
   fi
+
+  eval "$get_cmd"
 
   tar -xzf $archive_file -C $STEP_WORKSPACE_DIR/download
   rm $archive_file
@@ -55,45 +57,48 @@ download_run_state() {
     rm -rf $RUN_WORKSPACE_DIR/*
   fi
 
-  local check_artifact=""
+  local check_artifact_cmd="curl \
+      -s \
+      --connect-timeout 60 \
+      --max-time 120 \
+      -o /dev/null \
+      -w \"%{http_code}\" \
+      --head $RUN_ARTIFACT_HEAD_URL"
 
-  if [ -z "$RUN_ARTIFACT_HEAD_URL_OPTS" ]; then
-    check_artifact=$(curl \
+  if [ ! -z "$RUN_ARTIFACT_HEAD_URL_OPTS" ]; then
+    check_artifact_cmd="curl \
       -s \
       --connect-timeout 60 \
       --max-time 120 \
       -o /dev/null \
-      -w "%{http_code}" \
-      --head "$RUN_ARTIFACT_HEAD_URL")
-  else
-    check_artifact=$(curl \
-      -s \
-      --connect-timeout 60 \
-      --max-time 120 \
-      -o /dev/null \
-      -w "%{http_code}" \
-      "$RUN_ARTIFACT_HEAD_URL_OPTS" \
-      --head "$RUN_ARTIFACT_HEAD_URL")
+      -w \"%{http_code}\" \
+      $RUN_ARTIFACT_HEAD_URL_OPTS \
+      --head $RUN_ARTIFACT_HEAD_URL"
   fi
+
+  local check_artifact=$($check_artifact_cmd)
 
   if [ $check_artifact -eq 200 ]; then
     echo 'Downloading run state'
-    if [ -z "$RUN_ARTIFACT_URL_OPTS" ]; then
-      curl \
+
+    local download_cmd="curl \
         -s \
         --connect-timeout 60 \
         --max-time 120 \
-        -XGET "$RUN_ARTIFACT_URL" \
-        -o "$archive_file"
-    else
-      curl \
+        -XGET $RUN_ARTIFACT_URL \
+        -o $archive_file"
+
+    if [ ! -z "$RUN_ARTIFACT_URL_OPTS" ]; then
+      download_cmd="curl \
         -s \
         --connect-timeout 60 \
         --max-time 120 \
-        "$RUN_ARTIFACT_URL_OPTS" \
-        -XGET "$RUN_ARTIFACT_URL" \
-        -o "$archive_file"
+        $RUN_ARTIFACT_URL_OPTS \
+        -XGET $RUN_ARTIFACT_URL \
+        -o $archive_file"
     fi
+
+    eval "$download_cmd"
 
     tar -xzf $archive_file -C $RUN_WORKSPACE_DIR
     rm $archive_file
