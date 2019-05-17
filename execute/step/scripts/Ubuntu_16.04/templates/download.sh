@@ -13,7 +13,7 @@ export RUN_WORKSPACE_DIR="%%runWorkspaceDir%%"
 
 download_step_artifacts() {
   if [ -z "$STEP_ARTIFACT_URL" ]; then
-    echo "No step artifact storage available."
+    echo "No step artifacts found."
     return 0
   fi
   local archive_file="$STEP_WORKSPACE_DIR/$STEP_ARTIFACT_NAME"
@@ -24,7 +24,7 @@ download_step_artifacts() {
       -s \
       --connect-timeout 60 \
       --max-time 120 \
-      -XGET $STEP_ARTIFACT_URL \
+      -XGET '$STEP_ARTIFACT_URL' \
       -o $archive_file"
 
   if [ ! -z "$STEP_ARTIFACT_URL_OPTS" ]; then
@@ -33,7 +33,7 @@ download_step_artifacts() {
       --connect-timeout 60 \
       --max-time 120 \
       $STEP_ARTIFACT_URL_OPTS \
-      -XGET $STEP_ARTIFACT_URL \
+      -XGET '$STEP_ARTIFACT_URL' \
       -o $archive_file"
   fi
 
@@ -46,7 +46,7 @@ download_step_artifacts() {
 
 download_run_state() {
   if [ -z "$RUN_ARTIFACT_URL" ]; then
-    echo "No run state storage available."
+    echo "No run state found."
     return 0
   fi
 
@@ -63,7 +63,7 @@ download_run_state() {
       --max-time 120 \
       -o /dev/null \
       -w \"%{http_code}\" \
-      --head $RUN_ARTIFACT_HEAD_URL"
+      --head '$RUN_ARTIFACT_HEAD_URL'"
 
   if [ ! -z "$RUN_ARTIFACT_HEAD_URL_OPTS" ]; then
     check_artifact_cmd="curl \
@@ -73,7 +73,7 @@ download_run_state() {
       -o /dev/null \
       -w \"%{http_code}\" \
       $RUN_ARTIFACT_HEAD_URL_OPTS \
-      --head $RUN_ARTIFACT_HEAD_URL"
+      --head '$RUN_ARTIFACT_HEAD_URL'"
   fi
 
   echo "Executing: $check_artifact_cmd"
@@ -87,7 +87,7 @@ download_run_state() {
         -s \
         --connect-timeout 60 \
         --max-time 120 \
-        -XGET $RUN_ARTIFACT_URL \
+        -XGET '$RUN_ARTIFACT_URL' \
         -o $archive_file"
 
     if [ ! -z "$RUN_ARTIFACT_URL_OPTS" ]; then
@@ -96,7 +96,7 @@ download_run_state() {
         --connect-timeout 60 \
         --max-time 120 \
         $RUN_ARTIFACT_URL_OPTS \
-        -XGET $RUN_ARTIFACT_URL \
+        -XGET '$RUN_ARTIFACT_URL' \
         -o $archive_file"
     fi
 
