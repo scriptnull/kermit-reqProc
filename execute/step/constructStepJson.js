@@ -209,7 +209,7 @@ function _prepareStepJSON(bag, next) {
           __convertObjToEnvs(resource.systemPropertyBag, resPrefix)
         );
         bag.stepEnvs = bag.stepEnvs.concat(
-          __convertObjToEnvs(resource.staticPropertyBag, resPrefix)
+          __convertObjToEnvs(resource.resourceStaticPropertyBag, resPrefix)
         );
         bag.stepEnvs = bag.stepEnvs.concat(
           __convertObjToEnvs(resource.integration, resPrefix + 'int_')
