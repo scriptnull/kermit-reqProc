@@ -10,8 +10,6 @@ export STEP_WORKSPACE_DIR="%%stepWorkspaceDir%%"
 export RUN_WORKSPACE_DIR="%%runWorkspaceDir%%"
 
 upload_step_artifacts() {
-  echo "-----------testing step state ----------------"
-  env
   if [ -z "$STEP_ARTIFACT_URL" ]; then
     echo "No step artifact storage available."
     return 0
@@ -46,8 +44,6 @@ upload_step_artifacts() {
 }
 
 upload_run_state() {
-  echo "-----------testing run state----------------"
-  env
   if [ -z "$RUN_ARTIFACT_URL" ]; then
     echo "No run state storage available."
     return 0
