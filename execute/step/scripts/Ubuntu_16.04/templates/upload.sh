@@ -1,17 +1,15 @@
 #!/bin/bash -e
 
 export STEP_ARTIFACT_URL="%%stepArtifactUrl%%"
-export STEP_ARTIFACT_URL_OPTS="%%stepArtifactUrlOpts%%"
+export STEP_ARTIFACT_URL_OPTS='%%stepArtifactUrlOpts%%'
 export RUN_ARTIFACT_URL="%%runArtifactUrl%%"
-export RUN_ARTIFACT_URL_OPTS="%%runArtifactUrlOpts%%"
+export RUN_ARTIFACT_URL_OPTS='%%runArtifactUrlOpts%%'
 export STEP_ARTIFACT_NAME="%%stepArtifactName%%"
 export RUN_ARTIFACT_NAME="%%runArtifactName%%"
 export STEP_WORKSPACE_DIR="%%stepWorkspaceDir%%"
 export RUN_WORKSPACE_DIR="%%runWorkspaceDir%%"
 
 upload_step_artifacts() {
-  echo "-----------testing step state ----------------"
-  env
   if [ -z "$STEP_ARTIFACT_URL" ]; then
     echo "No step artifact storage available."
     return 0
@@ -23,7 +21,11 @@ upload_step_artifacts() {
 
   echo 'Saving step artifacts'
 
+  env
+  echo "----"
+  echo "$STEP_ARTIFACT_URL_OPTS"
   if [ -z "$STEP_ARTIFACT_URL_OPTS" ]; then
+    echo "uploading with basic auth"
     curl \
       -s \
       --connect-timeout 60 \
@@ -31,6 +33,7 @@ upload_step_artifacts() {
       -XPUT "$STEP_ARTIFACT_URL" \
       -T "$archive_file"
   else
+    echo "uploading with artifactory creds"
     curl \
       -s \
       --connect-timeout 60 \
@@ -46,8 +49,6 @@ upload_step_artifacts() {
 }
 
 upload_run_state() {
-  echo "-----------testing run state----------------"
-  env
   if [ -z "$RUN_ARTIFACT_URL" ]; then
     echo "No run state storage available."
     return 0
@@ -64,6 +65,7 @@ upload_run_state() {
   echo 'Saving run state'
 
   if [ -z "$RUN_ARTIFACT_URL_OPTS" ]; then
+    echo "uploading with basic auth"
     curl \
       -s \
       --connect-timeout 60 \
@@ -71,6 +73,7 @@ upload_run_state() {
       -XPUT "$RUN_ARTIFACT_URL" \
       -T "$archive_file"
   else
+    echo "uploading with artifactory creds"
     curl \
       -s \
       --connect-timeout 60 \
