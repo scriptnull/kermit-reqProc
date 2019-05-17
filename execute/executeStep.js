@@ -554,6 +554,7 @@ function _readStepStatus(bag, next) {
     function (err, resultBag) {
       if (err) {
         bag.error = true;
+        return next();
       }
 
       var statusName = resultBag.statusName;
