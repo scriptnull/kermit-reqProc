@@ -80,6 +80,13 @@ download_run_state() {
   env
   local check_artifact=$($check_artifact_cmd)
 
+  echo $check_artifact
+
+  echo "-----------------"
+  check_artifact=$(eval $check_artifact_cmd)
+
+  echo $check_artifact
+
   if [ $check_artifact -eq 200 ]; then
     echo 'Downloading run state'
 
