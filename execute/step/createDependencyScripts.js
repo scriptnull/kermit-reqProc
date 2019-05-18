@@ -123,7 +123,7 @@ function _assembleDependencyScripts(bag, next) {
     bag.stepConsoleAdapter.closeCmd(false);
     return next(true);
   }
-
+  bag.stepConsoleAdapter.closeCmd(true);
   return next();
 }
 
