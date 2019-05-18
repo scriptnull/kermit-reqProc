@@ -149,10 +149,19 @@ function _postTestReport(bag, next) {
 
   bag.stepConsoleAdapter.publishMsg('Posting test report');
 
-  bag.testReport.stepId = bag.step.id;
-  bag.testReport.durationSeconds = Math.round(bag.testReport.durationSeconds);
+  var stepTestReport = {
+    stepId: bag.step.id,
+    durationSeconds: Math.round(bag.testReport.durationSeconds),
+    errorDetails: bag.testReport.errorDetails,
+    failureDetails: bag.testReport.failureDetails,
+    totalTests: bag.testReport.total,
+    totalPassing: bag.testReport.totalPassing,
+    totalFailures: bag.testReport.totalFailures,
+    totalErrors: bag.testReport.totalErrors,
+    totalSkipped: bag.testReport.totalSkipped
+  };
 
-  bag.builderApiAdapter.postStepTestReports(bag.testReport,
+  bag.builderApiAdapter.postStepTestReports(stepTestReport,
     function (err) {
       var msg;
       if (err) {
