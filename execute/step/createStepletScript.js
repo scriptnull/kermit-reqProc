@@ -16,6 +16,7 @@ function createStepletScript(externalBag, callback) {
     stepletScriptPath: externalBag.stepletScriptPath,
     statusDir: externalBag.statusDir,
     stepletId: externalBag.stepletId,
+    pipelineId: externalBag.pipelineId,
     builderApiToken: externalBag.builderApiToken,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
     stepletDir: externalBag.stepletDir,
@@ -58,6 +59,7 @@ function _checkInputParams(bag, next) {
     'execTemplatesRootDir',
     'stepletScriptPath',
     'stepletId',
+    'pipelineId',
     'builderApiToken',
     'statusDir',
     'runDir',
@@ -204,6 +206,7 @@ function _setJobEnvs(bag, next) {
   jobEnvs.push(util.format('SHIPPABLE_API_URL=%s', global.config.apiUrl));
   jobEnvs.push(util.format('BUILDER_API_TOKEN=%s', bag.builderApiToken));
   jobEnvs.push(util.format('STEPLET_ID=%s', bag.stepletId));
+  jobEnvs.push(util.format('PIPELINE_ID=%s', bag.pipelineId));
   jobEnvs.push(util.format('RUN_MODE=%s', global.config.runMode));
   jobEnvs.push(util.format('SCRIPT_PATH=%s', bag.executeScriptPath));
   jobEnvs.push(util.format('STEPLET_DIR=%s', bag.stepletDir));

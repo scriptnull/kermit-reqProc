@@ -6,11 +6,12 @@ module.exports = self;
 var uuid = require('node-uuid');
 var ShippableAdapter = require('../Adapter.js');
 
-function Adapter(apiToken, stepId, jobConsoleBatchSize,
+function Adapter(apiToken, stepId, pipelineId, jobConsoleBatchSize,
   jobConsoleBufferTimeInterval) {
   this.who = util.format('%s|_common|stepConsoleAdapter|stepId:%s',
     msName, stepId);
   this.stepId = stepId;
+  this.pipelineId = pipelineId;
 
   this.startTimeInMicroSec = new Date().getTime() * 1000;
   var processStartTime = process.hrtime();
@@ -165,6 +166,7 @@ Adapter.prototype._postToStepConsole = function (forced) {
 
     var body = {
       stepId: that.stepId,
+      pipelineId: that.pipelineId,
       stepConsoles: consoles
     };
 
