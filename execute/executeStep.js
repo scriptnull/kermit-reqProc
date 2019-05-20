@@ -434,6 +434,7 @@ function _createStepletScript(bag, next) {
     stepletScriptPath: bag.stepletScriptPaths[0],
     builderApiToken: bag.builderApiToken,
     stepletId: bag.stepletsByStepId[bag.step.id][0].id,
+    pipelineId: bag.step.pipelineId,
     statusDir: bag.statusDir,
     stepDir: bag.stepDir,
     runDir: bag.runDir,

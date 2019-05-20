@@ -238,11 +238,11 @@ function _executeStep(bag, next) {
 
 
   var batchSize = global.systemSettings &&
-      global.systemSettings.jobConsoleBatchSize;
+    global.systemSettings.jobConsoleBatchSize;
   var timeInterval = global.systemSettings &&
     global.systemSettings.jobConsoleBufferTimeIntervalInMS;
   var stepConsoleAdapter = new StepConsoleAdapter(bag.builderApiToken,
-    bag.stepId, batchSize, timeInterval);
+    bag.stepId, bag.steplets[0].pipelineId, batchSize, timeInterval);
 
   var innerBag = {
     who: bag.who,
