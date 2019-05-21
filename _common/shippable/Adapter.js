@@ -79,6 +79,14 @@ ShippableAdapter.prototype.getPipelineById =
     );
   };
 
+ShippableAdapter.prototype.getPipelineArtifactUrls =
+  function (pipelineId, query, callback) {
+    this.get(
+      util.format('/pipelines/%s/artifactUrl?%s', pipelineId, query),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getProjectById =
   function (id, callback) {
     this.get(

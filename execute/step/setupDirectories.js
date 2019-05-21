@@ -21,6 +21,7 @@ function setupDirectories(externalBag, callback) {
     stepJsonPath: externalBag.stepJsonPath,
     stepWorkspacePath: externalBag.stepWorkspacePath,
     runWorkspacePath: externalBag.runWorkspacePath,
+    pipelineWorkspacePath: externalBag.pipelineWorkspacePath,
     stepletScriptPaths: [],
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
     execTemplatesRootDir: externalBag.execTemplatesRootDir
@@ -63,6 +64,7 @@ function _checkInputParams(bag, next) {
     'resDirToBeCreated',
     'stepWorkspacePath',
     'runWorkspacePath',
+    'pipelineWorkspacePath',
     'stepJsonPath',
     'stepConsoleAdapter',
     'execTemplatesRootDir'
@@ -93,6 +95,7 @@ function _setupDirectories(bag, next) {
   bag.dirsToBeCreated.push(bag.runDir);
   bag.dirsToBeCreated.push(bag.stepDir);
   bag.dirsToBeCreated.push(bag.runWorkspacePath);
+  bag.dirsToBeCreated.push(bag.pipelineWorkspacePath);
   bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'upload'));
   bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'download'));
   bag.dirsToBeCreated.push(path.join(bag.stepWorkspacePath, 'cache'));
