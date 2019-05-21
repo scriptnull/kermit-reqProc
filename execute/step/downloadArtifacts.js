@@ -11,6 +11,7 @@ function downloadArtifacts(externalBag, callback) {
     projectId: externalBag.projectId,
     stepWorkspacePath: externalBag.stepWorkspacePath,
     runWorkspacePath: externalBag.runWorkspacePath,
+    pipelineWorkspacePath: externalBag.pipelineWorkspacePath,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
     builderApiAdapter: externalBag.builderApiAdapter,
     isGrpSuccess: true
@@ -25,6 +26,7 @@ function downloadArtifacts(externalBag, callback) {
       _checkInputParams.bind(null, bag),
       _getStepArtifactUrl.bind(null, bag),
       _getRunArtifactUrl.bind(null, bag),
+      _getPipelineArtifactUrl.bind(null, bag),
       _downloadArtifacts.bind(null, bag)
     ],
     function (err) {
@@ -52,6 +54,7 @@ function _checkInputParams(bag, next) {
     'stepConsoleAdapter',
     'stepWorkspacePath',
     'runWorkspacePath',
+    'pipelineWorkspacePath',
     'builderApiAdapter'
   ];
 
@@ -136,6 +139,42 @@ function _getRunArtifactUrl(bag, next) {
   );
 }
 
+function _getPipelineArtifactUrl(bag, next) {
+  var who = bag.who + '|' + _getPipelineArtifactUrl.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.publishMsg('Getting download URL for pipeline');
+
+  bag.pipelineArtifactName = util.format('%s.tar.gz',
+    bag.stepData.step.pipelineId);
+
+  var query = 'artifactName=' + bag.pipelineArtifactName;
+
+  bag.builderApiAdapter.getPipelineArtifactUrls(bag.stepData.step.pipelineId,
+    query,
+    function (err, artifactUrls) {
+      var msg;
+      if (err) {
+        msg = util.format('%s, Failed to get artifact URLs for ' +
+          'pipelineId: %s', who, bag.stepData.step.pipelineId, err);
+
+        bag.stepConsoleAdapter.publishMsg(msg);
+        return next();
+      }
+
+      bag.pipelineArtifactUrl = artifactUrls.get;
+      bag.pipelineArtifactUrlOpts = artifactUrls.getOpts;
+
+      bag.pipelineArtifactHeadUrl = artifactUrls.head;
+      bag.pipelineArtifactHeadUrlOpts = artifactUrls.headOpts;
+      msg = util.format('Got artifact URL for pipelineId: %s ',
+        bag.stepData.step.pipelineId);
+      bag.stepConsoleAdapter.publishMsg(msg);
+      return next();
+    }
+  );
+}
+
 function _downloadArtifacts(bag, next) {
   var who = bag.who + '|' + _downloadArtifacts.name;
   logger.verbose(who, 'Inside');
@@ -145,14 +184,20 @@ function _downloadArtifacts(bag, next) {
   var scriptBag = {
     stepArtifactUrl: bag.stepArtifactUrl,
     stepArtifactUrlOpts: bag.stepArtifactUrlOpts,
+    stepArtifactName: bag.stepArtifactName,
+    stepWorkspacePath: bag.stepWorkspacePath,
     runArtifactUrl: bag.runArtifactUrl,
     runArtifactUrlOpts: bag.runArtifactUrlOpts,
     runArtifactHeadUrl: bag.runArtifactHeadUrl,
     runArtifactHeadUrlOpts: bag.runArtifactHeadUrlOpts,
-    stepArtifactName: bag.stepArtifactName,
     runArtifactName: bag.runArtifactName,
-    stepWorkspacePath: bag.stepWorkspacePath,
     runWorkspacePath: bag.runWorkspacePath,
+    pipelineArtifactUrl: bag.pipelineArtifactUrl,
+    pipelineArtifactUrlOpts: bag.pipelineArtifactUrlOpts,
+    pipelineArtifactHeadUrl: bag.pipelineArtifactHeadUrl,
+    pipelineArtifactHeadUrlOpts: bag.pipelineArtifactHeadUrlOpts,
+    pipelineArtifactName: bag.pipelineArtifactName,
+    pipelineWorkspacePath: bag.pipelineWorkspacePath,
     builderApiAdapter: bag.builderApiAdapter,
     stepConsoleAdapter: bag.stepConsoleAdapter
   };

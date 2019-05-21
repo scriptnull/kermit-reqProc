@@ -383,6 +383,7 @@ function _downloadArtifacts(bag, next) {
     stepConsoleAdapter: bag.stepConsoleAdapter,
     stepWorkspacePath: bag.stepWorkspacePath,
     runWorkspacePath: bag.runWorkspacePath,
+    pipelineWorkspacePath: bag.pipelineWorkspacePath,
     builderApiAdapter: bag.builderApiAdapter
   };
 

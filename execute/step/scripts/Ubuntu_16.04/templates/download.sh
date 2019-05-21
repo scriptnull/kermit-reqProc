@@ -2,14 +2,20 @@
 
 export STEP_ARTIFACT_URL="%%stepArtifactUrl%%"
 export STEP_ARTIFACT_URL_OPTS="%%stepArtifactUrlOpts%%"
+export STEP_ARTIFACT_NAME="%%stepArtifactName%%"
+export STEP_WORKSPACE_DIR="%%stepWorkspaceDir%%"
 export RUN_ARTIFACT_URL="%%runArtifactUrl%%"
 export RUN_ARTIFACT_URL_OPTS="%%runArtifactUrlOpts%%"
 export RUN_ARTIFACT_HEAD_URL="%%runArtifactHeadUrl%%"
 export RUN_ARTIFACT_HEAD_URL_OPTS="%%runArtifactHeadUrlOpts%%"
-export STEP_ARTIFACT_NAME="%%stepArtifactName%%"
 export RUN_ARTIFACT_NAME="%%runArtifactName%%"
-export STEP_WORKSPACE_DIR="%%stepWorkspaceDir%%"
 export RUN_WORKSPACE_DIR="%%runWorkspaceDir%%"
+export PIPELINE_ARTIFACT_URL="%%pipelineArtifactUrl%%"
+export PIPELINE_ARTIFACT_URL_OPTS="%%pipelineArtifactUrlOpts%%"
+export PIPELINE_ARTIFACT_HEAD_URL="%%pipelineArtifactHeadUrl%%"
+export PIPELINE_ARTIFACT_HEAD_URL_OPTS="%%pipelineArtifactHeadUrlOpts%%"
+export PIPELINE_ARTIFACT_NAME="%%pipelineArtifactName%%"
+export PIPELINE_WORKSPACE_DIR="%%pipelineWorkspaceDir%%"
 
 download_step_artifacts() {
   if [ -z "$STEP_ARTIFACT_URL" ]; then
@@ -110,5 +116,72 @@ download_run_state() {
   fi
 }
 
+download_pipeline_state() {
+  if [ -z "$PIPELINE_ARTIFACT_URL" ]; then
+    echo "No pipeline state found."
+    return 0
+  fi
+
+  local archive_file="$STEP_WORKSPACE_DIR/$PIPELINE_ARTIFACT_NAME"
+
+  if [ ! -z "$(ls -A $PIPELINE_WORKSPACE_DIR)" ]; then
+    echo "Clearing pipeline state directory."
+    rm -rf $PIPELINE_WORKSPACE_DIR/*
+  fi
+
+  local check_artifact_cmd="curl \
+      -s \
+      --connect-timeout 60 \
+      --max-time 120 \
+      -o /dev/null \
+      -w \"%{http_code}\" \
+      --head '$PIPELINE_ARTIFACT_HEAD_URL'"
+
+  if [ ! -z "$PIPELINE_ARTIFACT_HEAD_URL_OPTS" ]; then
+    check_artifact_cmd="curl \
+      -s \
+      --connect-timeout 60 \
+      --max-time 120 \
+      -o /dev/null \
+      -w \"%{http_code}\" \
+      $PIPELINE_ARTIFACT_HEAD_URL_OPTS \
+      --head '$PIPELINE_ARTIFACT_HEAD_URL'"
+  fi
+
+  echo "Executing: $check_artifact_cmd"
+
+  local check_artifact=$(eval $check_artifact_cmd)
+
+  if [ $check_artifact -eq 200 ]; then
+    echo 'Downloading pipeline state'
+
+    local download_cmd="curl \
+        -s \
+        --connect-timeout 60 \
+        --max-time 120 \
+        -XGET '$PIPELINE_ARTIFACT_URL' \
+        -o $archive_file"
+
+    if [ ! -z "$PIPELINE_ARTIFACT_URL_OPTS" ]; then
+      download_cmd="curl \
+        -s \
+        --connect-timeout 60 \
+        --max-time 120 \
+        $PIPELINE_ARTIFACT_URL_OPTS \
+        -XGET '$PIPELINE_ARTIFACT_URL' \
+        -o $archive_file"
+    fi
+
+    eval "$download_cmd"
+
+    tar -xzf $archive_file -C $PIPELINE_WORKSPACE_DIR
+    rm $archive_file
+    echo 'Downloaded pipeline state'
+  else
+    echo 'No previous pipeline state'
+  fi
+}
+
 download_step_artifacts
 download_run_state
+download_pipeline_state
