@@ -78,6 +78,8 @@ upload_run_state() {
       -T $archive_file"
   fi
 
+  eval "$put_cmd"
+
   echo 'Saved run state'
 
   rm $archive_file
