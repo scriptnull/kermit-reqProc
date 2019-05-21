@@ -39,7 +39,7 @@ function setupMS(params) {
     process.env.SHIPPABLE_NODE_OPERATING_SYSTEM;
   global.config.execTemplatesRootDir = process.env.IMAGE_EXEC_TEMPLATES_DIR;
 
-  if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2016') {
+  if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2019') {
     global.config.scriptExtension = 'ps1';
     global.config.defaultShell = 'powershell';
     global.config.defaultShellArgs = [];
