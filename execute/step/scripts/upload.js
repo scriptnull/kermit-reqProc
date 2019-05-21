@@ -16,12 +16,16 @@ function upload(externalBag, callback) {
     scriptPath: path.resolve(externalBag.stepWorkspacePath, 'upload.sh'),
     stepArtifactUrl: externalBag.stepArtifactUrl,
     stepArtifactUrlOpts: externalBag.stepArtifactUrlOpts,
+    stepArtifactName: externalBag.stepArtifactName,
+    stepWorkspacePath: externalBag.stepWorkspacePath,
     runArtifactUrl: externalBag.runArtifactUrl,
     runArtifactUrlOpts: externalBag.runArtifactUrlOpts,
-    stepArtifactName: externalBag.stepArtifactName,
     runArtifactName: externalBag.runArtifactName,
-    stepWorkspacePath: externalBag.stepWorkspacePath,
     runWorkspacePath: externalBag.runWorkspacePath,
+    pipelineArtifactUrl: externalBag.pipelineArtifactUrl,
+    pipelineArtifactUrlOpts: externalBag.pipelineArtifactUrlOpts,
+    pipelineArtifactName: externalBag.pipelineArtifactName,
+    pipelineWorkspacePath: externalBag.pipelineWorkspacePath,
     builderApiAdapter: externalBag.builderApiAdapter,
     stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
@@ -85,12 +89,16 @@ function _generateScript(bag, next) {
   var params = {
     stepArtifactUrl: bag.stepArtifactUrl,
     stepArtifactUrlOpts: bag.stepArtifactUrlOpts,
+    stepArtifactName: bag.stepArtifactName,
+    stepWorkspaceDir: bag.stepWorkspacePath,
     runArtifactUrl: bag.runArtifactUrl,
     runArtifactUrlOpts: bag.runArtifactUrlOpts,
-    stepArtifactName: bag.stepArtifactName,
     runArtifactName: bag.runArtifactName,
-    stepWorkspaceDir: bag.stepWorkspacePath,
-    runWorkspaceDir: bag.runWorkspacePath
+    runWorkspaceDir: bag.runWorkspacePath,
+    pipelineArtifactUrl: bag.pipelineArtifactUrl,
+    pipelineArtifactUrlOpts: bag.pipelineArtifactUrlOpts,
+    pipelineArtifactName: bag.pipelineArtifactName,
+    pipelineWorkspaceDir: bag.pipelineWorkspacePath
   };
 
   var scriptContent =

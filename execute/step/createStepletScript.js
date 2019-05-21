@@ -24,6 +24,7 @@ function createStepletScript(externalBag, callback) {
     dependencyStateDir: externalBag.dependencyStateDir,
     outputDir: externalBag.outputDir,
     stepWorkspacePath: externalBag.stepWorkspacePath,
+    pipelineWorkspacePath: externalBag.pipelineWorkspacePath,
     stepJsonPath: externalBag.stepJsonPath,
     stepId: externalBag.stepId
   };
@@ -104,6 +105,7 @@ function _setScriptEnvs(bag, next) {
       'STEP_DEPENDENCY_STATE_DIR': bag.dependencyStateDir,
       'STEP_OUTPUT_DIR': bag.outputDir,
       'STEP_WORKSPACE_DIR': bag.stepWorkspacePath,
+      'PIPELINE_WORKSPACE_DIR': bag.pipelineWorkspacePath,
       'STEP_TMP_DIR': path.join(bag.stepWorkspacePath, 'tmp'),
       'OPERATING_SYSTEM': global.config.shippableNodeOperatingSystem,
       'ARCHITECTURE': global.config.shippableNodeArchitecture,

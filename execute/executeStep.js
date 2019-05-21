@@ -182,11 +182,12 @@ function _setupDirectories(bag, next) {
 
   var who = bag.who + '|' + _setupDirectories.name;
   logger.verbose(who, 'Inside');
-  bag.runDir = path.join(bag.baseDir, 'pipelines', bag.pipeline.name,
-    'runs', bag.step.runId.toString());
+  bag.pipelineDir = path.join(bag.baseDir, 'pipelines', bag.pipeline.name);
+  bag.runDir = path.join(bag.pipelineDir, 'runs', bag.step.runId.toString());
   bag.stepDir = path.join(bag.runDir, 'steps', bag.step.name);
   bag.stepWorkspacePath = path.join(bag.stepDir, 'workspace');
   bag.runWorkspacePath = path.join(bag.runDir, 'workspace');
+  bag.pipelineWorkspacePath = path.join(bag.pipelineDir, 'workspace');
   bag.stepJsonPath = path.join(bag.stepDir, 'step.json');
   bag.statusDir = path.join(bag.baseDir, 'status');
 
@@ -215,6 +216,7 @@ function _setupDirectories(bag, next) {
     stepJsonPath: bag.stepJsonPath,
     stepWorkspacePath: bag.stepWorkspacePath,
     runWorkspacePath: bag.runWorkspacePath,
+    pipelineWorkspacePath: bag.pipelineWorkspacePath,
     stepConsoleAdapter: bag.stepConsoleAdapter,
     execTemplatesRootDir: bag.execTemplatesRootDir
   };
@@ -444,6 +446,7 @@ function _createStepletScript(bag, next) {
     dependencyStateDir: path.join(bag.stepDir, 'dependencyState'),
     outputDir: path.join(bag.stepDir, 'output'),
     stepWorkspacePath: bag.stepWorkspacePath,
+    pipelineWorkspacePath: bag.pipelineWorkspacePath,
     stepJsonPath: bag.stepJsonPath,
     stepId: bag.stepId
   };
@@ -615,6 +618,7 @@ function _uploadArtifacts(bag, next) {
     stepConsoleAdapter: bag.stepConsoleAdapter,
     stepWorkspacePath: bag.stepWorkspacePath,
     runWorkspacePath: bag.runWorkspacePath,
+    pipelineWorkspacePath: bag.pipelineWorkspacePath,
     builderApiAdapter: bag.builderApiAdapter
   };
 
