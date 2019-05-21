@@ -217,7 +217,7 @@ function _setJobEnvs(bag, next) {
   jobEnvs.push(util.format('STEP_DOCKER_CONTAINER_NAME=%s',
     bag.stepDockerContainerName));
 
-  if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2016')
+  if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2019')
     jobEnvs.push('REQEXEC_SHELL=powershell.exe');
 
   var envPath = path.join(bag.statusDir, 'step.env');
