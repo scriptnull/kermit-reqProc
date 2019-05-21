@@ -41,9 +41,11 @@ function createStepletScript(externalBag, callback) {
     ],
     function (err) {
       if (err)
-        logger.error(bag.who, util.format('Failed to create stepletScript.sh'));
+        logger.error(bag.who, util.format('Failed to create stepletScript.' +
+          global.config.scriptExtension));
       else
-        logger.info(bag.who, 'Successfully created stepletScript.sh');
+        logger.info(bag.who, 'Successfully created stepletScript.' +
+          global.config.scriptExtension);
 
       return callback(err);
     }

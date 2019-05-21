@@ -142,7 +142,8 @@ function _setupDirectories(bag, next) {
         path.join(bag.stepDir, steplet.id.toString(), 'steplet.json'));
 
       var stepletScriptPath = path.join(bag.stepDir,
-        steplet.id.toString(), 'stepletScript.sh');
+        steplet.id.toString(), 'stepletScript.' +
+          global.config.scriptExtension);
       bag.filesToBeCreated.push(stepletScriptPath);
       bag.stepletScriptPaths.push(stepletScriptPath);
     }
