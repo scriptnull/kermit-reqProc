@@ -46,7 +46,8 @@ function assemble(externalBag, callback) {
         logger.info(bag.who, 'Successfully assembled script');
 
       var resultBag = {
-        assembledScript: bag.script
+        assembledScript: bag.script,
+        objectSubType: bag.objectSubType
       };
 
       return callback(err, resultBag);
