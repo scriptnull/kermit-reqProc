@@ -18,6 +18,7 @@ var assemblyOrder = ['onSuccess', 'onFailure', 'onComplete', 'output',
   'environmentVariables', 'image', 'auto', 'dependsOn', 'onStart', 'onExecute'];
 var singleQuoteEscapeSections = ['onSuccess', 'onFailure', 'onComplete',
   'onStart', 'onExecute'];
+var nonNativeStepTypes = ['bash', 'powershell'];
 
 function assemble(externalBag, callback) {
   var bag = {
@@ -82,7 +83,9 @@ function _checkInputParams(bag, next) {
 }
 
 function _assembleNativeScriptFragment(bag, next) {
-  if (bag.objectType !== 'steps' || bag.objectSubType === 'bash') return next();
+  if (bag.objectType !== 'steps' ||
+    _.contains(nonNativeStepTypes, bag.objectSubType))
+    return next();
 
   var who = bag.who + '|' + _assembleNativeScriptFragment.name;
   logger.verbose(who, 'Inside');
@@ -106,7 +109,9 @@ function _assembleNativeScriptFragment(bag, next) {
 }
 
 function _combineNativeScriptFragment(bag, next) {
-  if (bag.objectType !== 'steps' || bag.objectSubType === 'bash') return next();
+  if (bag.objectType !== 'steps' ||
+    _.contains(nonNativeStepTypes, bag.objectSubType))
+    return next();
 
   var who = bag.who + '|' + _combineNativeScriptFragment.name;
   logger.verbose(who, 'Inside');
