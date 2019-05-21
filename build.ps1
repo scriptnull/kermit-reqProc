@@ -25,7 +25,7 @@ $EXEC_TEMPLATES_EXTRACT_PATH = "$EXTRACTS_DIR/execTemplates"
 $REQEXEC_EXTRACT_PATH = "$EXTRACTS_DIR/reqExec"
 
 # Paths used by building reqProc image
-$EXEC_TEMPLATES_PATH = "./execTemplates"
+$EXEC_TEMPLATES_PATH = "C:/Users/ContainerAdministrator/Shippable/execTemplates"
 $REQEXEC_PATH = "./reqExec"
 
 Function check_input() {
