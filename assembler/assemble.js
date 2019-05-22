@@ -161,7 +161,10 @@ function _combineScript(bag, next) {
   var who = bag.who + '|' + _combineScript.name;
   logger.verbose(who, 'Inside');
 
-  _.each([ bag.objectSubType ].concat(assemblyOrder),
+  if (bag.assembledScript[bag.objectSubType].header)
+    bag.script += bag.assembledScript[bag.objectSubType].header;
+
+  _.each(assemblyOrder,
     function (component) {
       if (!_.isEmpty(bag.assembledScript[component]))
         bag.script += (bag.assembledScript[component].header +
@@ -169,6 +172,10 @@ function _combineScript(bag, next) {
           bag.assembledScript[component].footer);
     }
   );
+
+  if (bag.assembledScript[bag.objectSubType].footer)
+    bag.script += bag.assembledScript[bag.objectSubType].footer;
+
   return next();
 }
 
