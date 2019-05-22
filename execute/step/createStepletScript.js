@@ -169,10 +169,10 @@ function _assembleScript(bag, next) {
 
       bag.stepConsoleAdapter.publishMsg(
         'Successfully assembled steplet script');
-      bag.stepConsoleAdapter.publishMsg('mylog bag.stepData = ' +
-        JSON.stringify(bag.stepData));
-      bag.stepConsoleAdapter.publishMsg('mylog result = ' +
-        JSON.stringify(result));
+      // bag.stepConsoleAdapter.publishMsg('mylog result.assembledScript = ' +
+      //   result.assembledScript);
+      bag.stepConsoleAdapter.publishMsg('mylog result.log = ' +
+        JSON.stringify(result.log));
       bag.stepConsoleAdapter.closeCmd(true);
       bag.assembledScript = result.assembledScript;
       return next();

@@ -27,7 +27,8 @@ function assemble(externalBag, callback) {
     objectSubType: externalBag.objectSubType,
     json: externalBag.json,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
-    script: ''
+    script: '',
+    log: {}
   };
 
   bag.who = util.format('%s|assembler|%s', msName, self.name);
@@ -48,7 +49,8 @@ function assemble(externalBag, callback) {
 
       var resultBag = {
         assembledScript: bag.script,
-        objectSubType: bag.objectSubType
+        objectSubType: bag.objectSubType,
+        log: bag.log
       };
 
       return callback(err, resultBag);
@@ -150,9 +152,14 @@ function _assembleScript(bag, next) {
   var rootDirectoryPath = path.resolve(bag.execTemplatesRootDir, bag.objectType,
     bag.objectSubType);
 
+  bag.log.rootDirectoryPath = rootDirectoryPath;
+
   if (!isDirectory(rootDirectoryPath))
     return next(util.format('Root directory: %s is incorrect',
       rootDirectoryPath));
+
+  bag.log.json = bag.json;
+  bag.log.objectSubType = bag.objectSubType;
 
   __addTemplate(bag.objectSubType, rootDirectoryPath, bag.json, bag);
   return next();
@@ -180,6 +187,7 @@ function _combineScript(bag, next) {
 function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
   bag) {
   var directoryContents = fs.readdirSync(currentDirectoryPath);
+  bag.log.directoryContents = directoryContents;
   directoryContents.sort(
     function (a, b) {
       if (a === b) return 0;
@@ -191,6 +199,7 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
       return 1;
     }
   );
+  bag.log.sortedDirectoryContents = directoryContents;
   _.each(directoryContents,
     function (contentName) {
       var santizedContentName = contentName;
