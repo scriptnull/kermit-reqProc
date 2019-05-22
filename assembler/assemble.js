@@ -18,6 +18,7 @@ var assemblyOrder = ['onSuccess', 'onFailure', 'onComplete', 'output',
   'environmentVariables', 'image', 'auto', 'dependsOn', 'onStart', 'onExecute'];
 var singleQuoteEscapeSections = ['onSuccess', 'onFailure', 'onComplete',
   'onStart', 'onExecute'];
+var nonNativeStepTypes = ['bash', 'powershell'];
 
 function assemble(externalBag, callback) {
   var bag = {
@@ -82,7 +83,9 @@ function _checkInputParams(bag, next) {
 }
 
 function _assembleNativeScriptFragment(bag, next) {
-  if (bag.objectType !== 'steps' || bag.objectSubType === 'bash') return next();
+  if (bag.objectType !== 'steps' ||
+    _.contains(nonNativeStepTypes, bag.objectSubType))
+    return next();
 
   var who = bag.who + '|' + _assembleNativeScriptFragment.name;
   logger.verbose(who, 'Inside');
@@ -106,7 +109,9 @@ function _assembleNativeScriptFragment(bag, next) {
 }
 
 function _combineNativeScriptFragment(bag, next) {
-  if (bag.objectType !== 'steps' || bag.objectSubType === 'bash') return next();
+  if (bag.objectType !== 'steps' ||
+    _.contains(nonNativeStepTypes, bag.objectSubType))
+    return next();
 
   var who = bag.who + '|' + _combineNativeScriptFragment.name;
   logger.verbose(who, 'Inside');
@@ -156,7 +161,10 @@ function _combineScript(bag, next) {
   var who = bag.who + '|' + _combineScript.name;
   logger.verbose(who, 'Inside');
 
-  _.each([ bag.objectSubType ].concat(assemblyOrder),
+  if (bag.assembledScript[bag.objectSubType].header)
+    bag.script += bag.assembledScript[bag.objectSubType].header;
+
+  _.each(assemblyOrder,
     function (component) {
       if (!_.isEmpty(bag.assembledScript[component]))
         bag.script += (bag.assembledScript[component].header +
@@ -164,6 +172,10 @@ function _combineScript(bag, next) {
           bag.assembledScript[component].footer);
     }
   );
+
+  if (bag.assembledScript[bag.objectSubType].footer)
+    bag.script += bag.assembledScript[bag.objectSubType].footer;
+
   return next();
 }
 
@@ -177,10 +189,10 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
   directoryContents.sort(
     function (a, b) {
       if (a === b) return 0;
-      if (a === 'header.sh') return -1;
-      if (b === 'header.sh') return 1;
-      if (a === 'footer.sh') return 1;
-      if (b === 'footer.sh') return -1;
+      if (a === 'header.' + global.config.scriptExtension) return -1;
+      if (b === 'header.' + global.config.scriptExtension) return 1;
+      if (a === 'footer.' + global.config.scriptExtension) return 1;
+      if (b === 'footer.' + global.config.scriptExtension) return -1;
       if (a < b) return -1;
       return 1;
     }
@@ -208,8 +220,9 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
         if (_.isEmpty(bag.assembledScript[parentDirectoryName].footer))
           bag.assembledScript[parentDirectoryName].footer = '';
 
-        if (contentName === parentDirectoryName + '.sh' ||
-          contentName === context + '.sh') {
+        if (contentName === parentDirectoryName + '.' +
+          global.config.scriptExtension ||
+          contentName === context + '.' + global.config.scriptExtension) {
           var templateScript = fs.readFileSync(path.join(currentDirectoryPath,
             contentName), 'utf8').toString();
           var template = _.template(templateScript);
@@ -238,11 +251,11 @@ function __addTemplate(parentDirectoryName, currentDirectoryPath, context,
           }
 
           bag.assembledScript[parentDirectoryName].script += script;
-        } else if (contentName === 'header.sh') {
+        } else if (contentName === 'header.' + global.config.scriptExtension) {
           bag.assembledScript[parentDirectoryName].header =
             fs.readFileSync(path.join(currentDirectoryPath, contentName),
               'utf8').toString();
-        } else if (contentName === 'footer.sh') {
+        } else if (contentName === 'footer.' + global.config.scriptExtension) {
           bag.assembledScript[parentDirectoryName].footer =
             fs.readFileSync(path.join(currentDirectoryPath, contentName),
               'utf8').toString();

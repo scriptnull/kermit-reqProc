@@ -41,9 +41,11 @@ function createStepletScript(externalBag, callback) {
     ],
     function (err) {
       if (err)
-        logger.error(bag.who, util.format('Failed to create stepletScript.sh'));
+        logger.error(bag.who, util.format('Failed to create stepletScript.' +
+          global.config.scriptExtension));
       else
-        logger.info(bag.who, 'Successfully created stepletScript.sh');
+        logger.info(bag.who, 'Successfully created stepletScript.' +
+          global.config.scriptExtension);
 
       return callback(err);
     }
@@ -215,7 +217,7 @@ function _setJobEnvs(bag, next) {
   jobEnvs.push(util.format('STEP_DOCKER_CONTAINER_NAME=%s',
     bag.stepDockerContainerName));
 
-  if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2016')
+  if (global.config.shippableNodeOperatingSystem === 'WindowsServer_2019')
     jobEnvs.push('REQEXEC_SHELL=powershell.exe');
 
   var envPath = path.join(bag.statusDir, 'step.env');
