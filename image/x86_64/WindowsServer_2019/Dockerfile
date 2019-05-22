@@ -29,7 +29,7 @@ RUN mkdir -p $env:IMAGE_REQEXEC_DIR\x86_64\WindowsServer_2019\; \
 RUN Invoke-WebRequest https://download.docker.com/components/engine/windows-server/18.09/docker-18.09.6.zip -OutFile docker-18.09.6.zip; \
     mkdir c:\docker; \
     Expand-Archive  .\docker-18.09.6.zip -DestinationPath $env:TEMP/docker/ -Force; \
-    Move-Item $env:TEMP\docker\docker\docker.exe c:\docker\docker.exe; \
+    Move-Item $env:TEMP\docker\docker\* c:\docker\; \
     $env:PATH = '{0};c:\docker' -f $env:PATH ; \
     [Environment]::SetEnvironmentVariable('PATH', $env:PATH, [EnvironmentVariableTarget]::Machine); \
     Remove-Item .\docker-18.09.6.zip; \
