@@ -28,7 +28,8 @@ function assemble(externalBag, callback) {
     json: externalBag.json,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
     script: '',
-    log: {}
+    log: {},
+    stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
 
   bag.who = util.format('%s|assembler|%s', msName, self.name);
@@ -168,6 +169,11 @@ function _assembleScript(bag, next) {
 function _combineScript(bag, next) {
   var who = bag.who + '|' + _combineScript.name;
   logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.publishMsg('mylog bag.objectSubType = ' +
+    bag.objectSubType);
+  bag.stepConsoleAdapter.publishMsg('mylog bag.assembledScript = ' +
+    JSON.stringify(bag.assembledScript));
 
   _.each([ bag.objectSubType ].concat(assemblyOrder),
     function (component) {

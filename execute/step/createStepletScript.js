@@ -153,6 +153,7 @@ function _assembleScript(bag, next) {
 
   bag.stepConsoleAdapter.openCmd('Assembling steplet script');
   var innerBag = {
+    stepConsoleAdapter: bag.stepConsoleAdapter,
     execTemplatesRootDir: bag.execTemplatesRootDir,
     json: bag.stepData.step,
     objectType: 'steps',
