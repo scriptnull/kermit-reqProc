@@ -145,9 +145,13 @@ function _getPipelineArtifactUrl(bag, next) {
 
   bag.stepConsoleAdapter.publishMsg('Getting download URL for pipeline');
 
-  bag.pipelineArtifactName = 'pipeline.tar.gz';
+  bag.pipelineArtifactName = util.format('%s.tar.gz',
+    bag.stepData.step.pipelineId);
 
-  bag.builderApiAdapter.getLatestPipelineState(bag.stepData.step.pipelineId,
+  var query = 'artifactName=' + bag.pipelineArtifactName;
+
+  bag.builderApiAdapter.getPipelineArtifactUrls(bag.stepData.step.pipelineId,
+    query,
     function (err, artifactUrls) {
       var msg;
       if (err) {
@@ -161,9 +165,8 @@ function _getPipelineArtifactUrl(bag, next) {
       bag.pipelineArtifactUrl = artifactUrls.get;
       bag.pipelineArtifactUrlOpts = artifactUrls.getOpts;
 
-      bag.pipelineArtifactName =
-        _.last(bag.pipelineArtifactUrl.split('?')[0].split('/'));
-
+      bag.pipelineArtifactHeadUrl = artifactUrls.head;
+      bag.pipelineArtifactHeadUrlOpts = artifactUrls.headOpts;
       msg = util.format('Got artifact URL for pipelineId: %s ',
         bag.stepData.step.pipelineId);
       bag.stepConsoleAdapter.publishMsg(msg);
@@ -191,6 +194,8 @@ function _downloadArtifacts(bag, next) {
     runWorkspacePath: bag.runWorkspacePath,
     pipelineArtifactUrl: bag.pipelineArtifactUrl,
     pipelineArtifactUrlOpts: bag.pipelineArtifactUrlOpts,
+    pipelineArtifactHeadUrl: bag.pipelineArtifactHeadUrl,
+    pipelineArtifactHeadUrlOpts: bag.pipelineArtifactHeadUrlOpts,
     pipelineArtifactName: bag.pipelineArtifactName,
     pipelineWorkspacePath: bag.pipelineWorkspacePath,
     builderApiAdapter: bag.builderApiAdapter,
