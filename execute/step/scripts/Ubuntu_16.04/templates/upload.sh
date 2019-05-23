@@ -99,34 +99,55 @@ upload_pipeline_state() {
 
   if [ -z "$(ls -A $PIPELINE_WORKSPACE_DIR)" ]; then
     echo "Pipeline state is empty."
+  else
+    for file in $PIPELINE_WORKSPACE_DIR/*; do
+      md5sum $file
+    done > $STEP_WORKSPACE_DIR/checksums.txt
+
+    cat $STEP_WORKSPACE_DIR/checksums.txt | sort > $STEP_WORKSPACE_DIR/pipelineStateChecksumsFinal.txt
+    rm $STEP_WORKSPACE_DIR/checksums.txt
   fi
 
-  tar -czf $archive_file -C $PIPELINE_WORKSPACE_DIR .
-
-  echo 'Saving pipeline state'
-
-  local put_cmd="curl \
-      -s \
-      --connect-timeout 60 \
-      --max-time 120 \
-      -XPUT '$PIPELINE_ARTIFACT_URL' \
-      -T $archive_file"
-
-  if [ ! -z "$PIPELINE_ARTIFACT_URL_OPTS" ]; then
-    put_cmd="curl \
-      -s \
-      --connect-timeout 60 \
-      --max-time 120 \
-      $PIPELINE_ARTIFACT_URL_OPTS \
-      -XPUT '$PIPELINE_ARTIFACT_URL' \
-      -T $archive_file"
+  local final_state_checksum=""
+  local original_state_checksum=""
+  if [ -f $STEP_WORKSPACE_DIR/pipelineStateChecksums.txt ]; then
+    original_state_checksum=$(md5sum < $STEP_WORKSPACE_DIR/pipelineStateChecksums.txt)
+  fi
+  if [ -f $STEP_WORKSPACE_DIR/pipelineStateChecksumsFinal.txt ]; then
+    final_state_checksum=$(md5sum < $STEP_WORKSPACE_DIR/pipelineStateChecksumsFinal.txt)
   fi
 
-  eval "$put_cmd"
+  if [ "$original_state_checksum" == "$final_state_checksum" ]; then
+    echo "Pipeline state unchanged"
+  else
 
-  echo 'Saved pipeline state'
+    tar -czf $archive_file -C $PIPELINE_WORKSPACE_DIR .
 
-  rm $archive_file
+    echo 'Saving pipeline state'
+
+    local put_cmd="curl \
+        -s \
+        --connect-timeout 60 \
+        --max-time 120 \
+        -XPUT '$PIPELINE_ARTIFACT_URL' \
+        -T $archive_file"
+
+    if [ ! -z "$PIPELINE_ARTIFACT_URL_OPTS" ]; then
+      put_cmd="curl \
+        -s \
+        --connect-timeout 60 \
+        --max-time 120 \
+        $PIPELINE_ARTIFACT_URL_OPTS \
+        -XPUT '$PIPELINE_ARTIFACT_URL' \
+        -T $archive_file"
+    fi
+
+    eval "$put_cmd"
+
+    echo 'Saved pipeline state'
+
+    rm $archive_file
+  fi
 }
 
 upload_step_artifacts

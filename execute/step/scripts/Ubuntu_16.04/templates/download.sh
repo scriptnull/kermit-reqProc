@@ -177,6 +177,18 @@ download_pipeline_state() {
     tar -xzf $archive_file -C $PIPELINE_WORKSPACE_DIR
     rm $archive_file
     echo 'Downloaded pipeline state'
+
+    if [ -z "$(ls -A $PIPELINE_WORKSPACE_DIR)" ]; then
+      echo "Pipeline state is empty."
+    else
+      for file in $PIPELINE_WORKSPACE_DIR/*; do
+        md5sum $file
+      done > $STEP_WORKSPACE_DIR/checksums.txt
+
+      cat $STEP_WORKSPACE_DIR/checksums.txt | sort > $STEP_WORKSPACE_DIR/pipelineStateChecksums.txt
+      rm $STEP_WORKSPACE_DIR/checksums.txt
+    fi
+
   else
     echo 'No previous pipeline state'
   fi
