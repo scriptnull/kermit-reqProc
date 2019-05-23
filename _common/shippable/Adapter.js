@@ -87,6 +87,14 @@ ShippableAdapter.prototype.getPipelineArtifactUrls =
     );
   };
 
+ShippableAdapter.prototype.getLatestPipelineState =
+  function (pipelineId, callback) {
+    this.get(
+      util.format('/pipelines/%s/latestState', pipelineId),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getProjectById =
   function (id, callback) {
     this.get(

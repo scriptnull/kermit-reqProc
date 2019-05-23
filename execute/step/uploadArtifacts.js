@@ -143,7 +143,7 @@ function _getPipelineArtifactUrl(bag, next) {
   bag.stepConsoleAdapter.publishMsg('Getting upload URL for pipeline');
 
   bag.pipelineArtifactName = util.format('%s.tar.gz',
-    bag.stepData.step.pipelineId);
+    bag.stepData.step.id);
 
   var query = 'artifactName=' + bag.pipelineArtifactName;
 
