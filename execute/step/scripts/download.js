@@ -10,9 +10,15 @@ var _ = require('underscore');
 
 function download(externalBag, callback) {
 
+  var templatePath = path.resolve(__dirname,
+    util.format('%s/templates/download.%s',
+      global.config.shippableNodeOperatingSystem,
+      global.config.scriptExtension
+    )
+  );
+
   var bag = {
-    templatePath: path.resolve(__dirname,
-      'Ubuntu_16.04/templates/download.sh'),
+    templatePath: templatePath,
     scriptPath: path.resolve(externalBag.stepWorkspacePath, 'download.sh'),
     stepArtifactUrl: externalBag.stepArtifactUrl,
     stepArtifactUrlOpts: externalBag.stepArtifactUrlOpts,

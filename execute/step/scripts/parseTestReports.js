@@ -10,9 +10,15 @@ var _ = require('underscore');
 
 function parseTestReports(externalBag, callback) {
 
+  var templatePath = path.resolve(__dirname,
+    util.format('%s/templates/parseReport.%s',
+      global.config.shippableNodeOperatingSystem,
+      global.config.scriptExtension
+    )
+  );
+
   var bag = {
-    templatePath: path.resolve(__dirname,
-      'Ubuntu_16.04/templates/parseReport.sh'),
+    templatePath: templatePath,
     scriptPath: path.resolve(externalBag.stepWorkspacePath, 'parseReport.sh'),
     baseDir: externalBag.baseDir,
     stepWorkspacePath: externalBag.stepWorkspacePath,
