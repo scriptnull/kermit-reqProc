@@ -26,8 +26,6 @@ function download(externalBag, callback) {
     runWorkspacePath: externalBag.runWorkspacePath,
     pipelineArtifactUrl: externalBag.pipelineArtifactUrl,
     pipelineArtifactUrlOpts: externalBag.pipelineArtifactUrlOpts,
-    pipelineArtifactHeadUrl: externalBag.pipelineArtifactHeadUrl,
-    pipelineArtifactHeadUrlOpts: externalBag.pipelineArtifactHeadUrlOpts,
     pipelineArtifactName: externalBag.pipelineArtifactName,
     pipelineWorkspacePath: externalBag.pipelineWorkspacePath,
     builderApiAdapter: externalBag.builderApiAdapter,
@@ -108,8 +106,6 @@ function _generateScript(bag, next) {
     runWorkspaceDir: bag.runWorkspacePath,
     pipelineArtifactUrl: bag.pipelineArtifactUrl,
     pipelineArtifactUrlOpts: bag.pipelineArtifactUrlOpts,
-    pipelineArtifactHeadUrl: bag.pipelineArtifactHeadUrl,
-    pipelineArtifactHeadUrlOpts: bag.pipelineArtifactHeadUrlOpts,
     pipelineArtifactName: bag.pipelineArtifactName,
     pipelineWorkspaceDir: bag.pipelineWorkspacePath
   };
