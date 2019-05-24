@@ -27,7 +27,8 @@ function downloadArtifacts(externalBag, callback) {
       _getStepArtifactUrl.bind(null, bag),
       _getRunArtifactUrl.bind(null, bag),
       _getPipelineArtifactUrl.bind(null, bag),
-      _downloadArtifacts.bind(null, bag)
+      _downloadArtifacts.bind(null, bag),
+      _updatePipelineArtifactName.bind(null, bag)
     ],
     function (err) {
       if (bag.isGrpSuccess)
@@ -213,6 +214,32 @@ function _downloadArtifacts(bag, next) {
         return next(true);
       }
       logger.debug('Successfully downloaded artifacts');
+      return next();
+    }
+  );
+}
+
+function _updatePipelineArtifactName(bag, next) {
+  if (!bag.pipelineArtifactUrl) return next();
+  var who = bag.who + '|' + _updatePipelineArtifactName.name;
+  logger.verbose(who, 'Inside');
+
+  var update = {
+    pipelineStateArtifactName: bag.pipelineArtifactName
+  };
+
+  bag.builderApiAdapter.putStepById(bag.stepData.step.id, update,
+    function (err) {
+      var msg;
+      if (err) {
+        msg = util.format('%s, Failed to update step %s ' +
+          'pipelineStateArtifactName: %s', who,
+          bag.stepData.step.id, bag.pipelineArtifactName, err);
+
+        bag.stepConsoleAdapter.publishMsg(msg);
+        return next();
+      }
+
       return next();
     }
   );
