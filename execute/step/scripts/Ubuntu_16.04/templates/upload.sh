@@ -90,6 +90,10 @@ upload_run_state() {
 }
 
 upload_pipeline_state() {
+  if [ -f "$STEP_WORKSPACE_DIR/pipelineArtifactName.txt" ]; then
+    rm "$STEP_WORKSPACE_DIR/pipelineArtifactName.txt"
+  fi
+
   if [ -z "$PIPELINE_ARTIFACT_URL" ]; then
     echo "No pipeline state storage available."
     return 0
@@ -145,6 +149,8 @@ upload_pipeline_state() {
     eval "$put_cmd"
 
     echo 'Saved pipeline state'
+
+    echo "$PIPELINE_ARTIFACT_NAME" > "$STEP_WORKSPACE_DIR/pipelineArtifactName.txt"
 
     rm $archive_file
   fi

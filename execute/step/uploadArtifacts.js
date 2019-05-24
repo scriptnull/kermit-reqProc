@@ -3,6 +3,9 @@
 var self = uploadArtifacts;
 module.exports = self;
 
+var path = require('path');
+var isFile = require('../../_common/helpers/isFile.js');
+
 var upload = require('./scripts/upload.js');
 
 function uploadArtifacts(externalBag, callback) {
@@ -26,7 +29,9 @@ function uploadArtifacts(externalBag, callback) {
       _getStepArtifactUrl.bind(null, bag),
       _getRunArtifactUrl.bind(null, bag),
       _getPipelineArtifactUrl.bind(null, bag),
-      _uploadArtifacts.bind(null, bag)
+      _uploadArtifacts.bind(null, bag),
+      _checkPipelineArtifactName.bind(null, bag),
+      _updatePipelineArtifactName.bind(null, bag)
     ],
     function (err) {
       if (bag.isGrpSuccess)
@@ -202,6 +207,45 @@ function _uploadArtifacts(bag, next) {
         return next(true);
       }
       logger.debug('Successfully uploaded artifacts');
+      return next();
+    }
+  );
+}
+
+function _checkPipelineArtifactName(bag, next) {
+  var who = bag.who + '|' + _checkPipelineArtifactName.name;
+  logger.debug(who, 'Inside');
+
+  var filePath = path.join(bag.stepWorkspacePath,
+    'pipelineArtifactName.txt');
+
+  if (isFile(filePath))
+    bag.newPipelineArtifactName = true;
+
+  return next();
+}
+
+function _updatePipelineArtifactName(bag, next) {
+  if (!bag.newPipelineArtifactName) return next();
+  var who = bag.who + '|' + _updatePipelineArtifactName.name;
+  logger.verbose(who, 'Inside');
+
+  var update = {
+    pipelineStateArtifactName: bag.pipelineArtifactName
+  };
+
+  bag.builderApiAdapter.putStepById(bag.stepData.step.id, update,
+    function (err) {
+      var msg;
+      if (err) {
+        msg = util.format('%s, Failed to update step %s ' +
+          'pipelineStateArtifactName: %s', who,
+          bag.stepData.step.id, bag.pipelineArtifactName, err);
+
+        bag.stepConsoleAdapter.publishMsg(msg);
+        return next();
+      }
+
       return next();
     }
   );
