@@ -7,6 +7,7 @@ function prepData(externalBag, callback) {
   var bag = {
     stepId: externalBag.stepId,
     pipelineId: externalBag.pipelineId,
+    runId: externalBag.runId,
     builderApiAdapter: externalBag.builderApiAdapter,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
     runResourceVersions: [],
@@ -25,7 +26,8 @@ function prepData(externalBag, callback) {
       _getProjectIntegrations.bind(null, bag),
       _getResources.bind(null, bag),
       _getPipeline.bind(null, bag),
-      _getProject.bind(null, bag)
+      _getProject.bind(null, bag),
+      _getRun.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -38,7 +40,8 @@ function prepData(externalBag, callback) {
         runStepConnections: bag.runStepConnections,
         pipeline: bag.pipeline,
         project: bag.project,
-        integrations: bag.integrations
+        integrations: bag.integrations,
+        run: bag.run
       };
 
       return callback(err, result);
@@ -53,7 +56,8 @@ function _checkInputParams(bag, next) {
   var expectedParams = [
     'stepId',
     'builderApiAdapter',
-    'stepConsoleAdapter'
+    'stepConsoleAdapter',
+    'runId'
   ];
 
   var paramErrors = [];
@@ -266,6 +270,32 @@ function _getProject(bag, next) {
       }
 
       bag.project = project;
+      return next();
+    }
+  );
+}
+
+function _getRun(bag, next) {
+  var who = bag.who + '|' + _getRun.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.openCmd('Fetching run');
+
+  bag.builderApiAdapter.getRunById(bag.runId,
+    function (err, run) {
+      if (err) {
+        var msg = util.format('%s, getRunById for id %s ' +
+          'failed with error: %s', bag.who, bag.runId, err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
+        return next(true);
+      }
+
+      bag.run = run;
+
+      bag.stepConsoleAdapter.publishMsg('Successfully fetched run');
+      bag.stepConsoleAdapter.closeCmd(true);
       return next();
     }
   );
