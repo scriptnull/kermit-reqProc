@@ -13,6 +13,7 @@ function constructStepJson(externalBag, callback) {
     integrations: externalBag.integrations,
     step: externalBag.step,
     pipeline: externalBag.pipeline,
+    run: externalBag.run,
     project: externalBag.project,
     stepDir: externalBag.stepDir,
     stepData: {},
@@ -53,7 +54,8 @@ function _checkInputParams(bag, next) {
     'runResourceVersions',
     'runStepConnections',
     'integrations',
-    'stepConsoleAdapter'
+    'stepConsoleAdapter',
+    'run'
   ];
 
   var paramErrors = [];
@@ -112,6 +114,14 @@ function _prepareStepJSON(bag, next) {
   bag.stepEnvs.push({
     key: 'PIPELINE_NAME',
     value: bag.pipeline.name
+  });
+  bag.stepEnvs.push({
+    key: 'RUN_ID',
+    value: bag.run.id
+  });
+  bag.stepEnvs.push({
+    key: 'RUN_NUMBER',
+    value: bag.run.runNumber
   });
 
   if (!_.isEmpty(bag.step.staticPropertyBag)) {

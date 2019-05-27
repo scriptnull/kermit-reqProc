@@ -144,6 +144,14 @@ ShippableAdapter.prototype.getNextSteps =
     );
   };
 
+ShippableAdapter.prototype.getRunById =
+  function (runId, callback) {
+    this.get(
+      util.format('/runs/%s', runId),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getRunArtifactUrls =
   function (runId, query, callback) {
     this.get(

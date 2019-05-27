@@ -161,6 +161,7 @@ function _prepData(bag, next) {
 
   bag.stepId = bag.step.id;
   bag.pipelineId = bag.step.pipelineId;
+  bag.runId = bag.step.runId;
 
   prepData(bag,
     function (err, resultBag) {
@@ -292,7 +293,8 @@ function _constructStepJson(bag, next) {
     pipeline: bag.pipeline,
     project: bag.project,
     stepDir: bag.stepDir,
-    stepConsoleAdapter: bag.stepConsoleAdapter
+    stepConsoleAdapter: bag.stepConsoleAdapter,
+    run: bag.run
   };
 
   constructStepJson(innerBag,
