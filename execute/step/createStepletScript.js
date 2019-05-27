@@ -246,5 +246,6 @@ function _setJobEnvs(bag, next) {
 
 function __escapeString(string) {
   if (!_.isString(string)) return string;
+  if (global.config.defaultShell === 'powershell') return string;
   return string.replace(/'/g, '\'"\'"\'');
 }

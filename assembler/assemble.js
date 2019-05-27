@@ -270,6 +270,7 @@ function __contentExistsInCurrentContextObject(context, content) {
 }
 
 function __escapeString(string) {
+  if (global.config.defaultShell === 'powershell') return string;
   string = string.replace(/\\/g, '\\\\');
   string = string.replace(/'/g, "\\'");
   return string;
