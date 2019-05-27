@@ -110,10 +110,8 @@ function _getStep(bag, next) {
       }
 
       bag.step = steps[0];
-      bag.cancelled = global.systemCodesByCode[bag.step.statusCode].name ===
-        'cancelled';
-      bag.timeout = global.systemCodesByCode[bag.step.statusCode].name ===
-        'timeout';
+      bag.cancelling = global.systemCodesByCode[bag.step.statusCode].name ===
+        'cancelling';
       bag.projectId = steps[0].projectId;
       return next();
     }
@@ -121,7 +119,7 @@ function _getStep(bag, next) {
 }
 
 function _getSteplets(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _getSteplets.name;
   logger.verbose(who, 'Inside');
@@ -156,7 +154,7 @@ function _getSteplets(bag, next) {
 
 
 function _prepData(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _prepData.name;
   logger.verbose(who, 'Inside');
@@ -178,7 +176,7 @@ function _prepData(bag, next) {
 }
 
 function _setupDirectories(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _setupDirectories.name;
   logger.verbose(who, 'Inside');
@@ -235,7 +233,7 @@ function _setupDirectories(bag, next) {
 }
 
 function _pollStepStatus(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _pollStepStatus.name;
   logger.verbose(who, 'Inside');
@@ -250,7 +248,7 @@ function _pollStepStatus(bag, next) {
 }
 
 function _setExecutorAsReqProc(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _setExecutorAsReqProc.name;
   logger.verbose(who, 'Inside');
@@ -281,7 +279,7 @@ function _setExecutorAsReqProc(bag, next) {
 }
 
 function _constructStepJson(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _constructStepJson.name;
   logger.verbose(who, 'Inside');
@@ -313,7 +311,7 @@ function _constructStepJson(bag, next) {
 }
 
 function _decryptSecureEnvs(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   if (!bag.stepData.step || !bag.stepData.step.setup ||
     !bag.stepData.step.setup.environmentVariables)
@@ -345,7 +343,7 @@ function _decryptSecureEnvs(bag, next) {
 
 
 function _addStepJson(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _addStepJson.name;
   logger.verbose(who, 'Inside');
@@ -399,7 +397,7 @@ function _downloadArtifacts(bag, next) {
 }
 
 function _createDependencyScripts(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
   if (bag.stepData && _.isEmpty(bag.stepData.resources)) return next();
 
   var who = bag.who + '|' + _createDependencyScripts.name;
@@ -425,7 +423,7 @@ function _createDependencyScripts(bag, next) {
 }
 
 function _createStepletScript(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _createStepletScript.name;
   logger.verbose(who, 'Inside');
@@ -465,13 +463,13 @@ function _createStepletScript(bag, next) {
 }
 
 function _updateStepToProcessing(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _updateStepToProcessing.name;
   logger.verbose(who, 'Inside');
 
   bag.stepConsoleAdapter.openCmd('Updating step status to processing');
-  var statusCode = global.systemCodesByName['processing'].code;
+  var statusCode = global.systemCodesByName.processing.code;
 
   var timeoutAt = new Date();
   timeoutAt.setSeconds(timeoutAt.getSeconds() +
@@ -515,7 +513,7 @@ if (_.isEmpty(bag.step)) return next();
 }
 
 function _handOffAndPoll(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _handOffAndPoll.name;
   logger.verbose(who, 'Inside');
@@ -535,7 +533,7 @@ function _handOffAndPoll(bag, next) {
 }
 
 function _readStepStatus(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled) return next();
+  if (bag.error || bag.cancelling) return next();
 
   var who = bag.who + '|' + _readStepStatus.name;
   logger.verbose(who, 'Inside');
@@ -564,10 +562,10 @@ function _readStepStatus(bag, next) {
       var statusName = resultBag.statusName;
       if (statusName === 'error')
         bag.error = true;
-      else if (statusName === 'timeout')
-        bag.timeout = true;
-      else if (statusName === 'cancelled')
-        bag.cancelled = true;
+      else if (statusName === 'timingOut')
+        bag.timingOut = true;
+      else if (statusName === 'cancelling')
+        bag.cancelling = true;
       else if (statusName === 'failure')
         bag.failure = true;
       return next();
@@ -635,7 +633,8 @@ function _uploadArtifacts(bag, next) {
 }
 
 function _postVersion(bag, next) {
-  if (bag.error || bag.timeout || bag.cancelled || bag.failure) return next();
+  if (bag.error || bag.timingOut || bag.cancelling || bag.failure)
+    return next();
 
   var who = bag.who + '|' + _postVersion.name;
   logger.verbose(who, 'Inside');
@@ -658,17 +657,21 @@ function _postVersion(bag, next) {
 }
 
 function _updateStepStatus(bag, next) {
-  if (bag.cancelled || bag.timeout || _.isEmpty(bag.step)) return next();
+  if (_.isEmpty(bag.step)) return next();
 
   var who = bag.who + '|' + _updateStepStatus.name;
   logger.verbose(who, 'Inside');
 
   bag.stepConsoleAdapter.openCmd('Updating step status');
-  var statusCode = global.systemCodesByName['success'].code;
+  var statusCode = global.systemCodesByName.success.code;
   if (bag.error)
-    statusCode = global.systemCodesByName['error'].code;
+    statusCode = global.systemCodesByName.error.code;
   else if (bag.failure)
-    statusCode = global.systemCodesByName['failure'].code;
+    statusCode = global.systemCodesByName.failure.code;
+  else if (bag.timingOut)
+    statusCode = global.systemCodesByName.timeout.code;
+  else if (bag.cancelling)
+    statusCode = global.systemCodesByName.cancelled.code;
 
   var update = {
     statusCode: statusCode,

@@ -83,8 +83,8 @@ function _getStepStatus(bag, next) {
           util.format('Successfully obtained latest step status: %s',
           global.systemCodesByCode[step.statusCode].name));
         bag.stepConsoleAdapter.closeCmd(true);
-        bag.cancelled = step.statusCode ===
-          global.systemCodesByName['cancelled'].code;
+        bag.cancelling = step.statusCode ===
+          global.systemCodesByName.cancelling.code;
         bag.statusName = global.systemCodesByCode[step.statusCode].name;
       }
 
@@ -94,7 +94,7 @@ function _getStepStatus(bag, next) {
 }
 
 function _readStepStatus(bag, next) {
-  if (bag.cancelled) return next();
+  if (bag.cancelling) return next();
 
   var who = bag.who + '|' + _readStepStatus.name;
   logger.verbose(who, 'Inside');

@@ -68,7 +68,7 @@ StepStatusPoller.prototype._setStepStatusPoller = function () {
           _.each(steps,
             function (step) {
               var statusName = global.systemCodesByCode[step.statusCode].name;
-              if (statusName === 'cancelled' || statusName === 'timeout') {
+              if (statusName === 'cancelling' || statusName === 'timingOut') {
                 try {
                   fs.writeFileSync(that.statusPath,
                     util.format('%s\n', statusName));

@@ -15,7 +15,9 @@
   * 4003 -- FAILED      |
   * 4010 -- STOPPED     |
   * 4011 -- DELETED     |
-  * 4012 -- CACHED  ----+
+  * 4012 -- CACHED      |
+  * 4013 -- CANCELLING  |
+  * 4014 -- TIMINGOUT --+
   **/
 
 // Incomplete states:
@@ -33,12 +35,13 @@ exports.FAILED     = 4003;
 exports.STOPPED    = 4010;
 exports.DELETED    = 4011;
 exports.CACHED     = 4012;
+exports.CANCELLING = 4013;
+exports.TIMINGOUT  = 4014;
 
 exports.names = [
-  'WAITING', 'QUEUED', 'PROCESSING',
-  'SUCCESS', 'SKIPPED', 'UNSTABLE',
-  'TIMEOUT', 'CANCELED', 'FAILED',
-  'STOPPED', 'DELETED', 'CACHED'
+  'WAITING', 'QUEUED', 'PROCESSING', 'SUCCESS', 'SKIPPED', 'UNSTABLE',
+  'TIMEOUT', 'CANCELED', 'FAILED', 'STOPPED', 'DELETED', 'CACHED', 'CANCELLING',
+  'TIMINGOUT'
 ];
 
 // Lookup status code name from code.
@@ -59,7 +62,8 @@ exports.idle = createSubset('WAITING', 'QUEUED');
 exports.processing = createSubset('PROCESSING');
 
 // Subset of incomplete status codes.
-exports.incomplete = createSubset('WAITING', 'QUEUED', 'PROCESSING');
+exports.incomplete = createSubset('WAITING', 'QUEUED', 'PROCESSING',
+  'CANCELLING', 'TIMINGOUT');
 
 exports.started = createSubset('QUEUED', 'PROCESSING');
 
