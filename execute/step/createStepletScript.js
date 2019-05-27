@@ -127,9 +127,15 @@ function _setScriptEnvs(bag, next) {
 
   _.each(bag.stepEnvs,
     function(stepEnvObj, index) {
-      bag.stepEnvs[index].value = util.format('\'%s\'',
-        __escapeString(bag.stepEnvs[index].value)
-      );
+      if (global.config.defaultShell === 'powershell') {
+        bag.stepEnvs[index].value = util.format('%s',
+          __escapeString(bag.stepEnvs[index].value)
+        );
+      } else {
+        bag.stepEnvs[index].value = util.format('\'%s\'',
+          __escapeString(bag.stepEnvs[index].value)
+        );
+      }
     }
   );
   return next();
