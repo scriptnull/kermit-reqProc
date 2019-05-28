@@ -256,8 +256,12 @@ function __createIntegrationObject(integration) {
     name: integration.name,
     masterName: integration.masterIntegrationName
   };
-  integrationObject.formJSONValues =
-    getValuesFromIntegrationJson(integration.formJSONValues);
+
+  var formJSONValues = getValuesFromIntegrationJson(integration.formJSONValues);
+  if (integration.masterIntegrationName === 'generic')
+    integrationObject.formJSONValues = formJSONValues.envs || {};
+  else
+    integrationObject.formJSONValues = formJSONValues;
 
   return integrationObject;
 }
