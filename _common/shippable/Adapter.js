@@ -275,15 +275,6 @@ ShippableAdapter.prototype.postResourceVersion =
 
 //#######################  POST  by alphabetical order  ########################
 
-ShippableAdapter.prototype.decryptByProjectId =
-  function (projectId, json, callback) {
-    this.post(
-      util.format('/projects/%s/decrypt', projectId),
-      json,
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.postSystemNodeStats =
   function (json, callback) {
     this.post(
