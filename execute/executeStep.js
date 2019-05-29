@@ -9,7 +9,6 @@ var path = require('path');
 var prepData = require('./step/prepData.js');
 var setupDirectories = require('./step/setupDirectories.js');
 var constructStepJson = require('./step/constructStepJson.js');
-var decryptSecureEnvs = require('./step/decryptSecureEnvs.js');
 var createDependencyScripts = require('./step/createDependencyScripts.js');
 var createStepletScript = require('./step/createStepletScript.js');
 var handOffAndPoll = require('./step/handOffAndPoll.js');
@@ -43,7 +42,6 @@ function executeStep(externalBag, callback) {
       _pollStepStatus.bind(null, bag),
       _setExecutorAsReqProc.bind(null, bag),
       _constructStepJson.bind(null, bag),
-      _decryptSecureEnvs.bind(null, bag),
       _addStepJson.bind(null, bag),
       _downloadArtifacts.bind(null, bag),
       _createDependencyScripts.bind(null, bag),
@@ -311,38 +309,6 @@ function _constructStepJson(bag, next) {
     }
   );
 }
-
-function _decryptSecureEnvs(bag, next) {
-  if (bag.error || bag.cancelling) return next();
-
-  if (!bag.stepData.step || !bag.stepData.step.setup ||
-    !bag.stepData.step.setup.environmentVariables)
-    return next();
-
-  var who = bag.who + '|' + _decryptSecureEnvs.name;
-  logger.verbose(who, 'Inside');
-
-  var innerBag = {
-    stepData: bag.stepData,
-    projectId: bag.projectId,
-    stepConsoleAdapter: bag.stepConsoleAdapter,
-    builderApiAdapter: bag.builderApiAdapter
-  };
-
-  decryptSecureEnvs(innerBag,
-    function (err, resultBag) {
-      if (err) {
-        bag.error = true;
-        bag.isSetupGrpSuccess = false;
-      } else {
-        bag.stepData = resultBag.stepData;
-      }
-
-      return next();
-    }
-  );
-}
-
 
 function _addStepJson(bag, next) {
   if (bag.error || bag.cancelling) return next();
