@@ -95,33 +95,40 @@ function _prepareStepJSON(bag, next) {
 
   bag.stepEnvs.push({
     key: 'STEP_ID',
-    value: bag.step.id
+    value: bag.step.id,
+    isReadOnly: true
   });
   bag.stepEnvs.push({
     key: 'STEP_NAME',
-    value: bag.step.name
+    value: bag.step.name,
+    isReadOnly: true
   });
   bag.stepEnvs.push({
     key: 'STEP_TYPE',
-    value: global.systemCodesByCode[bag.step.typeCode].name
+    value: global.systemCodesByCode[bag.step.typeCode].name,
+    isReadOnly: true
   });
   bag.stepEnvs.push({
     key: 'STEP_URL',
     value: util.format('%s/%s/pipelines/%s/runs/%s/%s',
       global.config.wwwUrl, bag.project.name, bag.pipeline.name,
-      bag.step.runId, bag.step.id)
+      bag.step.runId, bag.step.id),
+    isReadOnly: true
   });
   bag.stepEnvs.push({
     key: 'PIPELINE_NAME',
-    value: bag.pipeline.name
+    value: bag.pipeline.name,
+    isReadOnly: true
   });
   bag.stepEnvs.push({
     key: 'RUN_ID',
-    value: bag.run.id
+    value: bag.run.id,
+    isReadOnly: true
   });
   bag.stepEnvs.push({
     key: 'RUN_NUMBER',
-    value: bag.run.runNumber
+    value: bag.run.runNumber,
+    isReadOnly: true
   });
 
   if (!_.isEmpty(bag.step.staticPropertyBag)) {

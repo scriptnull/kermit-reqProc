@@ -120,7 +120,8 @@ function _setScriptEnvs(bag, next) {
     }, function (value, key) {
       bag.stepEnvs.push({
         'key': key,
-        'value': value
+        'value': value,
+        'isReadOnly': true
       });
     }
   );
