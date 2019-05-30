@@ -163,7 +163,8 @@ function _assembleScript(bag, next) {
     execTemplatesRootDir: bag.execTemplatesRootDir,
     json: bag.stepData.step,
     objectType: 'steps',
-    objectSubType: bag.stepData.step.type
+    objectSubType: bag.stepData.step.type,
+    stepConsoleAdapter: bag.stepConsoleAdapter
   };
 
   assemble(innerBag,

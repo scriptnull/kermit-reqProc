@@ -27,7 +27,8 @@ function assemble(externalBag, callback) {
     objectSubType: externalBag.objectSubType,
     json: externalBag.json,
     execTemplatesRootDir: externalBag.execTemplatesRootDir,
-    script: ''
+    script: '',
+    stepConsoleAdapter: externalBag.stepConsoleAdapter
   };
 
   bag.who = util.format('%s|assembler|%s', msName, self.name);
@@ -152,6 +153,13 @@ function _assembleScript(bag, next) {
   if (!isDirectory(rootDirectoryPath))
     return next(util.format('Root directory: %s is incorrect',
       rootDirectoryPath));
+
+  bag.stepConsoleAdapter.publishMsg('bag.objectSubType = ' +
+    bag.objectSubType);
+  bag.stepConsoleAdapter.publishMsg('rootDirectoryPath = ' +
+    rootDirectoryPath);
+  bag.stepConsoleAdapter.publishMsg('bag.json = ' +
+    bag.json);
 
   __addTemplate(bag.objectSubType, rootDirectoryPath, bag.json, bag);
   return next();
