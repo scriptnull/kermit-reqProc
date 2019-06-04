@@ -21,6 +21,8 @@ var postVersion = require('./step/postVersion.js');
 function executeStep(externalBag, callback) {
   var bag = {
     stepId: externalBag.stepId,
+    clusterNodeId: externalBag.clusterNodeId,
+    clusterNodeName: externalBag.clusterNodeName,
     builderApiAdapter: externalBag.builderApiAdapter,
     baseDir: externalBag.baseDir,
     stepConsoleAdapter: externalBag.stepConsoleAdapter,
@@ -108,6 +110,8 @@ function _getStep(bag, next) {
       }
 
       bag.step = steps[0];
+      bag.step.clusterNodeId = bag.clusterNodeId;
+      bag.step.clusterNodeName = bag.clusterNodeName;
       bag.cancelling = global.systemCodesByCode[bag.step.statusCode].name ===
         'cancelling';
       bag.projectId = steps[0].projectId;
