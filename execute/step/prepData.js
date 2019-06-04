@@ -5,6 +5,7 @@ module.exports = self;
 
 function prepData(externalBag, callback) {
   var bag = {
+    step: externalBag.step,
     stepId: externalBag.stepId,
     pipelineId: externalBag.pipelineId,
     runId: externalBag.runId,
@@ -21,6 +22,8 @@ function prepData(externalBag, callback) {
 
   async.series([
       _checkInputParams.bind(null, bag),
+      _getTriggeredByStep.bind(null, bag),
+      _getTriggeredByIdentity.bind(null, bag),
       _getRunResourceVersions.bind(null, bag),
       _getRunStepConnections.bind(null, bag),
       _getProjectIntegrations.bind(null, bag),
@@ -41,7 +44,8 @@ function prepData(externalBag, callback) {
         pipeline: bag.pipeline,
         project: bag.project,
         integrations: bag.integrations,
-        run: bag.run
+        run: bag.run,
+        step: bag.step
       };
 
       return callback(err, result);
@@ -54,6 +58,7 @@ function _checkInputParams(bag, next) {
   logger.verbose(who, 'Inside');
 
   var expectedParams = [
+    'step',
     'stepId',
     'builderApiAdapter',
     'stepConsoleAdapter',
@@ -76,6 +81,72 @@ function _checkInputParams(bag, next) {
   return next(hasErrors);
 }
 
+function _getTriggeredByStep(bag, next) {
+  if (!bag.step.triggeredByStepId) return next();
+  var who = bag.who + '|' + _getTriggeredByStep.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.openCmd('Fetching triggered by step');
+
+  bag.builderApiAdapter.getStepById(bag.step.triggeredByStepId,
+    function (err, step) {
+      if (err) {
+        var msg = util.format('%s, getStepById for id %s ' +
+          'failed with error: %s', bag.who, bag.step.triggeredByStepId, err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
+        return next(err);
+      } else {
+        bag.step.triggeredByStepName = step.name;
+        bag.stepConsoleAdapter.publishMsg(
+          'Successfully fetched step with stepId: ' +
+          bag.step.triggeredByStepId);
+        bag.stepConsoleAdapter.closeCmd(true);
+      }
+      return next();
+    }
+  );
+}
+
+function _getTriggeredByIdentity(bag, next) {
+  if (!bag.step.triggeredByIdentityId) return next();
+  var who = bag.who + '|' + _getTriggeredByIdentity.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.openCmd('Fetching triggered by identity');
+
+  var query = util.format('identityIds=%s', bag.step.triggeredByIdentityId);
+  bag.builderApiAdapter.getIdentities(query,
+    function (err, identities) {
+      if (err) {
+        var msg = util.format('%s, getIdentityById for id %s ' +
+          'failed with error: %s', bag.who, bag.step.triggeredByIdentityId,
+          err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
+        return next(err);
+      } else if (_.isEmpty(identities)) {
+        var msg = util.format('%s, No identity found for id %s ',
+          bag.who, bag.step.triggeredByIdentityId);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
+        return next(true);
+      } else {
+        var triggeredByIdentity = _.first(identities) || {};
+        bag.step.triggeredByIdentityName = triggeredByIdentity.name;
+        bag.stepConsoleAdapter.publishMsg(
+          'Successfully fetched identity with identityId: ' +
+          bag.step.triggeredByIdentityId);
+        bag.stepConsoleAdapter.closeCmd(true);
+      }
+      return next();
+    }
+  );
+}
+
 function _getRunResourceVersions(bag, next) {
   var who = bag.who + '|' + _getRunResourceVersions.name;
   logger.verbose(who, 'Inside');
@@ -94,6 +165,20 @@ function _getRunResourceVersions(bag, next) {
         return next(err);
       } else {
         bag.runResourceVersions = runResVersions;
+        if (bag.step.triggeredByResourceVersionId) {
+          var runResVersion = _.findWhere(bag.runResourceVersions,
+            {resourceVersionId: bag.step.triggeredByResourceVersionId});
+          if (!runResVersion) {
+            var msg = util.format('%s, No resource found for ' +
+              'resourceVersionId %s ', bag.who,
+              bag.step.triggeredByResourceVersionId);
+            logger.warn(msg);
+            bag.stepConsoleAdapter.publishMsg(msg);
+            bag.stepConsoleAdapter.closeCmd(false);
+            return next(true);
+          }
+          bag.step.triggeredByResourceName = runResVersion.resourceName;
+        }
         bag.stepConsoleAdapter.publishMsg(
           'Successfully fetched run resource versions with stepId: ' +
           bag.stepId);

@@ -61,6 +61,15 @@ ShippableAdapter.prototype.postClusterNodeStats =
     );
   };
 
+//identities
+ShippableAdapter.prototype.getIdentities =
+  function (query, callback) {
+    this.get(
+      util.format('/identities?%s', query),
+      callback
+    );
+  };
+
 // integrations
 
 ShippableAdapter.prototype.getProjectIntegrations =

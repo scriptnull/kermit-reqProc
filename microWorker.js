@@ -82,12 +82,14 @@ function _updateClusterNodeStatus(bag, next) {
   };
 
   bag.builderApiAdapter.putClusterNodeById(global.config.nodeId, update,
-    function (err) {
+    function (err, clusterNode) {
       if (err) {
         logger.warn(util.format('%s, putClusterNodeById for nodeId %s failed ' +
           'with error: %s', bag.who, global.config.nodeId, err));
         return next(true);
       }
+      bag.clusterNodeId = clusterNode.id;
+      bag.clusterNodeName = clusterNode.friendlyName;
       return next();
     }
   );
@@ -123,6 +125,8 @@ function _executeGroupSteps(bag, next) {
     builderApiToken: bag.builderApiToken,
     runId: bag.runId,
     affinityGroup: bag.affinityGroup,
+    clusterNodeId: bag.clusterNodeId,
+    clusterNodeName: bag.clusterNodeName,
     baseDir: bag.baseDir,
     groupComplete: false,
     execTemplatesRootDir: bag.execTemplatesRootDir,
@@ -247,6 +251,8 @@ function _executeStep(bag, next) {
   var innerBag = {
     who: bag.who,
     stepId: bag.stepId,
+    clusterNodeId: bag.clusterNodeId,
+    clusterNodeName: bag.clusterNodeName,
     builderApiAdapter: bag.builderApiAdapter,
     stepConsoleAdapter: stepConsoleAdapter,
     baseDir: bag.baseDir,
