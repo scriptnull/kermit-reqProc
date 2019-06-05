@@ -109,7 +109,7 @@ function _prepareStepJSON(bag, next) {
     isReadOnly: true
   });
   bag.stepEnvs.push({
-    key: 'STEP_URL',
+    key: 'step_url',
     value: util.format('%s/%s/pipelines/%s/runs/%s/%s',
       global.config.wwwUrl, bag.project.name, bag.pipeline.name,
       bag.step.runId, bag.step.id),
