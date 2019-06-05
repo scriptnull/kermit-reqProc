@@ -186,7 +186,7 @@ function _prepareStepJSON(bag, next) {
     isReadOnly: true
   });
   bag.stepEnvs.push({
-    key: 'PIPELINE_NAME',
+    key: 'pipeline_name',
     value: bag.pipeline.name,
     isReadOnly: true
   });
@@ -219,7 +219,7 @@ function _prepareStepJSON(bag, next) {
     bag.stepData.step.execution = bag.step.execPropertyBag;
 
   if (!_.isEmpty(bag.step.configPropertyBag))
-    bag.stepData.step.configuration = bag.step.configPropertyBag;    
+    bag.stepData.step.configuration = bag.step.configPropertyBag;
 
   var integrationsByName = _.indexBy(bag.integrations, 'name');
   var runResourceVersionsByResourceName = _.indexBy(
