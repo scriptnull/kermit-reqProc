@@ -94,7 +94,7 @@ function _prepareStepJSON(bag, next) {
   };
 
   bag.stepEnvs.push({
-    key: 'STEP_ID',
+    key: 'step_id',
     value: bag.step.id,
     isReadOnly: true
   });
