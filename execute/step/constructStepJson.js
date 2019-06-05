@@ -115,6 +115,76 @@ function _prepareStepJSON(bag, next) {
       bag.step.runId, bag.step.id),
     isReadOnly: true
   });
+  var stepRuntime = '';
+  var stepImageName =  '';
+  var stepImageTag = '';
+  if (bag.step.setupPropertyBag && bag.step.setupPropertyBag.runtime) {
+    stepRuntime = bag.step.setupPropertyBag.runtime.type;
+    if (stepRuntime === 'image' && bag.step.setupPropertyBag.runtime.image) {
+      stepImageName = bag.step.setupPropertyBag.runtime.image.imageName;
+      stepImageTag = bag.step.setupPropertyBag.runtime.image.imageTag;
+    }
+  }
+  bag.stepEnvs.push({
+    key: 'step_runtime',
+    value: stepRuntime,
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_image_name',
+    value: stepImageName,
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_image_tag',
+    value: stepImageTag,
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_affinity_group',
+    value: bag.step.affinityGroup,
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_node_pool_name',
+    value: bag.step.configPropertyBag && bag.step.configPropertyBag.nodePool,
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_node_id',
+    value: bag.step.clusterNodeId,
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_node_name',
+    value: bag.step.clusterNodeName,
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_triggered_by_identity_name',
+    value: bag.step.triggeredByIdentityName || '',
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_triggered_by_step_name',
+    value: bag.step.triggeredByStepName || '',
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_triggered_by_resource_name',
+    value: bag.step.triggeredByResourceName || '',
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_runtime_version',
+    value: global.config.shippableRuntimeVersion,
+    isReadOnly: true
+  });
+  bag.stepEnvs.push({
+    key: 'step_platform',
+    value: global.config.shippableNodeOperatingSystem,
+    isReadOnly: true
+  });
   bag.stepEnvs.push({
     key: 'PIPELINE_NAME',
     value: bag.pipeline.name,
