@@ -111,7 +111,7 @@ function _setScriptEnvs(bag, next) {
       'pipeline_workspace_dir': bag.pipelineWorkspacePath,
       'step_tmp_dir': path.join(bag.stepWorkspacePath, 'tmp'),
       'operating_system': global.config.shippableNodeOperatingSystem,
-      'ARCHITECTURE': global.config.shippableNodeArchitecture,
+      'architecture': global.config.shippableNodeArchitecture,
       'REQEXEC_DIR': global.config.reqExecDir,
       'SHIPPABLE_API_URL': global.config.apiUrl,
       'BUILDER_API_TOKEN': bag.builderApiToken,
