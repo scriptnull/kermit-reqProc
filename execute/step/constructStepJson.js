@@ -104,7 +104,7 @@ function _prepareStepJSON(bag, next) {
     isReadOnly: true
   });
   bag.stepEnvs.push({
-    key: 'STEP_TYPE',
+    key: 'step_type',
     value: global.systemCodesByCode[bag.step.typeCode].name,
     isReadOnly: true
   });
@@ -191,7 +191,7 @@ function _prepareStepJSON(bag, next) {
     isReadOnly: true
   });
   bag.stepEnvs.push({
-    key: 'RUN_ID',
+    key: 'run_id',
     value: bag.run.id,
     isReadOnly: true
   });
