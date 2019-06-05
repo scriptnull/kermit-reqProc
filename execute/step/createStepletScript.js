@@ -107,7 +107,7 @@ function _setScriptEnvs(bag, next) {
       'run_dir': bag.runDir,
       'step_dependency_state_dir': bag.dependencyStateDir,
       'step_output_dir': bag.outputDir,
-      'STEP_WORKSPACE_DIR': bag.stepWorkspacePath,
+      'step_workspace_dir': bag.stepWorkspacePath,
       'PIPELINE_WORKSPACE_DIR': bag.pipelineWorkspacePath,
       'STEP_TMP_DIR': path.join(bag.stepWorkspacePath, 'tmp'),
       'OPERATING_SYSTEM': global.config.shippableNodeOperatingSystem,
