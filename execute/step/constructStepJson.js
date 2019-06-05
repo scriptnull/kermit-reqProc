@@ -196,7 +196,7 @@ function _prepareStepJSON(bag, next) {
     isReadOnly: true
   });
   bag.stepEnvs.push({
-    key: 'RUN_NUMBER',
+    key: 'run_number',
     value: bag.run.runNumber,
     isReadOnly: true
   });
