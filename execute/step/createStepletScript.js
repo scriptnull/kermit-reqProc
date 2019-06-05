@@ -116,7 +116,7 @@ function _setScriptEnvs(bag, next) {
       'shippable_api_url': global.config.apiUrl,
       'builder_api_token': bag.builderApiToken,
       'no_verify_ssl': !_.isUndefined(process.env.NODE_TLS_REJECT_UNAUTHORIZED),
-      'STEP_DOCKER_CONTAINER_NAME': bag.stepDockerContainerName
+      'step_docker_container_name': bag.stepDockerContainerName
     }, function (value, key) {
       bag.stepEnvs.push({
         'key': key,
