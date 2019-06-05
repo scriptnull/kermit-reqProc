@@ -112,7 +112,7 @@ function _setScriptEnvs(bag, next) {
       'step_tmp_dir': path.join(bag.stepWorkspacePath, 'tmp'),
       'operating_system': global.config.shippableNodeOperatingSystem,
       'architecture': global.config.shippableNodeArchitecture,
-      'REQEXEC_DIR': global.config.reqExecDir,
+      'reqexec_dir': global.config.reqExecDir,
       'SHIPPABLE_API_URL': global.config.apiUrl,
       'BUILDER_API_TOKEN': bag.builderApiToken,
       'NO_VERIFY_SSL': !_.isUndefined(process.env.NODE_TLS_REJECT_UNAUTHORIZED),
