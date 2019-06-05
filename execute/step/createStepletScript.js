@@ -111,12 +111,12 @@ function _setScriptEnvs(bag, next) {
       'pipeline_workspace_dir': bag.pipelineWorkspacePath,
       'step_tmp_dir': path.join(bag.stepWorkspacePath, 'tmp'),
       'operating_system': global.config.shippableNodeOperatingSystem,
-      'ARCHITECTURE': global.config.shippableNodeArchitecture,
-      'REQEXEC_DIR': global.config.reqExecDir,
-      'SHIPPABLE_API_URL': global.config.apiUrl,
-      'BUILDER_API_TOKEN': bag.builderApiToken,
-      'NO_VERIFY_SSL': !_.isUndefined(process.env.NODE_TLS_REJECT_UNAUTHORIZED),
-      'STEP_DOCKER_CONTAINER_NAME': bag.stepDockerContainerName
+      'architecture': global.config.shippableNodeArchitecture,
+      'reqexec_dir': global.config.reqExecDir,
+      'shippable_api_url': global.config.apiUrl,
+      'builder_api_token': bag.builderApiToken,
+      'no_verify_ssl': !_.isUndefined(process.env.NODE_TLS_REJECT_UNAUTHORIZED),
+      'step_docker_container_name': bag.stepDockerContainerName
     }, function (value, key) {
       bag.stepEnvs.push({
         'key': key,
