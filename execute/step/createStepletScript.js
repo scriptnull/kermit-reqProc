@@ -113,8 +113,8 @@ function _setScriptEnvs(bag, next) {
       'operating_system': global.config.shippableNodeOperatingSystem,
       'architecture': global.config.shippableNodeArchitecture,
       'reqexec_dir': global.config.reqExecDir,
-      'SHIPPABLE_API_URL': global.config.apiUrl,
-      'BUILDER_API_TOKEN': bag.builderApiToken,
+      'shippable_api_url': global.config.apiUrl,
+      'builder_api_token': bag.builderApiToken,
       'NO_VERIFY_SSL': !_.isUndefined(process.env.NODE_TLS_REJECT_UNAUTHORIZED),
       'STEP_DOCKER_CONTAINER_NAME': bag.stepDockerContainerName
     }, function (value, key) {
