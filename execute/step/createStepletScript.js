@@ -101,7 +101,7 @@ function _setScriptEnvs(bag, next) {
   _.each({
       'STATUS_DIR': bag.statusDir,
       'STEPLET_ID': bag.stepletId,
-      'STEP_JSON_PATH': bag.stepJsonPath,
+      'step_json_path': bag.stepJsonPath,
       'STEPLET_SCRIPT_PATH': bag.stepletScriptPath,
       'REQEXEC_BIN_PATH': global.config.baseDir + global.config.reqExecCommand,
       'RUN_DIR': bag.runDir,
