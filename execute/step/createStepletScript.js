@@ -109,7 +109,7 @@ function _setScriptEnvs(bag, next) {
       'step_output_dir': bag.outputDir,
       'step_workspace_dir': bag.stepWorkspacePath,
       'pipeline_workspace_dir': bag.pipelineWorkspacePath,
-      'STEP_TMP_DIR': path.join(bag.stepWorkspacePath, 'tmp'),
+      'step_tmp_dir': path.join(bag.stepWorkspacePath, 'tmp'),
       'OPERATING_SYSTEM': global.config.shippableNodeOperatingSystem,
       'ARCHITECTURE': global.config.shippableNodeArchitecture,
       'REQEXEC_DIR': global.config.reqExecDir,
