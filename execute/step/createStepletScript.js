@@ -103,7 +103,7 @@ function _setScriptEnvs(bag, next) {
       'steplet_id': bag.stepletId,
       'step_json_path': bag.stepJsonPath,
       'steplet_script_path': bag.stepletScriptPath,
-      'REQEXEC_BIN_PATH': global.config.baseDir + global.config.reqExecCommand,
+      'reqexec_bin_path': global.config.baseDir + global.config.reqExecCommand,
       'run_dir': bag.runDir,
       'step_dependency_state_dir': bag.dependencyStateDir,
       'step_output_dir': bag.outputDir,
