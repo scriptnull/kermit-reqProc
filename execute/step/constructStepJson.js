@@ -99,7 +99,7 @@ function _prepareStepJSON(bag, next) {
     isReadOnly: true
   });
   bag.stepEnvs.push({
-    key: 'STEP_NAME',
+    key: 'step_name',
     value: bag.step.name,
     isReadOnly: true
   });
