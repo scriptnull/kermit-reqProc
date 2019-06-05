@@ -99,7 +99,7 @@ function _setScriptEnvs(bag, next) {
   bag.stepEnvs = bag.stepEnvs || [];
 
   _.each({
-      'STATUS_DIR': bag.statusDir,
+      'status_dir': bag.statusDir,
       'STEPLET_ID': bag.stepletId,
       'step_json_path': bag.stepJsonPath,
       'steplet_script_path': bag.stepletScriptPath,
