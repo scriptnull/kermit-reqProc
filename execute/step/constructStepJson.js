@@ -302,8 +302,11 @@ function _prepareStepJSON(bag, next) {
         bag.stepEnvs = bag.stepEnvs.concat(
           __convertObjToEnvs(resource.resourceStaticPropertyBag, resPrefix)
         );
+        var alias = resource.resourceConfigPropertyBag.integrationAlias;
+        if (!alias)
+          alias = 'int';
         bag.stepEnvs = bag.stepEnvs.concat(
-          __convertObjToEnvs(resource.integration, resPrefix + 'int_')
+          __convertObjToEnvs(resource.integration, resPrefix + alias + '_')
         );
       }
 
