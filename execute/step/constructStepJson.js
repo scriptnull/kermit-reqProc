@@ -353,20 +353,53 @@ function __convertObjToEnvs(obj, envPrefix) {
   var envs = [];
   _.each(obj,
     function (val, key) {
-      if (_.isObject(val))
+      if (_.isArray(val)) {
+        var arrayEnvPrefix = envPrefix + key + '_';
+        envs.push({
+          key: arrayEnvPrefix + 'len',
+          value: val.length
+        });
+        _.each(val,
+          function (arrayItem, index) {
+            if (_.isObject(arrayItem)) {
+              _.each(arrayItem,
+                function (arrItemObjVal, arrItemValKey) {
+                  if (_.isObject(arrItemObjVal)) {
+                    envs.push({
+                      key: arrayEnvPrefix + index + '_' + arrItemValKey,
+                      value: JSON.stringify(arrItemObjVal)
+                    });
+                  } else {
+                    envs.push({
+                      key: arrayEnvPrefix + index + '_' + arrItemValKey,
+                      value: arrItemObjVal
+                    });
+                  }
+                }
+              );
+            } else {
+              envs.push({
+                key: arrayEnvPrefix + index,
+                value: arrayItem
+              });
+            }
+          }
+        );
+      } else if (_.isObject(val)) {
         envs.push(
           {
             key: envPrefix + key,
             value: JSON.stringify(val)
           }
         );
-      else
+      } else {
         envs.push(
           {
             key: envPrefix + key,
             value: val
           }
         );
+      }
     }
   );
 
