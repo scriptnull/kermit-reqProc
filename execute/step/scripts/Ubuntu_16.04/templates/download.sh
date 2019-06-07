@@ -80,8 +80,6 @@ download_run_state() {
       --head '$RUN_ARTIFACT_HEAD_URL'"
   fi
 
-  echo "Executing: $check_artifact_cmd"
-
   local check_artifact=$(eval $check_artifact_cmd)
 
   if [ $check_artifact -eq 200 ]; then
