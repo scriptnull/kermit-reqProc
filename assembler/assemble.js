@@ -18,7 +18,7 @@ var assemblyOrder = ['onSuccess', 'onFailure', 'onComplete', 'output',
   'environmentVariables', 'image', 'auto', 'dependsOn', 'onStart', 'onExecute'];
 var singleQuoteEscapeSections = ['onSuccess', 'onFailure', 'onComplete',
   'onStart', 'onExecute'];
-var nonNativeStepTypes = ['bash', 'powershell'];
+var nonNativeStepTypes = ['Bash', 'powershell'];
 
 function assemble(externalBag, callback) {
   var bag = {
@@ -127,10 +127,10 @@ function _combineNativeScriptFragment(bag, next) {
     }
   );
 
-  // And now we transform this into a bash step with a script fragment
+  // And now we transform this into a Bash step with a script fragment
   // for the onExecute section. This allows the next assemble/combine
-  // functions to create a fully baked bash step for execution.
-  bag.objectSubType = 'bash';
+  // functions to create a fully baked Bash step for execution.
+  bag.objectSubType = 'Bash';
   bag.json.execution.onExecute = {
     isScriptFragment: true,
     scriptFragment: fragment
