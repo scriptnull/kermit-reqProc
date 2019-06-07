@@ -56,6 +56,7 @@ function executeStep(externalBag, callback) {
       _postReports.bind(null, bag),
       _uploadArtifacts.bind(null, bag),
       _postVersion.bind(null, bag),
+      _getStepStatus.bind(null, bag),
       _updateStepStatus.bind(null, bag),
       _closeCleanupGroup.bind(null, bag),
       _postPendingStepConsoles.bind(null, bag),
@@ -628,22 +629,49 @@ function _postVersion(bag, next) {
   );
 }
 
+function _getStepStatus(bag, next) {
+  if (_.isEmpty(bag.step)) return next();
+
+  var who = bag.who + '|' + _getStepStatus.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.openCmd('Updating step status');
+  if (bag.timingOut || bag.cancelling)
+    return next();
+
+  bag.builderApiAdapter.getStepById(bag.step.id,
+    function (err, step) {
+      if (err) {
+        var msg = util.format('%s, failed to :getStepById for ' +
+          'stepId: %s with err: %s', who, bag.step.id, err);
+        bag.stepConsoleAdapter.publishMsg(msg);
+      } else {
+        bag.cancelling =
+          global.systemCodesByCode[step.statusCode].name === 'cancelling';
+        bag.timingOut =
+          global.systemCodesByCode[step.statusCode].name === 'timingOut';
+      }
+      return next();
+
+    }
+  );
+}
+
 function _updateStepStatus(bag, next) {
   if (_.isEmpty(bag.step)) return next();
 
   var who = bag.who + '|' + _updateStepStatus.name;
   logger.verbose(who, 'Inside');
 
-  bag.stepConsoleAdapter.openCmd('Updating step status');
   var statusCode = global.systemCodesByName.success.code;
-  if (bag.error)
-    statusCode = global.systemCodesByName.error.code;
-  else if (bag.failure)
-    statusCode = global.systemCodesByName.failure.code;
-  else if (bag.timingOut)
+  if (bag.timingOut)
     statusCode = global.systemCodesByName.timeout.code;
   else if (bag.cancelling)
     statusCode = global.systemCodesByName.cancelled.code;
+  else if (bag.error)
+    statusCode = global.systemCodesByName.error.code;
+  else if (bag.failure)
+    statusCode = global.systemCodesByName.failure.code;
 
   var update = {
     statusCode: statusCode,
