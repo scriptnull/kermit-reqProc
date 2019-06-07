@@ -26,25 +26,34 @@ upload_step_artifacts() {
   echo 'Saving step artifacts'
 
   local put_cmd="curl \
-      -s \
+      -s -S \
       --connect-timeout 60 \
       --max-time 120 \
       -XPUT '$STEP_ARTIFACT_URL' \
+      -o /dev/null \
+      -w \"%{http_code}\" \
       -T $archive_file"
 
   if [ ! -z "$STEP_ARTIFACT_URL_OPTS" ]; then
     put_cmd="curl \
-      -s \
+      -s -S \
       --connect-timeout 60 \
       --max-time 120 \
       $STEP_ARTIFACT_URL_OPTS \
       -XPUT '$STEP_ARTIFACT_URL' \
+      -o /dev/null \
+      -w \"%{http_code}\" \
       -T $archive_file"
   fi
 
-  eval "$put_cmd"
+  local put_status_code=$(eval "$put_cmd")
 
-  echo 'Saved step artifacts'
+  if [ "$put_status_code" -ge 200 ] && [ "$put_status_code" -le 299 ]; then
+    echo 'Saved step artifacts'
+  else
+    echo "Failed to save step artifacts. Status code $put_status_code."
+    return 1
+  fi
 
   rm $archive_file
 }
@@ -66,25 +75,34 @@ upload_run_state() {
   echo 'Saving run state'
 
   local put_cmd="curl \
-      -s \
+      -s -S \
       --connect-timeout 60 \
       --max-time 120 \
       -XPUT '$RUN_ARTIFACT_URL' \
+      -o /dev/null \
+      -w \"%{http_code}\" \
       -T $archive_file"
 
   if [ ! -z "$RUN_ARTIFACT_URL_OPTS" ]; then
     put_cmd="curl \
-      -s \
+      -s -S \
       --connect-timeout 60 \
       --max-time 120 \
       $RUN_ARTIFACT_URL_OPTS \
       -XPUT '$RUN_ARTIFACT_URL' \
+      -o /dev/null \
+      -w \"%{http_code}\" \
       -T $archive_file"
   fi
 
-  eval "$put_cmd"
+  local put_status_code=$(eval "$put_cmd")
 
-  echo 'Saved run state'
+  if [ "$put_status_code" -ge 200 ] && [ "$put_status_code" -le 299 ]; then
+    echo 'Saved run state'
+  else
+    echo "Failed to save run state. Status code $put_status_code."
+    return 1
+  fi
 
   rm $archive_file
 }
@@ -130,25 +148,34 @@ upload_pipeline_state() {
     echo 'Saving pipeline state'
 
     local put_cmd="curl \
-        -s \
+        -s -S \
         --connect-timeout 60 \
         --max-time 120 \
         -XPUT '$PIPELINE_ARTIFACT_URL' \
+        -o /dev/null \
+        -w \"%{http_code}\" \
         -T $archive_file"
 
     if [ ! -z "$PIPELINE_ARTIFACT_URL_OPTS" ]; then
       put_cmd="curl \
-        -s \
+        -s -S \
         --connect-timeout 60 \
         --max-time 120 \
         $PIPELINE_ARTIFACT_URL_OPTS \
         -XPUT '$PIPELINE_ARTIFACT_URL' \
+        -o /dev/null \
+        -w \"%{http_code}\" \
         -T $archive_file"
     fi
 
-    eval "$put_cmd"
+    local put_status_code=$(eval "$put_cmd")
 
-    echo 'Saved pipeline state'
+    if [ "$put_status_code" -ge 200 ] && [ "$put_status_code" -le 299 ]; then
+      echo 'Saved pipeline state'
+    else
+      echo "Failed to save pipeline state. Status code $put_status_code."
+      return 1
+    fi
 
     echo "$PIPELINE_ARTIFACT_NAME" > "$STEP_WORKSPACE_DIR/pipelineArtifactName.txt"
 
