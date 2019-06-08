@@ -68,8 +68,10 @@ function _checkInputParams(bag, next) {
   );
 
   var hasErrors = !_.isEmpty(paramErrors);
-  if (hasErrors)
+  if (hasErrors) {
     logger.error(paramErrors.join('\n'));
+    return next(hasErrors);
+  }
 
   bag.step = {
     id: bag.stepData.step.id,
@@ -77,7 +79,7 @@ function _checkInputParams(bag, next) {
     name: bag.stepData.step.name
   };
 
-  return next(hasErrors);
+  return next();
 }
 
 function _parseTestReport(bag, next) {
