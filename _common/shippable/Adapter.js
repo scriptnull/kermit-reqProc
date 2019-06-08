@@ -144,6 +144,14 @@ ShippableAdapter.prototype.getResourceById =
     );
   };
 
+ShippableAdapter.prototype.getResourceVersionById =
+  function (resourceVersionId, callback) {
+    this.get(
+      util.format('/resourceVersions/%s', resourceVersionId),
+      callback
+    );
+  };
+
 ShippableAdapter.prototype.getNextSteps =
   function (runId, json, callback) {
     this.post(
@@ -262,14 +270,10 @@ ShippableAdapter.prototype.getSystemSettings =
     );
   };
 
-// TODO: Make use of the actual API here, when it is available
-ShippableAdapter.prototype.getResourceVersions =
-  function (query, callback) {
-    this.get(
-      util.format('/resourceVerions?%s', query),
-      callback
-    );
-  };
+
+//#######################  DELETE  by alphabetical order  ######################
+
+//#######################  POST  by alphabetical order  ########################
 
 ShippableAdapter.prototype.postResourceVersion =
   function (json, callback) {
@@ -279,10 +283,6 @@ ShippableAdapter.prototype.postResourceVersion =
       callback
     );
   };
-
-//#######################  DELETE  by alphabetical order  ######################
-
-//#######################  POST  by alphabetical order  ########################
 
 ShippableAdapter.prototype.postSystemNodeStats =
   function (json, callback) {

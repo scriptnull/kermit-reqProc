@@ -23,6 +23,8 @@ function prepData(externalBag, callback) {
   async.series([
       _checkInputParams.bind(null, bag),
       _getTriggeredByStep.bind(null, bag),
+      _getTriggeredByResourceVersion.bind(null, bag),
+      _getTriggeredByResource.bind(null, bag),
       _getTriggeredByIdentity.bind(null, bag),
       _getRunResourceVersions.bind(null, bag),
       _getRunStepConnections.bind(null, bag),
@@ -109,6 +111,65 @@ function _getTriggeredByStep(bag, next) {
   );
 }
 
+function _getTriggeredByResourceVersion(bag, next) {
+  if (!bag.step.triggeredByResourceVersionId) return next();
+  var who = bag.who + '|' + _getTriggeredByResourceVersion.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.openCmd('Fetching triggered by resourceVersion');
+
+  bag.builderApiAdapter.getResourceVersionById(
+    bag.step.triggeredByResourceVersionId,
+    function (err, resourceVersion) {
+      if (err) {
+        var msg = util.format('%s, getResourceVersionById for id %s ' +
+          'failed with error: %s', bag.who,
+          bag.step.triggeredByResourceVersionId, err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
+        return next(err);
+      } else {
+        bag.step.triggeredByResourceId = resourceVersion.resourceId;
+        bag.stepConsoleAdapter.publishMsg(
+          'Successfully fetched resourceVersion with id: ' +
+          bag.step.triggeredByResourceVersionId);
+        bag.stepConsoleAdapter.closeCmd(true);
+      }
+      return next();
+    }
+  );
+}
+
+function _getTriggeredByResource(bag, next) {
+  if (!bag.step.triggeredByResourceId) return next();
+  var who = bag.who + '|' + _getTriggeredByResource.name;
+  logger.verbose(who, 'Inside');
+
+  bag.stepConsoleAdapter.openCmd('Fetching triggered by resource');
+
+  bag.builderApiAdapter.getResourceById(bag.step.triggeredByResourceId,
+    function (err, resource) {
+      if (err) {
+        var msg = util.format('%s, getResourceById for id %s ' +
+          'failed with error: %s', bag.who,
+          bag.step.triggeredByResourceId, err);
+        logger.warn(msg);
+        bag.stepConsoleAdapter.publishMsg(msg);
+        bag.stepConsoleAdapter.closeCmd(false);
+        return next(err);
+      } else {
+        bag.step.triggeredByResourceName = resource.name;
+        bag.stepConsoleAdapter.publishMsg(
+          'Successfully fetched resource with id: ' +
+          bag.step.triggeredByResourceId);
+        bag.stepConsoleAdapter.closeCmd(true);
+      }
+      return next();
+    }
+  );
+}
+
 function _getTriggeredByIdentity(bag, next) {
   if (!bag.step.triggeredByIdentityId) return next();
   var who = bag.who + '|' + _getTriggeredByIdentity.name;
@@ -165,20 +226,6 @@ function _getRunResourceVersions(bag, next) {
         return next(err);
       } else {
         bag.runResourceVersions = runResVersions;
-        if (bag.step.triggeredByResourceVersionId) {
-          var runResVersion = _.findWhere(bag.runResourceVersions,
-            {resourceVersionId: bag.step.triggeredByResourceVersionId});
-          if (!runResVersion) {
-            var msg = util.format('%s, No resource found for ' +
-              'resourceVersionId %s ', bag.who,
-              bag.step.triggeredByResourceVersionId);
-            logger.warn(msg);
-            bag.stepConsoleAdapter.publishMsg(msg);
-            bag.stepConsoleAdapter.closeCmd(false);
-            return next(true);
-          }
-          bag.step.triggeredByResourceName = runResVersion.resourceName;
-        }
         bag.stepConsoleAdapter.publishMsg(
           'Successfully fetched run resource versions with stepId: ' +
           bag.stepId);
