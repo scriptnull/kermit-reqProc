@@ -84,12 +84,14 @@ function _checkInputParams(bag, next) {
   );
 
   var hasErrors = !_.isEmpty(paramErrors);
-  if (hasErrors)
+  if (hasErrors) {
     logger.error(paramErrors.join('\n'));
+    return next(hasErrors);
+  }
 
   bag.stepDockerContainerName = util.format('step-%s-%s', bag.stepId,
     bag.stepletId);
-  return next(hasErrors);
+  return next();
 }
 
 function _setScriptEnvs(bag, next) {

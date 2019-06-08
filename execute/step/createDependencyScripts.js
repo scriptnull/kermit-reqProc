@@ -56,13 +56,15 @@ function _checkInputParams(bag, next) {
   );
 
   var hasErrors = !_.isEmpty(paramErrors);
-  if (hasErrors)
+  if (hasErrors) {
     logger.error(paramErrors.join('\n'));
+    return next(hasErrors);
+  }
 
   bag.dependencyTemplatePath = path.join(bag.execTemplatesRootDir,
     'resources', '{{resourceType}}', '{{resourceType}}.sh');
 
-  return next(hasErrors);
+  return next();
 }
 
 function _assembleDependencyScripts(bag, next) {
