@@ -84,7 +84,8 @@ function _postOutResourceVersions(bag, next) {
         builderApiAdapter: bag.builderApiAdapter,
         dependency: outDependency,
         stepId: bag.stepData.step.id,
-        versionJson: {},
+        versionJson: _.clone(
+          outDependency.resourceVersionContentPropertyBag || {}),
         hasEnv: true,
         isChanged: false,
         isGrpSuccess: true
@@ -138,8 +139,7 @@ function __readReplicateJSON(bag, next) {
   try {
     var replicateJSON = JSON.parse(jsonFile);
 
-    bag.versionJson = _.extend(bag.versionJson,
-      replicateJSON.resourceVersionContentPropertyBag);
+    bag.versionJson = replicateJSON.resourceVersionContentPropertyBag;
   } catch (err) {
     bag.stepConsoleAdapter.publishMsg(
       util.format('Could not parse file %s. Skipping.', jsonFilePath));
