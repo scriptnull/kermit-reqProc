@@ -204,6 +204,8 @@ function _prepareStepJSON(bag, next) {
   if (!_.isEmpty(bag.step.staticPropertyBag)) {
     _.each(bag.step.staticPropertyBag,
       function (value, key) {
+        if (value === null)
+          value = '';
         bag.stepEnvs.push({
           key: 'step_' + key,
           value: value
@@ -370,6 +372,8 @@ function __convertObjToEnvs(obj, envPrefix) {
                       value: JSON.stringify(arrItemObjVal)
                     });
                   } else {
+                    if (arrItemObjVal === null)
+                      arrItemObjVal = '';
                     envs.push({
                       key: arrayEnvPrefix + index + '_' + arrItemValKey,
                       value: arrItemObjVal
@@ -378,6 +382,8 @@ function __convertObjToEnvs(obj, envPrefix) {
                 }
               );
             } else {
+              if (arrayItem === null)
+                arrayItem = '';
               envs.push({
                 key: arrayEnvPrefix + index,
                 value: arrayItem
@@ -393,6 +399,8 @@ function __convertObjToEnvs(obj, envPrefix) {
           }
         );
       } else {
+        if (val === null)
+          val = '';
         envs.push(
           {
             key: envPrefix + key,
