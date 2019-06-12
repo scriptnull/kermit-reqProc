@@ -84,8 +84,8 @@ function _getStepArtifactUrl(bag, next) {
 
   bag.stepArtifactName = 'archive.tar.gz';
 
-  bag.builderApiAdapter.getLatestArtifactUrlForStepName(bag.projectId,
-    bag.stepData.step.name,
+  bag.builderApiAdapter.getLatestArtifactUrlForPipelineStep(
+    bag.stepData.step.pipelineStepId,
     function (err, artifactUrls) {
       var msg;
       if (err) {

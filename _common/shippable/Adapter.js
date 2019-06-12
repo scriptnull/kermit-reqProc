@@ -220,10 +220,10 @@ ShippableAdapter.prototype.getStepArtifactUrls =
     );
   };
 
-ShippableAdapter.prototype.getLatestArtifactUrlForStepName =
-  function (projectId, stepName, callback) {
+ShippableAdapter.prototype.getLatestArtifactUrlForPipelineStep =
+  function (pipelineStepId, callback) {
     this.get(
-      util.format('/projects/%s/%s/latestArchive', projectId, stepName),
+      util.format('/pipelineSteps/%s/latestArchive', pipelineStepId),
       callback
     );
   };
