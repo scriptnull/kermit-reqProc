@@ -87,6 +87,7 @@ function _prepareStepJSON(bag, next) {
       name: bag.step.name,
       runId: bag.step.runId,
       pipelineId: bag.step.pipelineId,
+      pipelineStepId: bag.step.pipelineStepId,
       type: global.systemCodesByCode[bag.step.typeCode].name
     },
     resources: {},
