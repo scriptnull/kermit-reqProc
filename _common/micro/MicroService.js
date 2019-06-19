@@ -17,7 +17,6 @@ function MicroService(params) {
   this.microWorker = params.microWorker;
   this.publicAdapter = new ShippableAdapter('');
   this.nodeId = config.nodeId;
-  this.nodeTypeCode = config.nodeTypeCode;
   if (config.apiToken)
     this.suAdapter = new ShippableAdapter(config.apiToken);
 }
