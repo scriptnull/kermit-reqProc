@@ -52,15 +52,6 @@ function ShippableAdapter(token) {
 
  */
 
-ShippableAdapter.prototype.postClusterNodeStats =
-  function (json, callback) {
-    this.post(
-      util.format('/clusterNodeStats'),
-      json,
-      callback
-    );
-  };
-
 //identities
 ShippableAdapter.prototype.getIdentities =
   function (query, callback) {
