@@ -13,7 +13,6 @@ function MicroService(params) {
   this.ackWaitTimeMS = 2 * 1000;  // 2 seconds
   this.timeoutLength = 1;
   this.timeoutLimit = 180;
-  this.checkHealth = params.checkHealth;
   this.microWorker = params.microWorker;
   this.publicAdapter = new ShippableAdapter('');
   this.nodeId = config.nodeId;
@@ -26,7 +25,6 @@ function MicroService(params) {
 MicroService.prototype.init = function () {
   logger.verbose('Initializing', msName);
   async.series([
-      this.checkHealth.bind(this),
       this.getSystemSettings.bind(this),
       this.getSystemCodes.bind(this),
       this.establishQConnection.bind(this),
