@@ -246,14 +246,6 @@ ShippableAdapter.prototype.postStepTestReports =
     );
   };
 
-ShippableAdapter.prototype.validateSystemNodeById =
-  function (systemNodeId, callback) {
-    this.get(
-      util.format('/systemNodes/%s/validate', systemNodeId),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.getSystemCodes =
   function (query, callback) {
     this.get(
@@ -279,15 +271,6 @@ ShippableAdapter.prototype.postResourceVersion =
   function (json, callback) {
     this.post(
       util.format('/resourceVersions'),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.postSystemNodeStats =
-  function (json, callback) {
-    this.post(
-      util.format('/systemNodeStats'),
       json,
       callback
     );
@@ -326,15 +309,6 @@ ShippableAdapter.prototype.putStepletById =
   function (id, json, callback) {
     this.put(
       util.format('/steplets/%s', id),
-      json,
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.putSystemNodeById =
-  function (id, json, callback) {
-    this.put(
-      util.format('/systemNodes/%s', id),
       json,
       callback
     );

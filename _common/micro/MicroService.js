@@ -18,7 +18,6 @@ function MicroService(params) {
   this.publicAdapter = new ShippableAdapter('');
   this.nodeId = config.nodeId;
   this.nodeTypeCode = config.nodeTypeCode;
-  this.isSystemNode = config.isSystemNode;
   if (config.apiToken)
     this.suAdapter = new ShippableAdapter(config.apiToken);
 }
@@ -284,14 +283,12 @@ MicroService.prototype.disconnectAndProcess =
       queue: this.queue,
       nodeId: this.nodeId,
       consumerTag: this.consumerTag,
-      isSystemNode: this.isSystemNode,
       publicAdapter: this.publicAdapter,
       suAdapter: this.suAdapter
     };
 
     async.series([
         _validateClusterNode.bind(null, bag),
-        _validateSystemNode.bind(null, bag),
         _unsubscribeFromQueue.bind(null, bag),
         _ackMessage.bind(null, bag),
         _rejectMessage.bind(null, bag)
@@ -307,7 +304,7 @@ MicroService.prototype.disconnectAndProcess =
   };
 
 function _validateClusterNode(bag, next) {
-  if (!bag.nodeId || bag.isSystemNode) return next();
+  if (!bag.nodeId) return next();
 
   var who = bag.who + '|' + _validateClusterNode.name;
   logger.debug(who, 'Inside');
@@ -324,31 +321,6 @@ function _validateClusterNode(bag, next) {
       }
 
       if (clusterNode.action !== 'continue')
-        bag.ackMessage = false;
-
-      return next();
-    }
-  );
-}
-
-function _validateSystemNode(bag, next) {
-  if (!bag.nodeId || !bag.isSystemNode) return next();
-
-  var who = bag.who + '|' + _validateSystemNode.name;
-  logger.debug(who, 'Inside');
-
-  bag.publicAdapter.validateSystemNodeById(bag.nodeId,
-    function (err, systemNode) {
-      if (err) {
-        logger.warn(
-          util.format(who, 'failed to :validateSystemNodeById for id: %s',
-            bag.nodeId)
-        );
-        bag.ackMessage = false;
-        return next();
-      }
-
-      if (systemNode.action !== 'continue')
         bag.ackMessage = false;
 
       return next();

@@ -13,8 +13,7 @@ function validateNode(params, callback) {
   }
 
   var bag = {
-    params: params,
-    isSystemNode: config.isSystemNode
+    params: params
   };
 
   bag.who = util.format('%s|_common|%s', msName, self.name);
@@ -24,9 +23,7 @@ function validateNode(params, callback) {
   async.series([
       _checkInputParams.bind(null, bag),
       _validateClusterNodeStatus.bind(null, bag),
-      _validateClusterNodeStatusPeriodically.bind(null, bag),
-      _validateSystemNodeStatus.bind(null, bag),
-      _validateSystemNodeStatusPeriodically.bind(null, bag)
+      _validateClusterNodeStatusPeriodically.bind(null, bag)
     ],
     function (err) {
       if (err)
@@ -57,7 +54,6 @@ function _checkInputParams(bag, next) {
 }
 
 function _validateClusterNodeStatus(bag, next) {
-  if (bag.isSystemNode) return next();
   var who = bag.who + '|' + _validateClusterNodeStatus.name;
   logger.debug(who, 'Inside');
 
@@ -65,39 +61,12 @@ function _validateClusterNodeStatus(bag, next) {
 }
 
 function _validateClusterNodeStatusPeriodically(bag, next) {
-  if (bag.isSystemNode) return next();
   var who = bag.who + '|' + _validateClusterNodeStatusPeriodically.name;
   logger.debug(who, 'Inside');
 
   setInterval(
     function () {
       __validateClusterNode(bag);
-    },
-    VALIDATION_PERIOD
-  );
-  return next();
-}
-
-function _validateSystemNodeStatus(bag, next) {
-  if (!bag.isSystemNode) return next();
-  var who = bag.who + '|' + _validateSystemNodeStatus.name;
-  logger.debug(who, 'Inside');
-
-  __validateSystemNode(bag,
-    function () {
-      return next();
-    }
-  );
-}
-
-function _validateSystemNodeStatusPeriodically(bag, next) {
-  if (!bag.isSystemNode) return next();
-  var who = bag.who + '|' + _validateSystemNodeStatusPeriodically.name;
-  logger.debug(who, 'Inside');
-
-  setInterval(
-    function () {
-      __validateSystemNode(bag);
     },
     VALIDATION_PERIOD
   );
@@ -140,51 +109,6 @@ function __validateClusterNode(innerBag, done) {
               util.format('clusterNodeId:%s action is %s, doing nothing',
                 config.nodeId, clusterNode.action)
             );
-          if (done)
-            return done();
-        }
-      );
-    }
-  );
-}
-
-function __validateSystemNode(innerBag, done) {
-  if (global.config.isProcessingRunShJob) return;
-
-  var who = innerBag.who + '|' + __validateSystemNode.name;
-  logger.debug(who, 'Inside');
-
-  innerBag.adapter.validateSystemNodeById(config.nodeId,
-    function (err, systemNode) {
-      if (err) {
-        logger.warn(who,
-          util.format('Failed to :validateSystemNodeById for ' +
-            'systemNodeId: %s', config.nodeId), err
-        );
-      }
-
-      innerBag.action = systemNode && systemNode.action;
-      if (innerBag.action === 'continue')
-        innerBag.skipAllSteps = true;
-      else
-        innerBag.skipAllSteps = false;
-
-      async.series([
-          __restartExecContainer.bind(null, innerBag),
-          __stopExecContainer.bind(null, innerBag)
-        ],
-        function (err) {
-          if (err)
-            logger.warn(
-              util.format('Unable to perform %s with err:%s', innerBag.action,
-                err)
-            );
-          else
-            logger.debug(who,
-              util.format('SystemNodeId:%s action is %s, doing nothing',
-                config.nodeId, systemNode.action)
-            );
-
           if (done)
             return done();
         }
