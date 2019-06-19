@@ -17,6 +17,9 @@ New-Item $($env:APPDATA + '\npm') ;
 
 echo "installing node dependencies using npm"
 # needed to build diskusage package during npm install
+# TODO: diskusage npm module is removed from reqProc
+# remove installing windows-build-tools@1.3.2
+# after verifying a successful reqProc build in WindowsServer_2019
 npm install --global --production windows-build-tools@1.3.2
 
 echo "checking node version"

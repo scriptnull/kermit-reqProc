@@ -12,7 +12,6 @@
   "dependencies": {
     "amqp": "0.2.6",
     "async": "2.0.0",
-    "diskusage": "0.2.2",
     "fs-extra": "0.30.0",
     "node-uuid": "1.4.7",
     "request": "2.73.0",
