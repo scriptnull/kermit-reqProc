@@ -112,22 +112,6 @@ ShippableAdapter.prototype.getProjectById =
     );
   };
 
-ShippableAdapter.prototype.getProviderById =
-  function (id, callback) {
-    this.get(
-      util.format('/providers/%s', id),
-      callback
-    );
-  };
-
-ShippableAdapter.prototype.getProviders =
-  function (query, callback) {
-    this.get(
-      util.format('/providers?%s', query),
-      callback
-    );
-  };
-
 ShippableAdapter.prototype.getResources =
   function (query, callback) {
     this.get(
@@ -262,9 +246,6 @@ ShippableAdapter.prototype.getSystemSettings =
     );
   };
 
-
-//#######################  DELETE  by alphabetical order  ######################
-
 //#######################  POST  by alphabetical order  ########################
 
 ShippableAdapter.prototype.postResourceVersion =
@@ -373,27 +354,6 @@ ShippableAdapter.prototype.put =
       url: this.baseUrl.concat(relativeUrl),
       headers: this.headers,
       json: json
-    };
-    bag.who = util.format('%s call to %s', bag.opts.method, bag.opts.url);
-    logger.debug(util.format('Starting %s', bag.who));
-
-    async.series([
-        _performCall.bind(null, bag),
-        _parseBody.bind(null, bag)
-      ],
-      function () {
-        callback(bag.err, bag.parsedBody, bag.res);
-      }
-    );
-  };
-
-ShippableAdapter.prototype.delete =
-  function (relativeUrl, callback) {
-    var bag = {};
-    bag.opts = {
-      method: 'DELETE',
-      url: this.baseUrl.concat(relativeUrl),
-      headers: this.headers
     };
     bag.who = util.format('%s call to %s', bag.opts.method, bag.opts.url);
     logger.debug(util.format('Starting %s', bag.who));
