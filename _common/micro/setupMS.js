@@ -5,7 +5,6 @@ module.exports = self;
 global.util = require('util');
 global._ = require('underscore');
 global.async = require('async');
-var path = require('path');
 
 function setupMS(params) {
   global.msName = params.msName;
