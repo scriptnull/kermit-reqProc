@@ -448,10 +448,13 @@ function _updateStepToProcessing(bag, next) {
   timeoutAt.setSeconds(timeoutAt.getSeconds() +
     bag.step.configPropertyBag.timeoutSeconds);
 
+  var configPropertyBag = {};
+  configPropertyBag.clusterNodeName = bag.clusterNodeName;
   var update = {
     statusCode: statusCode,
     startedAt: new Date(),
-    timeoutAt: timeoutAt
+    timeoutAt: timeoutAt,
+    configPropertyBag: configPropertyBag
   };
   bag.builderApiAdapter.putStepById(bag.step.id, update,
     function (err) {
