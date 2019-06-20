@@ -12,8 +12,9 @@ function download(externalBag, callback) {
 
   var bag = {
     templatePath: path.resolve(__dirname,
-      'Ubuntu_16.04/templates/download.sh'),
-    scriptPath: path.resolve(externalBag.stepWorkspacePath, 'download.sh'),
+      util.format('templates/download.%s', global.config.scriptExtension)),
+    scriptPath: path.resolve(externalBag.stepWorkspacePath,
+      util.format('download.%s', global.config.scriptExtension)),
     stepArtifactUrl: externalBag.stepArtifactUrl,
     stepArtifactUrlOpts: externalBag.stepArtifactUrlOpts,
     stepArtifactName: externalBag.stepArtifactName,

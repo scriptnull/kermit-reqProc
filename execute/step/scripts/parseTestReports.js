@@ -12,8 +12,9 @@ function parseTestReports(externalBag, callback) {
 
   var bag = {
     templatePath: path.resolve(__dirname,
-      'Ubuntu_16.04/templates/parseReport.sh'),
-    scriptPath: path.resolve(externalBag.stepWorkspacePath, 'parseReport.sh'),
+      util.format('templates/parseReport.%s', global.config.scriptExtension)),
+    scriptPath: path.resolve(externalBag.stepWorkspacePath,
+      util.format('parseReport.%s', global.config.scriptExtension)),
     baseDir: externalBag.baseDir,
     stepWorkspacePath: externalBag.stepWorkspacePath,
     builderApiAdapter: externalBag.builderApiAdapter,

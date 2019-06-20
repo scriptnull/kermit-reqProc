@@ -12,8 +12,9 @@ function upload(externalBag, callback) {
 
   var bag = {
     templatePath: path.resolve(__dirname,
-      'Ubuntu_16.04/templates/upload.sh'),
-    scriptPath: path.resolve(externalBag.stepWorkspacePath, 'upload.sh'),
+      util.format('templates/upload.%s', global.config.scriptExtension)),
+    scriptPath: path.resolve(externalBag.stepWorkspacePath,
+      util.format('upload.%s', global.config.scriptExtension)),
     stepArtifactUrl: externalBag.stepArtifactUrl,
     stepArtifactUrlOpts: externalBag.stepArtifactUrlOpts,
     stepArtifactName: externalBag.stepArtifactName,
