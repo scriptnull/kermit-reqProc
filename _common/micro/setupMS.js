@@ -51,7 +51,7 @@ function setupMS(params) {
   global.config.shippableRuntimeVersion = process.env.SHIPPABLE_RUNTIME_VERSION;
 
   global.config.clusterTypeCode = process.env.CLUSTER_TYPE_CODE;
-  global.config.isProcessingRunShJob = false;
+  global.config.isProcessingStep = false;
   // 15 seconds
   global.config.stepStatusPollIntervalMS = 15 * 1000;
 }

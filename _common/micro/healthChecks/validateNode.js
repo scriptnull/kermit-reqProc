@@ -13,7 +13,8 @@ function validateNode(params, callback) {
   }
 
   var bag = {
-    params: params
+    params: params,
+    adapter: new ShippableAdapter('')
   };
 
   bag.who = util.format('%s|_common|%s', msName, self.name);
@@ -21,13 +22,12 @@ function validateNode(params, callback) {
     config.nodeId);
 
   async.series([
-      _checkInputParams.bind(null, bag),
-      _validateClusterNodeStatus.bind(null, bag),
-      _validateClusterNodeStatusPeriodically.bind(null, bag)
+      _validateClusterNode.bind(null, bag)
     ],
     function (err) {
       if (err)
-        logger.error(bag.who, 'Failed to validate node status');
+        logger.error(bag.who, util.format('Failed to validate node status ' +
+          'with error: %s', err));
       else
         logger.verbose(bag.who, 'Successfully validated node status');
       return callback(err);
@@ -35,51 +35,11 @@ function validateNode(params, callback) {
   );
 }
 
-function _checkInputParams(bag, next) {
-  var who = bag.who + '|' + _checkInputParams.name;
+function _validateClusterNode(bag, done) {
+  var who = bag.who + '|' + _validateClusterNode.name;
   logger.debug(who, 'Inside');
 
-  var consoleErrors = [];
-  bag.adapter = new ShippableAdapter('');
-
-  if (consoleErrors.length > 0) {
-    _.each(consoleErrors,
-      function (e) {
-        logger.error(bag.who, e);
-      }
-    );
-    return next(true);
-  }
-  return next();
-}
-
-function _validateClusterNodeStatus(bag, next) {
-  var who = bag.who + '|' + _validateClusterNodeStatus.name;
-  logger.debug(who, 'Inside');
-
-  __validateClusterNode(bag, next);
-}
-
-function _validateClusterNodeStatusPeriodically(bag, next) {
-  var who = bag.who + '|' + _validateClusterNodeStatusPeriodically.name;
-  logger.debug(who, 'Inside');
-
-  setInterval(
-    function () {
-      __validateClusterNode(bag);
-    },
-    VALIDATION_PERIOD
-  );
-  return next();
-}
-
-function __validateClusterNode(innerBag, done) {
-  if (global.config.isProcessingRunShJob) return;
-
-  var who = innerBag.who + '|' + __validateClusterNode.name;
-  logger.debug(who, 'Inside');
-
-  innerBag.adapter.validateClusterNodeById(config.nodeId,
+  bag.adapter.validateClusterNodeById(config.nodeId,
     function (err, clusterNode) {
       if (err) {
         logger.warn(who,
@@ -88,20 +48,20 @@ function __validateClusterNode(innerBag, done) {
         );
       }
 
-      innerBag.action = clusterNode && clusterNode.action;
-      if (innerBag.action === 'continue')
-        innerBag.skipAllSteps = true;
+      bag.action = clusterNode && clusterNode.action;
+      if (bag.action === 'continue')
+        bag.skipAllSteps = true;
       else
-        innerBag.skipAllSteps = false;
+        bag.skipAllSteps = false;
 
       async.series([
-          __restartExecContainer.bind(null, innerBag),
-          __stopExecContainer.bind(null, innerBag)
+          __restartExecContainer.bind(null, bag),
+          __stopExecContainer.bind(null, bag)
         ],
         function (err) {
           if (err)
             logger.warn(
-              util.format('Unable to perform %s with err:%s', innerBag.action,
+              util.format('Unable to perform %s with err:%s', bag.action,
                 err)
             );
           else
@@ -109,6 +69,9 @@ function __validateClusterNode(innerBag, done) {
               util.format('clusterNodeId:%s action is %s, doing nothing',
                 config.nodeId, clusterNode.action)
             );
+          if (!global.config.isProcessingStep)
+            setTimeout(_validateClusterNode.bind(null, bag),
+              VALIDATION_PERIOD);
           if (done)
             return done();
         }

@@ -295,6 +295,7 @@ MicroService.prototype.disconnectAndProcess =
       function () {
         if (bag.ackMessage) {
           this.AMQPConnection.closing = true;
+          global.config.isProcessingStep = true;
           this.AMQPConnection.disconnect();
           this.microWorker(message);
         }
