@@ -14,6 +14,7 @@ function MicroService(params) {
   this.timeoutLength = 1;
   this.timeoutLimit = 180;
   this.checkHealth = params.checkHealth;
+  this.validateNode = params.validateNode;
   this.microWorker = params.microWorker;
   this.publicAdapter = new ShippableAdapter('');
   this.nodeId = config.nodeId;
@@ -30,7 +31,8 @@ MicroService.prototype.init = function () {
       this.establishQConnection.bind(this),
       this.connectExchange.bind(this),
       this.connectToQueue.bind(this),
-      this.updateClusterNodeStatus.bind(this)
+      this.updateClusterNodeStatus.bind(this),
+      this.validateNode.bind(this)
     ],
     function (err) {
       if (err)
