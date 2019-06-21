@@ -1,5 +1,6 @@
 'use strict';
 var checkHealth = require('./_common/micro/checkHealth.js');
+var validateNode = require('./_common/micro/validateNode.js');
 var ReqProcMS = require('./_common/micro/MicroService.js');
 var setupMS = require('./_common/micro/setupMS.js');
 var microWorker = require('./microWorker.js');
@@ -8,6 +9,7 @@ var isDirectory = require('./_common/helpers/isDirectory.js');
 
 var msParams = {
   checkHealth: checkHealth,
+  validateNode: validateNode,
   microWorker: microWorker
 };
 

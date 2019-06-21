@@ -3,17 +3,16 @@ var self = validateNode;
 module.exports = self;
 
 var exec = require('child_process').exec;
-var ShippableAdapter = require('../../shippable/Adapter.js');
+var ShippableAdapter = require('../shippable/Adapter.js');
 var VALIDATION_PERIOD = 2 * 60 * 1000; // 2 minutes
 
-function validateNode(params, callback) {
+function validateNode(callback) {
   if (!config.nodeId) {
     logger.verbose('Skipping node validation as no nodeId is present');
     return callback();
   }
 
   var bag = {
-    params: params,
     adapter: new ShippableAdapter('')
   };
 

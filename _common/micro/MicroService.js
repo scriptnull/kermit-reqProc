@@ -14,6 +14,7 @@ function MicroService(params) {
   this.timeoutLength = 1;
   this.timeoutLimit = 180;
   this.checkHealth = params.checkHealth;
+  this.validateNode = params.validateNode;
   this.microWorker = params.microWorker;
   this.publicAdapter = new ShippableAdapter('');
   this.nodeId = config.nodeId;
@@ -29,7 +30,9 @@ MicroService.prototype.init = function () {
       this.getSystemCodes.bind(this),
       this.establishQConnection.bind(this),
       this.connectExchange.bind(this),
-      this.connectToQueue.bind(this)
+      this.connectToQueue.bind(this),
+      this.updateClusterNodeStatus.bind(this),
+      this.validateNode.bind(this)
     ],
     function (err) {
       if (err)
@@ -371,3 +374,34 @@ function _rejectMessage(bag, next) {
     bag.ackWaitTimeMS
   );
 }
+
+MicroService.prototype.updateClusterNodeStatus = function (next) {
+  if (!config.nodeId) {
+    logger.verbose(util.format('%s| Skipping cluster node status update ' +
+      'as no nodeId is present', msName));
+    return next();
+  }
+  logger.verbose(util.format('%s| updating cluster node status', msName));
+
+  var update = {
+    statusCode: global.systemCodesByName.success.code,
+    execImage: config.execImage,
+    stepId: null
+  };
+
+  this.publicAdapter.putClusterNodeById(config.nodeId,
+    update,
+    function (err) {
+      if (err) {
+        logger.warn(
+          util.format('Failed to update status of cluster node %s ' +
+            'with err %s', config.nodeId, err)
+        );
+        return next(true);
+      }
+      logger.verbose(util.format('%s| updated cluster node status to success',
+        msName));
+      return next();
+    }
+  );
+};
