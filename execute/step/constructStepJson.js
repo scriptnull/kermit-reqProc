@@ -119,11 +119,11 @@ function _prepareStepJSON(bag, next) {
   var stepRuntime = '';
   var stepImageName =  '';
   var stepImageTag = '';
-  if (bag.step.setupPropertyBag && bag.step.setupPropertyBag.runtime) {
-    stepRuntime = bag.step.setupPropertyBag.runtime.type;
-    if (stepRuntime === 'image' && bag.step.setupPropertyBag.runtime.image) {
-      stepImageName = bag.step.setupPropertyBag.runtime.image.imageName;
-      stepImageTag = bag.step.setupPropertyBag.runtime.image.imageTag;
+  if (bag.step.configPropertyBag && bag.step.configPropertyBag.runtime) {
+    stepRuntime = bag.step.configPropertyBag.runtime.type;
+    if (stepRuntime === 'image' && bag.step.configPropertyBag.runtime.image) {
+      stepImageName = bag.step.configPropertyBag.runtime.image.imageName;
+      stepImageTag = bag.step.configPropertyBag.runtime.image.imageTag;
     }
   }
   bag.stepEnvs.push({
@@ -214,9 +214,6 @@ function _prepareStepJSON(bag, next) {
       }
     );
   }
-
-  if (!_.isEmpty(bag.step.setupPropertyBag))
-    bag.stepData.step.setup = bag.step.setupPropertyBag;
 
   if (!_.isEmpty(bag.step.execPropertyBag))
     bag.stepData.step.execution = bag.step.execPropertyBag;

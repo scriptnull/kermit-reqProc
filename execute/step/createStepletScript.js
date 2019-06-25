@@ -148,11 +148,12 @@ function _concatStepEnvsToSetup(bag, next) {
   var who = bag.who + '|' + _concatStepEnvsToSetup.name;
   logger.verbose(who, 'Inside');
 
-  if (_.isEmpty(bag.stepData.step.setup))
-    bag.stepData.step.setup = {};
+  if (_.isEmpty(bag.stepData.step.configuration))
+    bag.stepData.step.configuration = {};
 
-  bag.stepData.step.setup.environmentVariables =
-    bag.stepEnvs.concat(bag.stepData.step.setup.environmentVariables || []);
+  bag.stepData.step.configuration.environmentVariables =
+    bag.stepEnvs.concat(
+      bag.stepData.step.configuration.environmentVariables || []);
 
   return next();
 }
