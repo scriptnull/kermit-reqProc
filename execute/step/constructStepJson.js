@@ -119,6 +119,10 @@ function _prepareStepJSON(bag, next) {
   var stepRuntime = '';
   var stepImageName =  '';
   var stepImageTag = '';
+
+  bag.stepConsoleAdapter.publishMsg('mylog bag.step = ' +
+    JSON.stringify(bag.step));
+
   if (bag.step.configPropertyBag && bag.step.configPropertyBag.runtime) {
     stepRuntime = bag.step.configPropertyBag.runtime.type;
     if (stepRuntime === 'image' && bag.step.configPropertyBag.runtime.image) {
